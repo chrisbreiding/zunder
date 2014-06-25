@@ -1,10 +1,10 @@
 # Zunder
 
-A front-end build tool that makes development apps with Ember, CoffeeScript, Browserify, and Stylus a breeze.
+A front-end build tool that makes developing apps with Ember, CoffeeScript, Browserify, and Stylus a breeze.
 
 Zunder provides gulp tasks to do the following:
 
-* watch your files for changes and re-build them
+* watch your files for changes and update them
 * compile your CoffeeScript and Stylus
 * run your scripts through browserify
 * compile your Handlebars templates to work with Ember
