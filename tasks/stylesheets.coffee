@@ -14,7 +14,7 @@ module.exports = (config)->
       gulp.src 'app/app.styl'
         .pipe plumber()
         .pipe stylus(errors: true).on('error', handleErrors)
-        .pipe gulp.dest('./_dev/')
+        .pipe gulp.dest(config.devDir)
     return
 
   gulp.task "#{config.prefix}build-stylesheets", ["#{config.prefix}clean"], ->
@@ -22,7 +22,7 @@ module.exports = (config)->
       .pipe stylus(errors: true).on('error', handleErrors)
       .pipe minify()
       .pipe rev()
-      .pipe gulp.dest('./_build/')
+      .pipe gulp.dest(config.prodDir)
       .pipe rev.manifest()
       .pipe rename('stylesheets-manifest.json')
-      .pipe gulp.dest('./_build/')
+      .pipe gulp.dest(config.prodDir)

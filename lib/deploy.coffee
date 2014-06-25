@@ -4,23 +4,23 @@ RSVP = require 'rsvp'
 exec = require './exec-promise'
 _ = require 'lodash'
 
-module.exports = ->
+module.exports = (dir)->
 
   execInBuild = (command)->
-    exec command, cwd: '_build'
+    exec command, cwd: dir
 
   log = (message)->
     prefix = '. '
     gutil.log gutil.colors.green "#{prefix}#{message}"
 
   initRepo = ->
-    if fs.existsSync '_build/.git'
+    if fs.existsSync "#{dir}/.git"
       return RSVP.resolve()
 
     exec('git config --get remote.origin.url').then (result)->
       url = result.stdout.replace(gutil.linefeed, '')
       execInBuild('git init').then ->
-        log 'create repo in _build'
+        log 'create repo'
         execInBuild "git remote add origin #{url}"
 
   checkoutBranch = ->

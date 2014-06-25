@@ -7,10 +7,10 @@ module.exports = (config)->
   gulp.task "#{config.prefix}dev-index", ->
     gulp.src 'app/index.hbs'
       .pipe build(['app.js'], ['app.css'])
-      .pipe gulp.dest('./_dev/')
+      .pipe gulp.dest(config.devDir)
 
-  scriptsManifest = '_build/scripts-manifest.json'
-  stylesheetsManifest = '_build/stylesheets-manifest.json'
+  scriptsManifest = "#{config.prodDir}/scripts-manifest.json"
+  stylesheetsManifest = "#{config.prodDir}/stylesheets-manifest.json"
 
   gulp.task "#{config.prefix}prod-index", ["#{config.prefix}build-scripts", "#{config.prefix}build-stylesheets"], ->
     scriptName = JSON.parse(fs.readFileSync(scriptsManifest))['app.js']
@@ -20,4 +20,4 @@ module.exports = (config)->
 
     gulp.src 'app/index.hbs'
       .pipe build([scriptName], [stylesheetName])
-      .pipe gulp.dest('./_build/')
+      .pipe gulp.dest(config.prodDir)

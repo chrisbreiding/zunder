@@ -14,12 +14,15 @@ uglifyify = require 'uglifyify'
 source = require 'vinyl-source-stream'
 handleErrors = require '../lib/handle-errors'
 
-bundle = (bundler)->
+bundle = (bundler, destination)->
   bundler
+    .transform(browserifyShim)
+    .transform(coffeeify)
+    .transform(emberHbsfy)
     .bundle()
     .on('error', handleErrors)
     .pipe source('app.js')
-    .pipe gulp.dest('./_dev/')
+    .pipe gulp.dest(destination)
 
 module.exports = (config)->
 
@@ -28,16 +31,12 @@ module.exports = (config)->
       entries: ['./app/router.coffee']
       extensions: ['.js', '.coffee', '.hbs']
 
-    bundler
-      .transform(browserifyShim)
-      .transform(coffeeify)
-      .transform(emberHbsfy)
-    bundle bundler
+    bundle bundler, config.devDir
 
     rebundle = (files)->
       for file in files
         gutil.log gutil.colors.cyan('rebundle'), file.replace process.cwd(), ''
-      bundle bundler
+      bundle bundler, config.devDir
 
     bundler.on 'update', rebundle
 
@@ -56,7 +55,7 @@ module.exports = (config)->
       .on('error', handleErrors)
       .pipe source('app.js')
       .pipe rev()
-      .pipe gulp.dest('./_build/')
+      .pipe gulp.dest(config.prodDir)
       .pipe rev.manifest()
       .pipe rename('scripts-manifest.json')
-      .pipe gulp.dest('./_build/')
+      .pipe gulp.dest(config.prodDir)
