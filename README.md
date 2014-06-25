@@ -14,14 +14,45 @@ Zunder provides gulp tasks to do the following:
 
 ## Installation & Use
 
-```
-npm install zunder --save-dev
-```
-
-Then in your gulpfile.coffee:
+Install Zunder and other necessary dependencies:
 
 ```
-require('zunder')()
+npm install zunder gulp handlebars jquery --save-dev
+```
+
+In your gulpfile:
+
+```
+require('zunder')();
+```
+
+Zunder tries to be agnostic about how you organize your files, but some structure and boilerplate files are necessary. Create the following:
+
+```
+app
+|- vendor
+|  |- ember.js
+|- app.coffee
+|- app.styl
+|- index.hbs
+|- router.coffee
+```
+
+To get browserify to work with Ember, add the following to your package.json:
+
+```
+"browser": {
+  "ember": "./app/vendor/ember.js"
+},
+"browserify-shim": {
+  "ember": {
+    "exports": "Ember",
+    "depends": [
+      "jquery:jQuery",
+      "handlebars:Handlebars"
+    ]
+  }
+}
 ```
 
 ## Tasks
@@ -68,15 +99,16 @@ Remove the development and production directories.
 
 ## Configuration
 
-Zunder can be configured like so in your gulpfile.coffee:
+Zunder can be configured like so in your gulpfile:
 
 ```
-require('zunder')
-  prefix: 'myapp-'
-  devDir: 'development'
-  prodDir: 'production'
-  devPort: 8080
+require('zunder')({
+  prefix: 'myapp-',
+  devDir: 'development',
+  prodDir: 'production',
+  devPort: 8080,
   prodPort: 8081
+});
 ```
 
 The following configuration options are available:
