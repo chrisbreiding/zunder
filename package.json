@@ -1,6 +1,6 @@
 {
   "name": "zunder",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A front-end build tool that makes developing apps with Ember, CoffeeScript, Browserify, and Stylus a breeze",
   "homepage": "https://github.com/chrisbreiding/zunder",
   "repository": "git://github.com/chrisbreiding/zunder.git",
@@ -13,7 +13,7 @@
     "stylus",
     "browserify"
   ],
-  "devDependencies": {
+  "dependencies": {
     "browserify": "~4.1.6",
     "browserify-shim": "~3.6.0",
     "coffee-script": "~1.7.1",
@@ -38,9 +38,7 @@
     "through2": "~0.5.1",
     "uglifyify": "~2.4.0",
     "vinyl-source-stream": "~0.1.1",
-    "watchify": "~0.10.2"
-  },
-  "dependencies": {
+    "watchify": "~0.10.2",
     "handlebars": "~1.1.2",
     "jquery": "~2.1.1"
   },

@@ -3,6 +3,6 @@ module.exports = (config = {})->
   config.devDir  ||= '_dev'
   config.prodDir ||= '_prod'
 
-  tasks = require('fs').readdirSync './tasks/'
+  tasks = require('fs').readdirSync "#{__dirname}/tasks/"
 
-  require("./tasks/#{task}")(config) for task in tasks
+  require("#{__dirname}/tasks/#{task}")(config) for task in tasks
