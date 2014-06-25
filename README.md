@@ -17,7 +17,7 @@ Zunder provides gulp tasks to do the following:
 Install Zunder and other necessary dependencies:
 
 ```
-npm install zunder gulp handlebars jquery --save-dev
+npm install zunder gulp handlebars@1.1.2 jquery --save-dev
 ```
 
 In your gulpfile:
