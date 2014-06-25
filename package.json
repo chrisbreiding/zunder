@@ -1,5 +1,5 @@
 {
-  "name": "Zunder",
+  "name": "zunder",
   "version": "0.0.1",
   "description": "A front-end build tool that makes developing apps with Ember, CoffeeScript, Browserify, and Stylus a breeze",
   "homepage": "https://github.com/chrisbreiding/zunder",
