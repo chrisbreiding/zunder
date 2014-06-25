@@ -18,11 +18,11 @@ module.exports = (config)->
     "#{config.prefix}prod-index"
   ]
 
-  gulp.task "#{config.prefix}dev", devDeps, -> server config.devDir
+  gulp.task "#{config.prefix}dev", devDeps, -> server config.devDir, config.devPort
 
   gulp.task "#{config.prefix}build", prodDeps
 
-  gulp.task "#{config.prefix}prod", ["#{config.prefix}build"], -> server config.prodDir
+  gulp.task "#{config.prefix}prod", ["#{config.prefix}build"], -> server config.prodDir, config.prodPort
 
   gulp.task "#{config.prefix}deploy", ["#{config.prefix}build"], -> deploy config.prodDir
 
