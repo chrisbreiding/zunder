@@ -1,0 +1,47 @@
+{
+  "name": "zunder",
+  "version": "0.0.1",
+  "devDependencies": {
+    "browserify": "~4.1.6",
+    "browserify-shim": "~3.6.0",
+    "coffee-script": "~1.7.1",
+    "coffeeify": "~0.6.0",
+    "connect": "~2.18.0",
+    "ember-precompile": "~0.2.4",
+    "event-stream": "~3.1.5",
+    "gulp": "~3.8.1",
+    "gulp-minify-css": "~0.3.5",
+    "gulp-notify": "~1.3.1",
+    "gulp-plumber": "~0.6.2",
+    "gulp-rename": "~1.2.0",
+    "gulp-rev": "~0.4.1",
+    "gulp-rimraf": "~0.1.0",
+    "gulp-stylus": "~1.0.2",
+    "gulp-util": "~2.2.14",
+    "gulp-watch": "~0.6.5",
+    "handlebars": "~1.1.2",
+    "lodash": "~2.4.1",
+    "portfinder": "~0.2.1",
+    "rsvp": "~3.0.9",
+    "through2": "~0.5.1",
+    "uglifyify": "~2.4.0",
+    "vinyl-source-stream": "~0.1.1",
+    "watchify": "~0.10.2"
+  },
+  "dependencies": {
+    "handlebars": "~1.1.2",
+    "jquery": "~2.1.1"
+  },
+  "browser": {
+    "ember": "./app/vendor/ember.js"
+  },
+  "browserify-shim": {
+    "ember": {
+      "exports": "Ember",
+      "depends": [
+        "jquery:jQuery",
+        "handlebars:Handlebars"
+      ]
+    }
+  }
+}
