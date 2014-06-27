@@ -16,7 +16,7 @@ Zunder provides gulp tasks to do the following:
 
 Install Zunder and other necessary dependencies:
 
-```
+```sh
 $ npm install gulp -g
 $ npm install zunder gulp handlebars@1.1.2 jquery --save-dev
 ```
@@ -41,7 +41,7 @@ app
 
 To get browserify to work with Ember, add the following to your package.json:
 
-```json
+```
 "browser": {
   "ember": "./app/vendor/ember.js"
 },
