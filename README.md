@@ -17,12 +17,13 @@ Zunder provides gulp tasks to do the following:
 Install Zunder and other necessary dependencies:
 
 ```
-npm install zunder gulp handlebars@1.1.2 jquery --save-dev
+$ npm install gulp -g
+$ npm install zunder gulp handlebars@1.1.2 jquery --save-dev
 ```
 
 In your gulpfile:
 
-```
+```javascript
 require('zunder')();
 ```
 
@@ -40,7 +41,7 @@ app
 
 To get browserify to work with Ember, add the following to your package.json:
 
-```
+```json
 "browser": {
   "ember": "./app/vendor/ember.js"
 },
@@ -57,8 +58,8 @@ To get browserify to work with Ember, add the following to your package.json:
 
 ## Tasks
 
-```
-gulp dev
+```sh
+$ gulp dev
 ```
 
 * watches CoffeeScript and Stylus files
@@ -68,8 +69,8 @@ gulp dev
 
 If you haven't configured a prefix for your tasks (see Configuration below), this becomes the default task, so you can just run `gulp`.
 
-```
-gulp prod
+```sh
+$ gulp prod
 ```
 
 * compiles CoffeeScript and Stylus files
@@ -79,20 +80,20 @@ gulp prod
 * builds app/index.hbs
 * serves the app on a port you've configured or one that's available (see Configuration below)
 
-```
-gulp build
+```sh
+$ gulp build
 ```
 
 Same as `gulp prod`, but it doesn't run a server
 
-```
-gulp deploy
+```sh
+$ gulp deploy
 ```
 
 Runs `gulp build`, creates a branch called gh-pages, and pushes the branch to the origin remote. Note: the branch will be force pushed, so any history for the gh-pages branch on the remote will be wiped out.
 
-```
-gulp clean
+```sh
+$ gulp clean
 ```
 
 Remove the development and production directories.
@@ -101,7 +102,7 @@ Remove the development and production directories.
 
 Zunder can be configured like so in your gulpfile:
 
-```
+```javascript
 require('zunder')({
   prefix: 'myapp-',
   devDir: 'development',
