@@ -6,3 +6,4 @@ module.exports = (config = {})->
   tasks = require('fs').readdirSync "#{__dirname}/tasks/"
 
   require("#{__dirname}/tasks/#{task}")(config) for task in tasks
+  return

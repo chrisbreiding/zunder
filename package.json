@@ -5,7 +5,7 @@
   "homepage": "https://github.com/chrisbreiding/zunder",
   "repository": "git://github.com/chrisbreiding/zunder.git",
   "author": "Chris Breiding (http://www.chrisbreiding.com/)",
-  "license" : "MIT",
+  "license": "MIT",
   "main": "dist/index.js",
   "keywords": [
     "ember",
@@ -14,7 +14,15 @@
     "browserify"
   ],
   "devDependencies": {
-    "coffee-script": "~1.7.1"
+    "chai": "~1.9.1",
+    "coffee-script": "~1.7.1",
+    "gulp": "~3.8.5",
+    "gulp-coffee": "~2.0.1",
+    "mocha": "~1.20.1",
+    "mock-fs": "~2.3.1",
+    "proxyquire": "~1.0.1",
+    "sinon": "~1.10.2",
+    "sinon-chai": "~2.5.0"
   },
   "dependencies": {
     "browserify": "~4.1.6",
@@ -35,6 +43,7 @@
     "gulp-watch": "~0.6.5",
     "handlebars": "~1.1.2",
     "lodash": "~2.4.1",
+    "mkdirp": "~0.5.0",
     "portfinder": "~0.2.1",
     "rsvp": "~3.0.9",
     "through2": "~0.5.1",
@@ -43,6 +52,7 @@
     "watchify": "~0.10.2"
   },
   "scripts": {
+    "test": "mocha --reporter tap --compilers coffee:coffee-script/register --require test/common",
     "prepublish": "coffee --compile --output dist ./src"
   }
 }

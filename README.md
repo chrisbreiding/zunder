@@ -12,6 +12,8 @@ Zunder provides gulp tasks to do the following:
 * build your assets for production with minification and cache-busting
 * deploy your app to github pages
 
+Zunder tries to be agnostic about the way you organize your app. This is made possible by Browserify and by the flexibility of Stylus globbing. The only required directory/file structure is fairly minimal and is described under the Manual Setup section below.
+
 ## Installation & Use
 
 Install Zunder and other necessary dependencies:
@@ -27,21 +29,32 @@ In your gulpfile:
 require('zunder')();
 ```
 
-Zunder tries to be agnostic about how you organize your files, but some structure and boilerplate files are necessary. Create the following:
+## Setup
+
+Zunder requires some setup to work. Luckily, this can be automatically by Zunder itself. Or, if you'd prefer, follow the instructions below for accomplishing it manually.
+
+### Automatic
+
+Run the `gulp zunder` task to set up the bits Zunder needs to work. Read more about what it does under the Tasks section below.
+
+### Manual
+
+Create the following directories and files at the root of your application:
 
 ```
-app
-|- vendor
-|  |- ember.js
-|- app.coffee
-|- app.styl
-|- index.hbs
-|- router.coffee
+.
+|- app
+|  |- vendor
+|  |  |- ember.js
+|  |- app.coffee
+|  |- app.styl
+|  |- index.hbs
+|  |- router.coffee
 ```
 
-To get browserify to work with Ember, add the following to your package.json:
+Add the following to your package.json:
 
-```
+```javascript
 "browser": {
   "ember": "./app/vendor/ember.js"
 },
@@ -97,6 +110,12 @@ $ gulp clean
 ```
 
 Remove the development and production directories.
+
+```sh
+$ gulp zunder
+```
+
+Creates the directories and files needs for Zunder to operate and adds entries to your package.json that allow Ember to work with Browserify. The details of the setup are listed under the Manual Setup section above. Note: this task will **not** override directories or files or any entries in your package.json that already exist.
 
 ## Configuration
 
