@@ -1,6 +1,6 @@
 {
   "name": "zunder",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "A front-end build tool that makes developing apps with Ember, CoffeeScript, Browserify, and Stylus a breeze",
   "homepage": "https://github.com/chrisbreiding/zunder",
   "repository": "git://github.com/chrisbreiding/zunder.git",
@@ -50,6 +50,6 @@
   },
   "scripts": {
     "test": "mocha --compilers coffee:coffee-script/register --require test/common --reporter spec",
-    "prepublish": "coffee --compile --output dist/lib ./src/lib; coffee --compile --output dist/tasks ./src/tasks; cp -R ./src/scaffold dist/scaffold/"
+    "prepublish": "coffee --compile --output dist/lib ./src/lib; coffee --compile --output dist/tasks ./src/tasks; cp -R ./src/scaffold dist/scaffold"
   }
 }
