@@ -47,8 +47,11 @@ module.exports = (config)->
             throw err if err
             fs.writeFile "app/#{file}", contents
 
-      writeStream = fs.createWriteStream 'app/vendor/ember.js'
-      getEmber = http.get 'http://builds.emberjs.com/tags//ember.js', (res)->
-        res.pipe writeStream
+      fs.exists 'app/vendor/ember.js', (exists)->
+        return if exists
 
-      getEmber.on 'error', (err)-> throw err
+        writeStream = fs.createWriteStream 'app/vendor/ember.js'
+        getEmber = http.get 'http://builds.emberjs.com/tags//ember.js', (res)->
+          res.pipe writeStream
+
+        getEmber.on 'error', (err)-> throw err

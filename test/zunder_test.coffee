@@ -7,6 +7,7 @@ mocks =
   fs:
     readFile: sinon.spy()
     writeFile: sinon.spy()
+    exists: sinon.spy()
     createWriteStream: sinon.stub()
   mkdirp: sinon.spy()
   http:
@@ -19,6 +20,7 @@ describe 'zunder task', ->
     mocks.gulp.task.reset()
     mocks.fs.readFile.reset()
     mocks.fs.writeFile.reset()
+    mocks.fs.exists.reset()
     mocks.fs.createWriteStream.reset()
     mocks.mkdirp.reset()
     mocks.http.get.reset()
@@ -109,6 +111,7 @@ describe 'zunder task', ->
       describe 'ember', ->
 
         beforeEach ->
+          mocks.fs.exists.lastCall.args[1] false
           mocks.fs.createWriteStream.returns 'write stream'
           @res = pipe: sinon.spy()
           mocks.http.get.lastCall.args[1] @res
