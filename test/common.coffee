@@ -1,4 +1,9 @@
 chai = require 'chai'
+sinon = require 'sinon'
+sinonChai = require 'sinon-chai'
+
 global.expect = chai.expect
-global.sinon = require 'sinon'
-chai.use require('sinon-chai')
+global.sinon = sinon
+
+chai.use sinonChai
+chai.Assertion.addProperty 'was', -> @

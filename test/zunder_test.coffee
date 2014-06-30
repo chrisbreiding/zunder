@@ -18,7 +18,7 @@ describe 'zunder task', ->
     zunder { prefix: '' }
 
   it 'sets up a task called zunder', ->
-    expect(mocks.gulp.task).to.have.been.calledWith 'zunder'
+    expect(mocks.gulp.task).was.calledWith 'zunder'
 
   describe 'updating package.json', ->
 
@@ -33,7 +33,7 @@ describe 'zunder task', ->
         @packageData = JSON.parse packageContents
 
       it 'overwrites the package.json', ->
-        expect(mocks.fs.writeFile).to.have.been.calledWith 'package.json'
+        expect(mocks.fs.writeFile).was.calledWith 'package.json'
 
       it 'adds a browser.ember property with a path to ember', ->
         expect(@packageData.browser.ember).to.equal './app/vendor/ember.js'
@@ -57,7 +57,7 @@ describe 'zunder task', ->
         @packageData = JSON.parse packageContents
 
       it 'overwrites the package.json', ->
-        expect(mocks.fs.writeFile).to.have.been.calledWith 'package.json'
+        expect(mocks.fs.writeFile).was.calledWith 'package.json'
 
       it 'leaves the browser properties alone', ->
         expect(@packageData.browser.ember).to.equal './ember'
