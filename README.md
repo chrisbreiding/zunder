@@ -115,7 +115,13 @@ Remove the development and production directories.
 $ gulp zunder
 ```
 
-Creates the directories and files needs for Zunder to operate and adds entries to your package.json that allow Ember to work with Browserify. The details of the setup are listed under the Manual Setup section above. Note: this task will **not** override directories or files or any entries in your package.json that already exist.
+Creates the directories and files needed for Zunder to operate. This includes downloading the latest version of Ember.
+
+Also adds entries to your package.json that allow Ember to work with Browserify.
+
+The details of the changes made are listed under the Manual Setup section above.
+
+*Note*: this task will **not** override directories or files or any entries in your package.json that already exist.
 
 ## Configuration
 
@@ -162,3 +168,39 @@ The port on which the development version of the app is served when you run `gul
 *default*: an available port in the 8000 range
 
 The port on which the production version of the app is served when you run `gulp prod`. By default, an available port in the 8000 range will be used.
+
+## Contributing
+
+Pull requests are welcome!
+
+```sh
+$ git clone https://github.com/chrisbreiding/zunder.git
+$ cd zunder
+$ npm install
+```
+
+### Running tests
+
+One-off:
+
+```sh
+$ npm test
+```
+
+Continuous testing while developing:
+
+```sh
+$ testem
+```
+
+## License
+
+The MIT License (MIT)
+
+Copyright (c) 2014 Chris Breiding
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
