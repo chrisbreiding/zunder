@@ -1,6 +1,7 @@
 gulp = require 'gulp'
 fs = require 'fs'
 mkdirp = require 'mkdirp'
+http = require 'http'
 
 module.exports = (config)->
 
@@ -43,4 +44,11 @@ module.exports = (config)->
           # which is the only case where we want to touch it
 
           fs.readFile "#{__dirname}/../scaffold/#{file}", { encoding: 'utf-8' }, (err, contents)->
+            throw err if err
             fs.writeFile "app/#{file}", contents
+
+      writeStream = fs.createWriteStream 'app/vendor/ember.js'
+      getEmber = http.get 'http://builds.emberjs.com/tags//ember.js', (res)->
+        res.pipe writeStream
+
+      getEmber.on 'error', (err)-> throw err

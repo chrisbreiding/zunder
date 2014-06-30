@@ -7,7 +7,10 @@ mocks =
   fs:
     readFile: sinon.spy()
     writeFile: sinon.spy()
+    createWriteStream: sinon.stub()
   mkdirp: sinon.spy()
+  http:
+    get: sinon.stub().returns on: ->
 zunder = proxyquire '../src/tasks/zunder', mocks
 
 describe 'zunder task', ->
@@ -16,7 +19,10 @@ describe 'zunder task', ->
     mocks.gulp.task.reset()
     mocks.fs.readFile.reset()
     mocks.fs.writeFile.reset()
+    mocks.fs.createWriteStream.reset()
     mocks.mkdirp.reset()
+    mocks.http.get.reset()
+
     zunder { prefix: '' }
     mocks.gulp.task.firstCall.args[1]()
 
@@ -99,3 +105,17 @@ describe 'zunder task', ->
                 actual = mocks.fs.writeFile.lastCall.args[1]
                 expect(actual).to.equal expected
                 done()
+
+      describe 'ember', ->
+
+        beforeEach ->
+          mocks.fs.createWriteStream.returns 'write stream'
+          @res = pipe: sinon.spy()
+          mocks.http.get.lastCall.args[1] @res
+
+        it 'downloads latest version of ember', ->
+          expect(mocks.http.get).was.calledWith 'http://builds.emberjs.com/tags//ember.js'
+
+        it 'streams the contents to file', ->
+          expect(mocks.fs.createWriteStream).was.calledWith 'app/vendor/ember.js'
+          expect(@res.pipe).was.calledWith 'write stream'
