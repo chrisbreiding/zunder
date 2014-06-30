@@ -116,8 +116,8 @@ describe 'zunder task', ->
           @res = pipe: sinon.spy()
           mocks.http.get.lastCall.args[1] @res
 
-        it 'downloads latest version of ember', ->
-          expect(mocks.http.get).was.calledWith 'http://builds.emberjs.com/tags//ember.js'
+        it 'downloads latest release of ember', ->
+          expect(mocks.http.get).was.calledWith 'http://builds.emberjs.com/release/ember.js'
 
         it 'streams the contents to file', ->
           expect(mocks.fs.createWriteStream).was.calledWith 'app/vendor/ember.js'

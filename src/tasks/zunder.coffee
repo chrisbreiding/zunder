@@ -51,7 +51,7 @@ module.exports = (config)->
         return if exists
 
         writeStream = fs.createWriteStream 'app/vendor/ember.js'
-        getEmber = http.get 'http://builds.emberjs.com/tags//ember.js', (res)->
+        getEmber = http.get 'http://builds.emberjs.com/release/ember.js', (res)->
           res.pipe writeStream
 
         getEmber.on 'error', (err)-> throw err
