@@ -1,5 +1,5 @@
 proxyquire = require 'proxyquire'
-mockFs = require 'mock-fs'
+fs = require 'fs'
 
 mocks =
   gulp:
@@ -7,6 +7,7 @@ mocks =
   fs:
     readFile: sinon.spy()
     writeFile: sinon.spy()
+  mkdirp: sinon.spy()
 zunder = proxyquire '../src/tasks/zunder', mocks
 
 describe 'zunder task', ->
@@ -15,15 +16,14 @@ describe 'zunder task', ->
     mocks.gulp.task.reset()
     mocks.fs.readFile.reset()
     mocks.fs.writeFile.reset()
+    mocks.mkdirp.reset()
     zunder { prefix: '' }
+    mocks.gulp.task.firstCall.args[1]()
 
   it 'sets up a task called zunder', ->
     expect(mocks.gulp.task).was.calledWith 'zunder'
 
   describe 'updating package.json', ->
-
-    beforeEach ->
-      mocks.gulp.task.firstCall.args[1]()
 
     describe 'when none of the zunder properties exist', ->
 
@@ -65,3 +65,37 @@ describe 'zunder task', ->
 
       it 'appends the missing ember dependency to browserify-shim property, and leaves others alone', ->
         expect(@packageData['browserify-shim'].ember.depends).to.eql ['jquery:jQuery', 'bar:Bar', 'handlebars:Handlebars']
+
+    describe 'scaffolding', ->
+
+      beforeEach ->
+        mocks.mkdirp.firstCall.args[1]()
+
+      it 'ensures app/vendor directories', ->
+        expect(mocks.mkdirp).was.calledWith 'app/vendor'
+
+      describe 'boilerplate', ->
+
+        scaffolds = [
+          'app.coffee'
+          'app.styl'
+          'index.hbs'
+          'router.coffee'
+        ]
+
+        scaffolds.forEach (file)->
+
+          describe file, ->
+
+            beforeEach ->
+              appCoffeeCallback = mocks.fs.readFile.withArgs("app/#{file}").lastCall.args[1]
+              appCoffeeCallback 'not found'
+
+            it 'creates the file with boilerplate content', (done)->
+              fs.readFile "src/scaffold/#{file}", { encoding: 'utf-8' }, (err, expected)->
+                return done err if err
+
+                mocks.fs.readFile.lastCall.args[2] null, expected
+                actual = mocks.fs.writeFile.lastCall.args[1]
+                expect(actual).to.equal expected
+                done()

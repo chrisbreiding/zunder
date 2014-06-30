@@ -1,13 +1,14 @@
 {
   "src_files": [
+    "src/scaffold/*",
     "src/**/*.coffee",
     "test/**/*.coffee"
   ],
   "serve_files": [
     "_testing/**/*.js"
   ],
-  "before_tests": "coffee --compile --output _testing/src ./src; coffee --compile --output _testing/test ./test",
-  "after_tests": "rm -rf _testing",
+  "before_tests": "coffee --compile --output _testing/src ./src; coffee --compile --output _testing/test ./test; cp -R ./src/scaffold _testing/src/",
+  "on_exit": "rm -rf _testing",
   "launch_in_dev": [
     "mocha"
   ],

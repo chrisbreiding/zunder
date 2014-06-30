@@ -19,7 +19,6 @@
     "gulp": "~3.8.5",
     "gulp-coffee": "~2.0.1",
     "mocha": "~1.20.1",
-    "mock-fs": "~2.3.1",
     "proxyquire": "~1.0.1",
     "sinon": "~1.10.2",
     "sinon-chai": "~2.5.0"
@@ -52,7 +51,7 @@
     "watchify": "~0.10.2"
   },
   "scripts": {
-    "test": "mocha --reporter tap --compilers coffee:coffee-script/register --require test/common",
+    "test": "mocha --compilers coffee:coffee-script/register --require test/common --reporter spec",
     "prepublish": "coffee --compile --output dist ./src"
   }
 }

@@ -5,21 +5,6 @@ mkdirp = require 'mkdirp'
 module.exports = (config)->
 
   gulp.task "#{config.prefix}zunder", ->
-  #   # create directories and files
-  #   mkdirp 'app/vendor', (err)->
-  #     throw err if err
-
-  #     fs.readFile 'app/app.coffee', (err)->
-  #       if err
-  #         console.log err
-
-# app
-# |- vendor
-# |  |- ember.js
-# |- app.coffee
-# |- app.styl
-# |- index.hbs
-# |- router.coffee
 
     fs.readFile 'package.json', (err, contents)->
       throw err if err
@@ -39,3 +24,23 @@ module.exports = (config)->
         data['browserify-shim'].ember.depends.push 'handlebars:Handlebars'
 
       fs.writeFile 'package.json', JSON.stringify(data, null, 2) + '\n'
+
+    scaffolds = [
+      'app.coffee'
+      'app.styl'
+      'index.hbs'
+      'router.coffee'
+    ]
+
+    mkdirp 'app/vendor', (err)->
+      throw err if err
+
+      scaffolds.forEach (file)->
+
+        fs.readFile "app/#{file}", (err)->
+          return unless err
+          # err indicates the file doesn't exist
+          # which is the only case where we want to touch it
+
+          fs.readFile "#{__dirname}/../scaffold/#{file}", { encoding: 'utf-8' }, (err, contents)->
+            fs.writeFile "app/#{file}", contents
