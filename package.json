@@ -1,6 +1,6 @@
 {
   "name": "zunder",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A front-end build tool that makes developing apps with Ember, CoffeeScript, Browserify, and Stylus a breeze",
   "homepage": "https://github.com/chrisbreiding/zunder",
   "repository": "git://github.com/chrisbreiding/zunder.git",
