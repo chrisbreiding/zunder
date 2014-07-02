@@ -16,9 +16,6 @@ handleErrors = require '../lib/handle-errors'
 
 bundle = (bundler, destination)->
   bundler
-    .transform(browserifyShim)
-    .transform(coffeeify)
-    .transform(emberHbsfy)
     .bundle()
     .on('error', handleErrors)
     .pipe source('app.js')
@@ -30,6 +27,11 @@ module.exports = (config)->
     bundler = watchify
       entries: ['./app/router.coffee']
       extensions: ['.js', '.coffee', '.hbs']
+
+    bundler
+      .transform(browserifyShim)
+      .transform(coffeeify)
+      .transform(emberHbsfy)
 
     bundle bundler, config.devDir
 
