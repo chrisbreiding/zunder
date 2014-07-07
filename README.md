@@ -14,32 +14,99 @@ Zunder provides gulp tasks to do the following:
 
 Zunder tries to be agnostic about the way you organize your app. This is made possible by Browserify and by the flexibility of Stylus globbing. The only required directory/file structure is fairly minimal and is described under the Manual Setup section below.
 
-## Installation & Use
+## Installation & Setup
 
-Install Zunder and other necessary dependencies:
+Install gulp globally. It's necessary for running the tasks.
 
 ```sh
 $ npm install gulp -g
-$ npm install zunder gulp handlebars@1.1.2 jquery --save-dev
 ```
 
-In your gulpfile:
+Install Zunder and gulp locally.
+
+```sh
+$ npm install zunder gulp --save-dev
+```
+
+Install jQuery and Handlebars, which are dependencies of Ember.
+
+```sh
+$ npm install jquery handlebars@1.1.2 --save
+```
+
+Create a gulpfile at the root of your project. As far as Zunder is concerned, it only needs to contain the following.
 
 ```javascript
-require('zunder')();
+require('zunder')()
 ```
 
-## Setup
+Run the setup task for Zunder. Read more about it under the Tasks section below.
 
-Zunder requires some setup to work. Luckily, this can be automatically by Zunder itself. Or, if you'd prefer, follow the instructions below for accomplishing it manually.
+```sh
+$ gulp zunder
+```
 
-### Automatic
+## Tasks
 
-Run the `gulp zunder` task to set up the bits Zunder needs to work. Read more about what it does under the Tasks section below.
+### dev
 
-### Manual
+```sh
+$ gulp dev
+```
 
-Create the following directories and files at the root of your application:
+* watches CoffeeScript and Stylus files
+* if you place static assets in a root directory named `static`, they will be copied to the root of the app
+* builds app/index.hbs
+* serves the app on a port you've configured or one that's available (see Configuration below)
+
+If you haven't configured a prefix for your tasks (see Configuration below), this becomes the default task, so you can just run `gulp`.
+
+### prod
+
+```sh
+$ gulp prod
+```
+
+* compiles CoffeeScript and Stylus files
+* minifies the generated JS and CSS
+* adds a cache-buster to the generated JS and CSS files based on their contents
+* if you place static assets in a root directory named `static`, they will be copied to the root of the app
+* builds app/index.hbs
+* serves the app on a port you've configured or one that's available (see Configuration below)
+
+### build
+
+```sh
+$ gulp build
+```
+
+Same as `gulp prod`, but it doesn't run a server
+
+### deploy
+
+```sh
+$ gulp deploy
+```
+
+Runs `gulp build`, creates a branch called gh-pages, and pushes the branch to the origin remote. Note: the branch will be force pushed, so any history for the gh-pages branch on the remote will be wiped out.
+
+### clean
+
+```sh
+$ gulp clean
+```
+
+Remove the development and production directories.
+
+### zunder
+
+```sh
+$ gulp zunder
+```
+
+Runs scaffolding necessary for Zunder to run.
+
+Creates the following directories and files needed for Zunder to operate. `ember.js` will be the latest release of Ember.
 
 ```
 .
@@ -52,7 +119,7 @@ Create the following directories and files at the root of your application:
 |  |- router.coffee
 ```
 
-Add the following to your package.json:
+Adds entries to your package.json that allow Ember to work with Browserify.
 
 ```javascript
 "browser": {
@@ -69,58 +136,6 @@ Add the following to your package.json:
 }
 ```
 
-## Tasks
-
-```sh
-$ gulp dev
-```
-
-* watches CoffeeScript and Stylus files
-* if you place static assets in a root directory named `static`, they will be copied to the root of the app
-* builds app/index.hbs
-* serves the app on a port you've configured or one that's available (see Configuration below)
-
-If you haven't configured a prefix for your tasks (see Configuration below), this becomes the default task, so you can just run `gulp`.
-
-```sh
-$ gulp prod
-```
-
-* compiles CoffeeScript and Stylus files
-* minifies the generated JS and CSS
-* adds a cache-buster to the generated JS and CSS files based on their contents
-* if you place static assets in a root directory named `static`, they will be copied to the root of the app
-* builds app/index.hbs
-* serves the app on a port you've configured or one that's available (see Configuration below)
-
-```sh
-$ gulp build
-```
-
-Same as `gulp prod`, but it doesn't run a server
-
-```sh
-$ gulp deploy
-```
-
-Runs `gulp build`, creates a branch called gh-pages, and pushes the branch to the origin remote. Note: the branch will be force pushed, so any history for the gh-pages branch on the remote will be wiped out.
-
-```sh
-$ gulp clean
-```
-
-Remove the development and production directories.
-
-```sh
-$ gulp zunder
-```
-
-Creates the directories and files needed for Zunder to operate. This includes downloading the latest version of Ember.
-
-Also adds entries to your package.json that allow Ember to work with Browserify.
-
-The details of the changes made are listed under the Manual Setup section above.
-
 *Note*: this task will **not** override directories or files or any entries in your package.json that already exist.
 
 ## Configuration
@@ -129,7 +144,7 @@ Zunder can be configured like so in your gulpfile:
 
 ```javascript
 require('zunder')({
-  prefix: 'myapp-',
+  prefix: 'z-',
   devDir: 'development',
   prodDir: 'production',
   devPort: 8080,
@@ -143,7 +158,7 @@ The following configuration options are available:
 
 *default*: '' (none)
 
-If you have gulp tasks that Zunder will collide with, specify a prefix for all Zunder tasks. If your prefix is 'myapp-', the `gulp dev` task will become `gulp myapp-dev`. The default tasks will no longer be `gulp dev`.
+If you have gulp tasks that Zunder will collide with, specify a prefix for all Zunder tasks. If your prefix is 'z-', the `gulp dev` task will become `gulp z-dev`. The default task will no longer be `gulp dev`.
 
 **devDir**
 
