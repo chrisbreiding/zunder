@@ -1,18 +1,18 @@
 # Zunder
 
-A front-end build tool that makes developing apps with Ember, CoffeeScript, Browserify, and Stylus a breeze.
+A front-end build tool that makes developing apps with Browserify, CoffeeScript, and Stylus a breeze. Includes niceties for creating Ember apps.
 
 Zunder provides gulp tasks to do the following:
 
 * watch your files for changes and update them
 * compile your CoffeeScript and Stylus
 * run your scripts through browserify
-* compile your Handlebars templates to work with Ember
+* compile your Handlebars templates to work with Ember (optional)
 * run a server to serve your assets
 * build your assets for production with minification and cache-busting
 * deploy your app to github pages
 
-Zunder tries to be agnostic about the way you organize your app. This is made possible by Browserify and by the flexibility of Stylus globbing. The only required directory/file structure is fairly minimal and is described under the Manual Setup section below.
+Zunder tries to be agnostic about the way you organize your app. This is made possible by Browserify and by the flexibility of Stylus globbing. The only required directory/file structure is fairly minimal and can be scaffolded (see `gulp zunder` task below).
 
 ## Installation & Setup
 
@@ -28,12 +28,6 @@ Install Zunder and gulp locally.
 $ npm install zunder gulp --save-dev
 ```
 
-Install jQuery and Handlebars, which are dependencies of Ember.
-
-```sh
-$ npm install jquery handlebars@1.1.2 --save
-```
-
 Create a gulpfile at the root of your project. As far as Zunder is concerned, it only needs to contain the following.
 
 ```javascript
@@ -46,6 +40,14 @@ Run the setup task for Zunder. Read more about it under the Tasks section below.
 $ gulp zunder
 ```
 
+Any CommonJS-friendly front-end dependencies can be installed with npm as well. For example, if creating an Ember app, run the following:
+
+```sh
+$ npm install jquery handlebars@1.1.2 --save
+```
+
+Ember itself is out of date on npm, so there's a scaffold task (detailed below under `gulp zunder`) that will download the lastest version of Ember and set up browserify-shim to get you up and running quickly.
+
 ## Tasks
 
 ### dev
@@ -56,7 +58,7 @@ $ gulp dev
 
 * watches CoffeeScript and Stylus files
 * if you place static assets in a root directory named `static`, they will be copied to the root of the app
-* builds app/index.hbs
+* builds src/index.hbs
 * serves the app on a port you've configured or one that's available (see Configuration below)
 
 If you haven't configured a prefix for your tasks (see Configuration below), this becomes the default task, so you can just run `gulp`.
@@ -71,7 +73,7 @@ $ gulp prod
 * minifies the generated JS and CSS
 * adds a cache-buster to the generated JS and CSS files based on their contents
 * if you place static assets in a root directory named `static`, they will be copied to the root of the app
-* builds app/index.hbs
+* builds src/index.hbs
 * serves the app on a port you've configured or one that's available (see Configuration below)
 
 ### build
@@ -106,20 +108,23 @@ $ gulp zunder
 
 Runs scaffolding necessary for Zunder to run.
 
-Creates the following directories and files needed for Zunder to operate. `ember.js` will be the latest release of Ember.
+Creates the following directories and files needed for Zunder to operate.
 
 ```
 .
-|- app
-|  |- vendor
-|  |  |- ember.js
-|  |- app.coffee
-|  |- app.styl
+|- src
 |  |- index.hbs
-|  |- router.coffee
+|  |- main.coffee
+|  |- main.styl
 ```
 
-Adds entries to your package.json that allow Ember to work with Browserify.
+#### Ember apps
+
+If you specify you're creating an Ember app (see `flavor` configuration option below), the following will also be done:
+
+The latest release will be downloaded and installed at `src/vendor/ember.js`.
+
+The following entries will be added to your package.json to allow Ember to work with Browserify.
 
 ```javascript
 "browser": {
@@ -136,7 +141,7 @@ Adds entries to your package.json that allow Ember to work with Browserify.
 }
 ```
 
-*Note*: this task will **not** override directories or files or any entries in your package.json that already exist.
+*Note*: `gulp zunder` will **not** override directories or files or any entries in your package.json that already exist. You can run it multiple times if necessary without worrying.
 
 ## Configuration
 
@@ -145,6 +150,8 @@ Zunder can be configured like so in your gulpfile:
 ```javascript
 require('zunder')({
   prefix: 'z-',
+  srcDir: 'app',
+  staticDir: 'assets',
   devDir: 'development',
   prodDir: 'production',
   devPort: 8080,
@@ -159,6 +166,18 @@ The following configuration options are available:
 *default*: '' (none)
 
 If you have gulp tasks that Zunder will collide with, specify a prefix for all Zunder tasks. If your prefix is 'z-', the `gulp dev` task will become `gulp z-dev`. The default task will no longer be `gulp dev`.
+
+**srcDir**
+
+*default*: 'src'
+
+The directory name for the source code of the app.
+
+**staticDir**
+
+*default*: 'static'
+
+The directory name from which static assets will be copied.
 
 **devDir**
 
@@ -184,6 +203,12 @@ The port on which the development version of the app is served when you run `gul
 
 The port on which the production version of the app is served when you run `gulp prod`. By default, an available port in the 8000 range will be used.
 
+**flavor**
+
+*default*: '' (none)
+
+If specified as 'ember', extra scaffolding and configuration is done when running `gulp zunder` (described above). Template (.hbs) files will be compiled to work with Ember.
+
 ## Contributing
 
 Pull requests are welcome!
@@ -205,6 +230,7 @@ $ npm test
 Continuous testing while developing:
 
 ```sh
+$ npm install -g testem mocha
 $ testem
 ```
 
