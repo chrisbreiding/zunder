@@ -33,7 +33,7 @@ module.exports = (config)->
       'index.hbs'
     ]
 
-    mkdirp "#{config.srcDir}/vendor", (err)->
+    mkdirp config.srcDir, (err)->
       throw err if err
 
       scaffolds.forEach (file)->
@@ -49,11 +49,14 @@ module.exports = (config)->
 
       return unless config.flavor is 'ember'
 
-      fs.exists "#{config.srcDir}/vendor/ember.js", (exists)->
-        return if exists
+      mkdirp "#{config.srcDir}/vendor", (err)->
+        throw err if err
 
-        writeStream = fs.createWriteStream "#{config.srcDir}/vendor/ember.js"
-        getEmber = http.get 'http://builds.emberjs.com/release/ember.js', (res)->
-          res.pipe writeStream
+        fs.exists "#{config.srcDir}/vendor/ember.js", (exists)->
+          return if exists
 
-        getEmber.on 'error', (err)-> throw err
+          writeStream = fs.createWriteStream "#{config.srcDir}/vendor/ember.js"
+          getEmber = http.get 'http://builds.emberjs.com/release/ember.js', (res)->
+            res.pipe writeStream
+
+          getEmber.on 'error', (err)-> throw err
