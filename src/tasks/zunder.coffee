@@ -5,29 +5,7 @@ http = require 'http'
 
 module.exports = (config)->
 
-  isEmber = config.flavor is 'ember'
-
   gulp.task "#{config.prefix}zunder", ->
-
-    if isEmber
-      fs.readFile 'package.json', (err, contents)->
-        throw err if err
-
-        data = JSON.parse contents
-
-        data.browser ||= {}
-        data.browser.ember ||= "./#{config.srcDir}/vendor/ember.js"
-
-        data['browserify-shim'] ||= {}
-        data['browserify-shim'].ember ||= {}
-        data['browserify-shim'].ember.exports ||= 'Ember'
-        data['browserify-shim'].ember.depends ||= []
-        unless data['browserify-shim'].ember.depends.indexOf('jquery:jQuery') >= 0
-          data['browserify-shim'].ember.depends.push 'jquery:jQuery'
-        unless data['browserify-shim'].ember.depends.indexOf('handlebars:Handlebars') >= 0
-          data['browserify-shim'].ember.depends.push 'handlebars:Handlebars'
-
-        fs.writeFile 'package.json', JSON.stringify(data, null, 2) + '\n'
 
     scaffolds = [
       'main.coffee'
@@ -40,7 +18,7 @@ module.exports = (config)->
 
       scaffolds.forEach (file)->
 
-        fs.readFile "app/#{file}", (err)->
+        fs.readFile "#{config.srcDir}/#{file}", (err)->
           return unless err
           # err indicates the file doesn't exist
           # which is the only case where we want to touch it
@@ -49,16 +27,35 @@ module.exports = (config)->
             throw err if err
             fs.writeFile "#{config.srcDir}/#{file}", contents
 
-      return unless isEmber
+    return unless config.flavor is 'ember'
 
-      mkdirp "#{config.srcDir}/vendor", (err)->
-        throw err if err
+    fs.readFile 'package.json', (err, contents)->
+      throw err if err
 
-        fs.exists "#{config.srcDir}/vendor/ember.js", (exists)->
-          return if exists
+      data = JSON.parse contents
 
-          writeStream = fs.createWriteStream "#{config.srcDir}/vendor/ember.js"
-          getEmber = http.get 'http://builds.emberjs.com/release/ember.js', (res)->
-            res.pipe writeStream
+      data.browser ||= {}
+      data.browser.ember ||= "./#{config.srcDir}/vendor/ember.js"
 
-          getEmber.on 'error', (err)-> throw err
+      data['browserify-shim'] ||= {}
+      data['browserify-shim'].ember ||= {}
+      data['browserify-shim'].ember.exports ||= 'Ember'
+      data['browserify-shim'].ember.depends ||= []
+      unless data['browserify-shim'].ember.depends.indexOf('jquery:jQuery') >= 0
+        data['browserify-shim'].ember.depends.push 'jquery:jQuery'
+      unless data['browserify-shim'].ember.depends.indexOf('handlebars:Handlebars') >= 0
+        data['browserify-shim'].ember.depends.push 'handlebars:Handlebars'
+
+      fs.writeFile 'package.json', JSON.stringify(data, null, 2) + '\n'
+
+    mkdirp "#{config.srcDir}/vendor", (err)->
+      throw err if err
+
+      fs.exists "#{config.srcDir}/vendor/ember.js", (exists)->
+        return if exists
+
+        writeStream = fs.createWriteStream "#{config.srcDir}/vendor/ember.js"
+        getEmber = http.get 'http://builds.emberjs.com/release/ember.js', (res)->
+          res.pipe writeStream
+
+        getEmber.on 'error', (err)-> throw err
