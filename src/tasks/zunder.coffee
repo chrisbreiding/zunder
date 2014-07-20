@@ -7,33 +7,33 @@ module.exports = (config)->
 
   gulp.task "#{config.prefix}zunder", ->
 
-    fs.readFile 'package.json', (err, contents)->
-      throw err if err
+    if config.flavor is 'ember'
+      fs.readFile 'package.json', (err, contents)->
+        throw err if err
 
-      data = JSON.parse contents
+        data = JSON.parse contents
 
-      data.browser ||= {}
-      data.browser.ember ||= './app/vendor/ember.js'
+        data.browser ||= {}
+        data.browser.ember ||= "./#{config.srcDir}/vendor/ember.js"
 
-      data['browserify-shim'] ||= {}
-      data['browserify-shim'].ember ||= {}
-      data['browserify-shim'].ember.exports ||= 'Ember'
-      data['browserify-shim'].ember.depends ||= []
-      unless data['browserify-shim'].ember.depends.indexOf('jquery:jQuery') >= 0
-        data['browserify-shim'].ember.depends.push 'jquery:jQuery'
-      unless data['browserify-shim'].ember.depends.indexOf('handlebars:Handlebars') >= 0
-        data['browserify-shim'].ember.depends.push 'handlebars:Handlebars'
+        data['browserify-shim'] ||= {}
+        data['browserify-shim'].ember ||= {}
+        data['browserify-shim'].ember.exports ||= 'Ember'
+        data['browserify-shim'].ember.depends ||= []
+        unless data['browserify-shim'].ember.depends.indexOf('jquery:jQuery') >= 0
+          data['browserify-shim'].ember.depends.push 'jquery:jQuery'
+        unless data['browserify-shim'].ember.depends.indexOf('handlebars:Handlebars') >= 0
+          data['browserify-shim'].ember.depends.push 'handlebars:Handlebars'
 
-      fs.writeFile 'package.json', JSON.stringify(data, null, 2) + '\n'
+        fs.writeFile 'package.json', JSON.stringify(data, null, 2) + '\n'
 
     scaffolds = [
-      'app.coffee'
-      'app.styl'
+      'main.coffee'
+      'main.styl'
       'index.hbs'
-      'router.coffee'
     ]
 
-    mkdirp 'app/vendor', (err)->
+    mkdirp "#{config.srcDir}/vendor", (err)->
       throw err if err
 
       scaffolds.forEach (file)->
@@ -45,12 +45,14 @@ module.exports = (config)->
 
           fs.readFile "#{__dirname}/../scaffold/#{file}", { encoding: 'utf-8' }, (err, contents)->
             throw err if err
-            fs.writeFile "app/#{file}", contents
+            fs.writeFile "#{config.srcDir}/#{file}", contents
 
-      fs.exists 'app/vendor/ember.js', (exists)->
+      return unless config.flavor is 'ember'
+
+      fs.exists "#{config.srcDir}/vendor/ember.js", (exists)->
         return if exists
 
-        writeStream = fs.createWriteStream 'app/vendor/ember.js'
+        writeStream = fs.createWriteStream "#{config.srcDir}/vendor/ember.js"
         getEmber = http.get 'http://builds.emberjs.com/release/ember.js', (res)->
           res.pipe writeStream
 

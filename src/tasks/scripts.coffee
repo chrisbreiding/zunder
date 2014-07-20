@@ -11,8 +11,12 @@ coffeeify = require 'coffeeify'
 emberHbsfy = require '../lib/ember-hbsfy'
 uglifyify = require 'uglifyify'
 
+through = require 'through2'
 source = require 'vinyl-source-stream'
 handleErrors = require '../lib/handle-errors'
+
+transformIf = (transform, condition)->
+  if condition then transform else through
 
 bundle = (bundler, destination)->
   bundler
@@ -23,15 +27,17 @@ bundle = (bundler, destination)->
 
 module.exports = (config)->
 
+  isEmber = config.flavor is 'ember'
+
   gulp.task "#{config.prefix}watch-scripts", ->
     bundler = watchify
-      entries: ['./app/router.coffee']
+      entries: ["./#{config.srcDir}/main.coffee"]
       extensions: ['.js', '.coffee', '.hbs']
 
     bundler
-      .transform(browserifyShim)
+      .transform(transformIf(browserifyShim, isEmber))
       .transform(coffeeify)
-      .transform(emberHbsfy)
+      .transform(transformIf(emberHbsfy, isEmber))
 
     bundle bundler, config.devDir
 
@@ -46,12 +52,12 @@ module.exports = (config)->
 
   gulp.task "#{config.prefix}build-scripts", ["#{config.prefix}clean"], ->
     browserify(
-      entries: ['./app/router.coffee']
+      entries: ["./#{config.srcDir}/main.coffee"]
       extensions: ['.js', '.coffee', '.hbs']
     )
-      .transform(browserifyShim)
+      .transform(transformIf(browserifyShim, isEmber))
       .transform(coffeeify)
-      .transform(emberHbsfy)
+      .transform(transformIf(emberHbsfy, isEmber))
       .transform({ global: true }, 'uglifyify')
       .bundle()
       .on('error', handleErrors)

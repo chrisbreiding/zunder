@@ -5,7 +5,7 @@ build = require '../lib/build-index'
 module.exports = (config)->
 
   gulp.task "#{config.prefix}dev-index", ->
-    gulp.src 'app/index.hbs'
+    gulp.src "#{config.srcDir}/index.hbs"
       .pipe build(['app.js'], ['app.css'])
       .pipe gulp.dest(config.devDir)
 
@@ -18,6 +18,6 @@ module.exports = (config)->
     fs.unlinkSync scriptsManifest
     fs.unlinkSync stylesheetsManifest
 
-    gulp.src 'app/index.hbs'
+    gulp.src "#{config.srcDir}/index.hbs"
       .pipe build([scriptName], [stylesheetName])
       .pipe gulp.dest(config.prodDir)

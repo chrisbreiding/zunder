@@ -10,15 +10,16 @@ handleErrors = require '../lib/handle-errors'
 module.exports = (config)->
 
   gulp.task "#{config.prefix}watch-stylesheets", ->
-    watch glob: 'app/**/*.styl', ->
-      gulp.src 'app/app.styl'
+    watch glob: "#{config.srcDir}/**/*.styl", ->
+      gulp.src "#{config.srcDir}/main.styl"
         .pipe plumber()
         .pipe stylus(errors: true).on('error', handleErrors)
+        .pipe rename('app.css')
         .pipe gulp.dest(config.devDir)
     return
 
   gulp.task "#{config.prefix}build-stylesheets", ["#{config.prefix}clean"], ->
-    gulp.src 'app/app.styl'
+    gulp.src "#{config.srcDir}/main.styl"
       .pipe stylus(errors: true).on('error', handleErrors)
       .pipe minify()
       .pipe rev()
