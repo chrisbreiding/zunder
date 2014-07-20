@@ -8,14 +8,14 @@ module.exports = (config)->
     "#{config.prefix}watch-scripts"
     "#{config.prefix}watch-stylesheets"
     "#{config.prefix}watch-static"
-    "#{config.prefix}dev-index"
+    "#{config.prefix}watch-html"
   ]
 
   prodDeps = [
     "#{config.prefix}build-scripts"
     "#{config.prefix}build-stylesheets"
     "#{config.prefix}copy-static"
-    "#{config.prefix}prod-index"
+    "#{config.prefix}build-html"
   ]
 
   gulp.task "#{config.prefix}dev", devDeps, -> server config.devDir, config.devPort
