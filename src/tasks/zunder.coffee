@@ -5,9 +5,11 @@ http = require 'http'
 
 module.exports = (config)->
 
+  isEmber = config.flavor is 'ember'
+
   gulp.task "#{config.prefix}zunder", ->
 
-    if config.flavor is 'ember'
+    if isEmber
       fs.readFile 'package.json', (err, contents)->
         throw err if err
 
@@ -47,7 +49,7 @@ module.exports = (config)->
             throw err if err
             fs.writeFile "#{config.srcDir}/#{file}", contents
 
-      return unless config.flavor is 'ember'
+      return unless isEmber
 
       mkdirp "#{config.srcDir}/vendor", (err)->
         throw err if err

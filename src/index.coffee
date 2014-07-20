@@ -4,6 +4,7 @@ module.exports = (config = {})->
   config.staticDir  ||= 'static'
   config.devDir     ||= '_dev'
   config.prodDir    ||= '_prod'
+  config.flavor     = (config.flavor || '').toLowerCase()
 
   tasks = require('fs').readdirSync "#{__dirname}/tasks/"
 
