@@ -1,4 +1,5 @@
 gulp  = require 'gulp'
+watch = require 'gulp-watch'
 fs = require 'fs'
 build = require '../lib/build-index'
 
@@ -8,6 +9,7 @@ module.exports = (config)->
     watch(glob: "#{config.srcDir}/index.hbs")
       .pipe build(['app.js'], ['app.css'])
       .pipe gulp.dest(config.devDir)
+    return
 
   scriptsManifest = "#{config.prodDir}/scripts-manifest.json"
   stylesheetsManifest = "#{config.prodDir}/stylesheets-manifest.json"
