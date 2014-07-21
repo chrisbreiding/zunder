@@ -22,6 +22,7 @@ module.exports = (config)->
     gulp.src "#{config.srcDir}/main.styl"
       .pipe stylus(errors: true).on('error', handleErrors)
       .pipe minify()
+      .pipe rename('app.css')
       .pipe rev()
       .pipe gulp.dest(config.prodDir)
       .pipe rev.manifest()
