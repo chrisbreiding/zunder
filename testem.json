@@ -7,14 +7,14 @@
   "serve_files": [
     "_testing/**/*.js"
   ],
-  "before_tests": "coffee --compile --output _testing/src ./src; coffee --compile --output _testing/test ./test; cp -R ./src/scaffold _testing/src/",
+  "before_tests": "./node_modules/.bin/coffee --compile --output _testing/src ./src; coffee --compile --output _testing/test ./test; cp -R ./src/scaffold _testing/src/",
   "on_exit": "rm -rf _testing",
   "launch_in_dev": [
     "mocha"
   ],
   "launchers": {
     "mocha": {
-      "command": "mocha --require _testing/test/common $(find _testing/test -name '*.js')"
+      "command": "./node_modules/.bin/mocha --require _testing/test/common $(find _testing/test -name '*.js')"
     }
   }
 }

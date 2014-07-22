@@ -230,7 +230,7 @@ $ npm test
 Continuous testing while developing:
 
 ```sh
-$ npm install -g testem mocha
+$ npm install -g testem
 $ testem
 ```
 
