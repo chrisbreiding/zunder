@@ -18,7 +18,7 @@ module.exports = (config)->
         .pipe gulp.dest(config.devDir)
     return
 
-  gulp.task "#{config.prefix}build-stylesheets", ["#{config.prefix}clean"], ->
+  gulp.task "#{config.prefix}build-stylesheets", ["#{config.prefix}clean-prod"], ->
     gulp.src "#{config.srcDir}/main.styl"
       .pipe stylus(errors: true).on('error', handleErrors)
       .pipe minify()

@@ -50,7 +50,7 @@ module.exports = (config)->
 
     rebundle
 
-  gulp.task "#{config.prefix}build-scripts", ["#{config.prefix}clean"], ->
+  gulp.task "#{config.prefix}build-scripts", ["#{config.prefix}clean-prod"], ->
     browserify(
       entries: ["./#{config.srcDir}/main.coffee"]
       extensions: ['.js', '.coffee', '.hbs']

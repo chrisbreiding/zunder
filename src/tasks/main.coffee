@@ -27,4 +27,3 @@ module.exports = (config)->
   gulp.task "#{config.prefix}deploy", ["#{config.prefix}build"], -> deploy config.prodDir
 
   gulp.task "#{config.prefix}default", ["#{config.prefix}dev"]
-

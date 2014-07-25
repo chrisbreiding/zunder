@@ -7,5 +7,5 @@ module.exports = (config)->
     watch(glob: "#{config.staticDir}/**/*").pipe(gulp.dest config.devDir)
     return
 
-  gulp.task "#{config.prefix}copy-static", ["#{config.prefix}clean"], ->
+  gulp.task "#{config.prefix}copy-static", ["#{config.prefix}clean-prod"], ->
     gulp.src("#{config.staticDir}/**/*").pipe(gulp.dest config.prodDir)
