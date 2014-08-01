@@ -17,14 +17,14 @@ handleErrors = require '../lib/handle-errors'
 transformIf = (transform, condition)->
   if condition then transform else through
 
-bundle = (bundler, destination)->
-  bundler
-    .bundle()
-    .on('error', handleErrors)
-    .pipe source('app.js')
-    .pipe gulp.dest(destination)
-
 module.exports = (gulp, config)->
+
+  bundle = (bundler, destination)->
+    bundler
+      .bundle()
+      .on('error', handleErrors)
+      .pipe source('app.js')
+      .pipe gulp.dest(destination)
 
   isEmber = config.flavor is 'ember'
 
