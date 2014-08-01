@@ -149,7 +149,8 @@ The following entries will be added to your package.json to allow Ember to work 
 Zunder can be configured like so in your gulpfile:
 
 ```javascript
-require('zunder')({
+var gulp = require('gulp');
+require('zunder')(gulp, {
   prefix: 'z-',
   srcDir: 'app',
   staticDir: 'assets',
