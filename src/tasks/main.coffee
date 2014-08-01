@@ -1,8 +1,7 @@
-gulp = require 'gulp'
 server = require '../lib/server'
 deploy = require '../lib/deploy'
 
-module.exports = (config)->
+module.exports = (gulp, config)->
 
   devDeps = [
     "#{config.prefix}watch-scripts"

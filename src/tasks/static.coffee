@@ -1,7 +1,6 @@
-gulp = require 'gulp'
 watch = require 'gulp-watch'
 
-module.exports = (config)->
+module.exports = (gulp, config)->
 
   gulp.task "#{config.prefix}watch-static", ->
     watch(glob: "#{config.staticDir}/**/*").pipe(gulp.dest config.devDir)

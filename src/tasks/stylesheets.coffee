@@ -1,4 +1,3 @@
-gulp = require 'gulp'
 watch = require 'gulp-watch'
 plumber = require 'gulp-plumber'
 stylus = require 'gulp-stylus'
@@ -7,7 +6,7 @@ rev = require 'gulp-rev'
 rename = require 'gulp-rename'
 handleErrors = require '../lib/handle-errors'
 
-module.exports = (config)->
+module.exports = (gulp, config)->
 
   gulp.task "#{config.prefix}watch-stylesheets", ->
     watch glob: "#{config.srcDir}/**/*.styl", ->

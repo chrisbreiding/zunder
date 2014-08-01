@@ -1,9 +1,8 @@
-gulp  = require 'gulp'
 watch = require 'gulp-watch'
 fs = require 'fs'
 build = require '../lib/build-index'
 
-module.exports = (config)->
+module.exports = (gulp, config)->
 
   gulp.task "#{config.prefix}watch-html", ->
     watch(glob: "#{config.srcDir}/index.hbs")

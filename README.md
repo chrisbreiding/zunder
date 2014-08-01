@@ -31,7 +31,8 @@ $ npm install zunder gulp --save-dev
 Create a gulpfile at the root of your project. As far as Zunder is concerned, it only needs to contain the following.
 
 ```javascript
-require('zunder')()
+var gulp = require('gulp');
+require('zunder')(gulp);
 ```
 
 Run the setup task for Zunder. Read more about it under the Tasks section below.

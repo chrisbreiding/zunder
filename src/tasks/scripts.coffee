@@ -1,4 +1,3 @@
-gulp = require 'gulp'
 gutil = require 'gulp-util'
 rev = require 'gulp-rev'
 rename = require 'gulp-rename'
@@ -25,7 +24,7 @@ bundle = (bundler, destination)->
     .pipe source('app.js')
     .pipe gulp.dest(destination)
 
-module.exports = (config)->
+module.exports = (gulp, config)->
 
   isEmber = config.flavor is 'ember'
 

@@ -1,7 +1,6 @@
-gulp = require 'gulp'
 rimraf = require 'gulp-rimraf'
 
-module.exports = (config)->
+module.exports = (gulp, config)->
 
   gulp.task "#{config.prefix}clean-dev", ->
     gulp.src(config.devDir, read: false).pipe rimraf()

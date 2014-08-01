@@ -1,9 +1,8 @@
-gulp = require 'gulp'
 fs = require 'fs'
 mkdirp = require 'mkdirp'
 http = require 'http'
 
-module.exports = (config)->
+module.exports = (gulp, config)->
 
   gulp.task "#{config.prefix}zunder", ->
 

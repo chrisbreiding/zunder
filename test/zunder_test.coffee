@@ -2,8 +2,6 @@ proxyquire = require 'proxyquire'
 fs = require 'fs'
 
 mocks =
-  gulp:
-    task: sinon.spy()
   fs:
     readFile: sinon.spy()
     writeFile: sinon.spy()
@@ -12,12 +10,14 @@ mocks =
   mkdirp: sinon.spy()
   http:
     get: sinon.stub().returns on: ->
+
 zunder = proxyquire '../src/tasks/zunder', mocks
 
 describe 'zunder task', ->
 
   beforeEach ->
-    mocks.gulp.task.reset()
+    @gulp = task: sinon.spy()
+
     mocks.fs.readFile.reset()
     mocks.fs.writeFile.reset()
     mocks.fs.exists.reset()
@@ -28,11 +28,11 @@ describe 'zunder task', ->
   describe 'any case / no flavor specified', ->
 
     beforeEach ->
-      zunder prefix: '', srcDir: 'src'
-      mocks.gulp.task.firstCall.args[1]()
+      zunder @gulp, prefix: '', srcDir: 'src'
+      @gulp.task.firstCall.args[1]()
 
     it 'sets up a task called zunder', ->
-      expect(mocks.gulp.task).was.calledWith 'zunder'
+      expect(@gulp.task).was.calledWith 'zunder'
 
     describe 'scaffolding', ->
 
@@ -68,8 +68,8 @@ describe 'zunder task', ->
   describe 'when an ember app', ->
 
     beforeEach ->
-      zunder prefix: '', srcDir: 'src', flavor: 'ember'
-      mocks.gulp.task.firstCall.args[1]()
+      zunder @gulp, prefix: '', srcDir: 'src', flavor: 'ember'
+      @gulp.task.firstCall.args[1]()
 
     describe 'updating package.json', ->
 
