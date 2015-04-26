@@ -25,36 +25,3 @@ module.exports = (gulp, config)->
           fs.readFile "#{__dirname}/../scaffold/#{file}", { encoding: 'utf-8' }, (err, contents)->
             throw err if err
             fs.writeFile "#{config.srcDir}/#{file}", contents
-
-    return unless config.flavor is 'ember'
-
-    fs.readFile 'package.json', (err, contents)->
-      throw err if err
-
-      data = JSON.parse contents
-
-      data.browser ||= {}
-      data.browser.ember ||= "./#{config.srcDir}/vendor/ember.js"
-
-      data['browserify-shim'] ||= {}
-      data['browserify-shim'].ember ||= {}
-      data['browserify-shim'].ember.exports ||= 'Ember'
-      data['browserify-shim'].ember.depends ||= []
-      unless data['browserify-shim'].ember.depends.indexOf('jquery:jQuery') >= 0
-        data['browserify-shim'].ember.depends.push 'jquery:jQuery'
-      unless data['browserify-shim'].ember.depends.indexOf('handlebars:Handlebars') >= 0
-        data['browserify-shim'].ember.depends.push 'handlebars:Handlebars'
-
-      fs.writeFile 'package.json', JSON.stringify(data, null, 2) + '\n'
-
-    mkdirp "#{config.srcDir}/vendor", (err)->
-      throw err if err
-
-      fs.exists "#{config.srcDir}/vendor/ember.js", (exists)->
-        return if exists
-
-        writeStream = fs.createWriteStream "#{config.srcDir}/vendor/ember.js"
-        getEmber = http.get 'http://builds.emberjs.com/release/ember.js', (res)->
-          res.pipe writeStream
-
-        getEmber.on 'error', (err)-> throw err

@@ -1,13 +1,12 @@
 # Zunder
 
-A front-end build tool that makes developing apps with Browserify, CoffeeScript, and Stylus a breeze. Includes niceties for creating Ember apps.
+A front-end build tool that makes developing apps with Browserify, CoffeeScript, and Stylus a breeze.
 
 Zunder provides gulp tasks to do the following:
 
 * watch your files for changes and update them
 * compile your CoffeeScript and Stylus
 * run your scripts through browserify
-* compile your Handlebars templates to work with Ember (optional)
 * run a server to serve your assets
 * build your assets for production with minification and cache-busting
 * deploy your app to github pages
@@ -40,14 +39,6 @@ Run the setup task for Zunder. Read more about it under the Tasks section below.
 ```sh
 $ gulp zunder
 ```
-
-Any CommonJS-friendly front-end dependencies can be installed with npm as well. For example, if creating an Ember app, run the following:
-
-```sh
-$ npm install jquery handlebars@1.1.2 --save
-```
-
-Ember itself is out of date on npm, so there's a scaffold task (detailed below under `gulp zunder`) that will download the lastest version of Ember and set up browserify-shim to get you up and running quickly.
 
 ## Tasks
 
@@ -119,29 +110,6 @@ Creates the following directories and files needed for Zunder to operate.
 |  |- main.styl
 ```
 
-#### Ember apps
-
-If you specify you're creating an Ember app (see `flavor` configuration option below), the following will also be done:
-
-The latest release will be downloaded and installed at `src/vendor/ember.js`.
-
-The following entries will be added to your package.json to allow Ember to work with Browserify.
-
-```javascript
-"browser": {
-  "ember": "./app/vendor/ember.js"
-},
-"browserify-shim": {
-  "ember": {
-    "exports": "Ember",
-    "depends": [
-      "jquery:jQuery",
-      "handlebars:Handlebars"
-    ]
-  }
-}
-```
-
 *Note*: `gulp zunder` will **not** override directories or files or any entries in your package.json that already exist. You can run it multiple times if necessary without worrying.
 
 ## Configuration
@@ -204,12 +172,6 @@ The port on which the development version of the app is served when you run `gul
 *default*: an available port in the 8000 range
 
 The port on which the production version of the app is served when you run `gulp prod`. By default, an available port in the 8000 range will be used.
-
-**flavor**
-
-*default*: '' (none)
-
-If specified as 'ember', extra scaffolding and configuration is done when running `gulp zunder` (described above). Template (.hbs) files will be compiled to work with Ember.
 
 ## Contributing
 

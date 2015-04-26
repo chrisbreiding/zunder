@@ -8,14 +8,16 @@ handleErrors = require '../lib/handle-errors'
 
 module.exports = (gulp, config)->
 
+  process = ->
+    gulp.src "#{config.srcDir}/main.styl"
+      .pipe plumber()
+      .pipe stylus(errors: true).on('error', handleErrors)
+      .pipe rename('app.css')
+      .pipe gulp.dest(config.devDir)
+
   gulp.task "#{config.prefix}watch-stylesheets", ->
-    watch glob: "#{config.srcDir}/**/*.styl", ->
-      gulp.src "#{config.srcDir}/main.styl"
-        .pipe plumber()
-        .pipe stylus(errors: true).on('error', handleErrors)
-        .pipe rename('app.css')
-        .pipe gulp.dest(config.devDir)
-    return
+    watch "#{config.srcDir}/**/*.styl", process
+    process()
 
   gulp.task "#{config.prefix}build-stylesheets", ["#{config.prefix}clean-prod"], ->
     gulp.src "#{config.srcDir}/main.styl"

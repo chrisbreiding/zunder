@@ -4,11 +4,14 @@ build = require '../lib/build-index'
 
 module.exports = (gulp, config)->
 
-  gulp.task "#{config.prefix}watch-html", ->
-    watch(glob: "#{config.srcDir}/index.hbs")
+  process = ->
+    gulp.src "#{config.srcDir}/index.hbs"
       .pipe build(['app.js'], ['app.css'])
       .pipe gulp.dest(config.devDir)
-    return
+
+  gulp.task "#{config.prefix}watch-html", ->
+    watch "#{config.srcDir}/index.hbs", process
+    process()
 
   scriptsManifest = "#{config.prodDir}/scripts-manifest.json"
   stylesheetsManifest = "#{config.prodDir}/stylesheets-manifest.json"

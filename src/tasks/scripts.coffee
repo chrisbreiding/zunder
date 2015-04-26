@@ -5,9 +5,7 @@ rename = require 'gulp-rename'
 watchify = require 'watchify'
 browserify = require 'browserify'
 
-browserifyShim = require 'browserify-shim'
 coffeeify = require 'coffeeify'
-emberHbsfy = require '../lib/ember-hbsfy'
 uglifyify = require 'uglifyify'
 
 through = require 'through2'
@@ -26,17 +24,16 @@ module.exports = (gulp, config)->
       .pipe source('app.js')
       .pipe gulp.dest(destination)
 
-  isEmber = config.flavor is 'ember'
-
   gulp.task "#{config.prefix}watch-scripts", ->
-    bundler = watchify
+    bundler = browserify
       entries: ["./#{config.srcDir}/main.coffee"]
       extensions: ['.js', '.coffee', '.hbs']
+      cache: {}
+      packageCache: {}
 
-    bundler
-      .transform(transformIf(browserifyShim, isEmber))
-      .transform(coffeeify)
-      .transform(transformIf(emberHbsfy, isEmber))
+    watcher = watchify bundler
+
+    bundler.transform(coffeeify)
 
     bundle bundler, config.devDir
 
@@ -45,7 +42,7 @@ module.exports = (gulp, config)->
         gutil.log gutil.colors.cyan('rebundle'), file.replace process.cwd(), ''
       bundle bundler, config.devDir
 
-    bundler.on 'update', rebundle
+    watcher.on 'update', rebundle
 
     rebundle
 
@@ -54,9 +51,7 @@ module.exports = (gulp, config)->
       entries: ["./#{config.srcDir}/main.coffee"]
       extensions: ['.js', '.coffee', '.hbs']
     )
-      .transform(transformIf(browserifyShim, isEmber))
       .transform(coffeeify)
-      .transform(transformIf(emberHbsfy, isEmber))
       .transform({ global: true }, 'uglifyify')
       .bundle()
       .on('error', handleErrors)
