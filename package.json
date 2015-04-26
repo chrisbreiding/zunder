@@ -12,10 +12,8 @@
     "stylus",
     "browserify"
   ],
-  "devDependencies": {
+  "dependencies": {
     "browserify": "^9.0.8",
-    "chai": "~1.9.1",
-    "coffee-script": "~1.7.1",
     "coffeeify": "^1.1.0",
     "del": "^1.1.1",
     "event-stream": "^3.3.0",
@@ -31,18 +29,21 @@
     "handlebars": "^3.0.2",
     "lodash": "^3.7.0",
     "mkdirp": "^0.5.0",
-    "mocha": "^2.2.4",
     "portfinder": "^0.4.0",
-    "proxyquire": "~1.0.1",
     "rsvp": "^3.0.18",
-    "sinon": "~1.10.2",
-    "sinon-chai": "~2.5.0",
     "through2": "^0.6.5",
     "uglifyify": "^3.0.1",
     "vinyl-source-stream": "^1.1.0",
     "watchify": "^3.1.2"
   },
-  "dependencies": {},
+  "devDependencies": {
+    "chai": "~1.9.1",
+    "coffee-script": "~1.7.1",
+    "mocha": "^2.2.4",
+    "proxyquire": "~1.0.1",
+    "sinon": "~1.10.2",
+    "sinon-chai": "~2.5.0"
+  },
   "peerDependencies": {
     "gulp": ">=3.7.0"
   },
