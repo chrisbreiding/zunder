@@ -6,10 +6,11 @@ watchify = require 'watchify'
 browserify = require 'browserify'
 
 coffeeify = require 'coffeeify'
-uglifyify = require 'uglifyify'
+uglify = require 'gulp-uglify'
 
 through = require 'through2'
 source = require 'vinyl-source-stream'
+buffer = require 'vinyl-buffer'
 handleErrors = require '../lib/handle-errors'
 
 transformIf = (transform, condition)->
@@ -52,10 +53,11 @@ module.exports = (gulp, config)->
       extensions: ['.js', '.coffee', '.hbs']
     )
       .transform(coffeeify)
-      .transform({ global: true }, 'uglifyify')
       .bundle()
-      .on('error', handleErrors)
       .pipe source('app.js')
+      .pipe buffer()
+      .pipe uglify()
+      .on('error', handleErrors)
       .pipe rev()
       .pipe gulp.dest(config.prodDir)
       .pipe rev.manifest()

@@ -1,6 +1,8 @@
+gutil = require 'gulp-util'
 notify = require 'gulp-notify'
 
-module.exports = ->
+module.exports = (e)->
+  gutil.log e
 
   notify.onError(
     title: 'Compile Error'

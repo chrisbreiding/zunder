@@ -24,6 +24,7 @@
     "gulp-rename": "^1.2.2",
     "gulp-rev": "^3.0.1",
     "gulp-stylus": "^2.0.1",
+    "gulp-uglify": "^1.2.0",
     "gulp-util": "^3.0.4",
     "gulp-watch": "^4.2.4",
     "handlebars": "^3.0.2",
@@ -32,7 +33,7 @@
     "portfinder": "^0.4.0",
     "rsvp": "^3.0.18",
     "through2": "^0.6.5",
-    "uglifyify": "^3.0.1",
+    "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
     "watchify": "^3.1.2"
   },
