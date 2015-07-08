@@ -1,21 +1,20 @@
 # Zunder
 
-A front-end build tool that makes developing apps with Browserify, CoffeeScript, and Stylus a breeze.
+An opinionated front-end build tool for developing apps with ES6/7 and Stylus.
 
 Zunder provides gulp tasks to do the following:
 
 * watch your files for changes and update them
-* compile your CoffeeScript and Stylus
-* run your scripts through browserify
+* compile your ES6/7 JavaScript and Stylus
 * run a server to serve your assets
 * build your assets for production with minification and cache-busting
 * deploy your app to github pages
 
-Zunder tries to be agnostic about the way you organize your app. This is made possible by Browserify and by the flexibility of Stylus globbing. The only required directory/file structure is fairly minimal and can be scaffolded (see `gulp zunder` task below).
+Zunder uses Webpack and babel, so you can use ES6 modules and all ES6/7 features supported by babel.
 
 ## Installation & Setup
 
-Install gulp globally. It's necessary for running the tasks.
+Install gulp globally.
 
 ```sh
 $ npm install gulp -g
@@ -42,28 +41,13 @@ $ gulp zunder
 
 ## Tasks
 
-### dev
+### watch
 
 ```sh
-$ gulp dev
+$ gulp watch
 ```
 
-* watches CoffeeScript and Stylus files
-* if you place static assets in a root directory named `static`, they will be copied to the root of the app
-* builds src/index.hbs
-* serves the app on a port you've configured or one that's available (see Configuration below)
-
-If you haven't configured a prefix for your tasks (see Configuration below), this becomes the default task, so you can just run `gulp`.
-
-### prod
-
-```sh
-$ gulp prod
-```
-
-* compiles CoffeeScript and Stylus files
-* minifies the generated JS and CSS
-* adds a cache-buster to the generated JS and CSS files based on their contents
+* watches JavaScript (ES6/7) and Stylus files
 * if you place static assets in a root directory named `static`, they will be copied to the root of the app
 * builds src/index.hbs
 * serves the app on a port you've configured or one that's available (see Configuration below)
@@ -74,7 +58,11 @@ $ gulp prod
 $ gulp build
 ```
 
-Same as `gulp prod`, but it doesn't run a server
+* compiles JavaScript (ES6/7) and Stylus files
+* minifies the generated JS and CSS
+* adds a cache-buster to the generated JS and CSS files based on their contents
+* if you place static assets in a root directory named `static`, they will be copied to the root of the app
+* builds src/index.hbs
 
 ### deploy
 
@@ -98,90 +86,30 @@ Remove the development and production directories.
 $ gulp zunder
 ```
 
-Runs scaffolding necessary for Zunder to run.
+Runs scaffolding to get you started. Adds boilerplate files, including Font Awesome.
 
-Creates the following directories and files needed for Zunder to operate.
+Creates the following directories and files:
 
 ```
 .
 |- src
 |  |- index.hbs
-|  |- main.coffee
+|  |- main.js
 |  |- main.styl
+|  |- routes.js
+|  |- app
+|  |  |- app.js
+|  |- lib
+|  |  |- base.styl
+|  |  |- variables.styl
+|  |- vendor
+|  |  |- fontawesome
+|  |  |  |- fontawesome source files ...
+|  |  |- fonts
+|  |  |  |- fontawesome fonts ...
 ```
 
-*Note*: `gulp zunder` will **not** override directories or files or any entries in your package.json that already exist. You can run it multiple times if necessary without worrying.
-
-## Configuration
-
-Zunder can be configured like so in your gulpfile:
-
-```javascript
-var gulp = require('gulp');
-require('zunder')(gulp, {
-  prefix: 'z-',
-  srcDir: 'app',
-  staticDir: 'assets',
-  devDir: 'development',
-  prodDir: 'production',
-  devPort: 8080,
-  prodPort: 8081
-});
-```
-
-The following configuration options are available:
-
-**prefix**
-
-*default*: '' (none)
-
-If you have gulp tasks that Zunder will collide with, specify a prefix for all Zunder tasks. If your prefix is 'z-', the `gulp dev` task will become `gulp z-dev`. The default task will no longer be `gulp dev`.
-
-**srcDir**
-
-*default*: 'src'
-
-The directory name for the source code of the app.
-
-**staticDir**
-
-*default*: 'static'
-
-The directory name from which static assets will be copied.
-
-**devDir**
-
-*default*: '_dev'
-
-The directory name for the development version of the app. The dev server serves the assets in this directory. It is recommended you add this directory to your .gitignore.
-
-**prodDir**
-
-*default*: '_prod'
-
-The directory name for the production version of the app. The `gulp prod` task serves the assets in this directory. The `gulp deploy` task deploys the assets in this directory. It is recommended you add this directory to your .gitignore.
-
-**devPort**
-
-*default*: an available port in the 8000 range
-
-The port on which the development version of the app is served when you run `gulp dev`. By default, an available port in the 8000 range will be used.
-
-**prodPort**
-
-*default*: an available port in the 8000 range
-
-The port on which the production version of the app is served when you run `gulp prod`. By default, an available port in the 8000 range will be used.
-
-## Contributing
-
-Pull requests are welcome!
-
-```sh
-$ git clone https://github.com/chrisbreiding/zunder.git
-$ cd zunder
-$ npm install
-```
+*Note*: `gulp zunder` will *not* override directories or files or any entries in your package.json that already exist. You can run it multiple times if necessary without worrying.
 
 ### Running tests
 
