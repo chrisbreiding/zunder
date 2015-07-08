@@ -1,5 +1,6 @@
 proxyquire = require 'proxyquire'
 fs = require 'fs'
+path = require 'path'
 
 mocks =
   fs:
@@ -7,9 +8,11 @@ mocks =
     writeFile: sinon.spy()
     exists: sinon.spy()
     createWriteStream: sinon.stub()
+    stat: sinon.spy()
   mkdirp: sinon.spy()
   http:
     get: sinon.stub().returns on: ->
+  ncp: sinon.spy()
 
 zunder = proxyquire '../src/tasks/zunder', mocks
 
@@ -39,19 +42,26 @@ describe 'zunder task', ->
     it 'ensures src directory', ->
       expect(mocks.mkdirp).was.calledWith 'src'
 
-    scaffolds = [
-      'main.coffee'
-      'main.styl'
+    scaffoldFiles = [
       'index.hbs'
+      'main.js'
+      'main.styl'
+      'routes.js'
+      'app/app.js'
+      'lib/base.styl'
+      'lib/variables.styl'
     ]
 
-    scaffolds.forEach (file)->
+    scaffoldFiles.forEach (file)->
 
       describe file, ->
 
         beforeEach ->
-          appCoffeeCallback = mocks.fs.readFile.withArgs("src/#{file}").lastCall.args[1]
-          appCoffeeCallback 'not found'
+          readFileCallback = mocks.fs.readFile.withArgs("src/#{file}").lastCall.args[1]
+          readFileCallback 'not found'
+
+        it 'exists in src', (done)->
+          fs.readFile "src/scaffold/#{file}", { encoding: 'utf-8' }, done
 
         it 'creates the file with boilerplate content', (done)->
           fs.readFile "src/scaffold/#{file}", { encoding: 'utf-8' }, (err, expected)->
@@ -61,3 +71,22 @@ describe 'zunder task', ->
             actual = mocks.fs.writeFile.lastCall.args[1]
             expect(actual).to.equal expected
             done()
+
+    scaffoldDirs = [
+      'vendor/fontawesome'
+      'vendor/fonts'
+    ]
+
+    scaffoldDirs.forEach (dir)->
+
+      describe dir, ->
+
+        beforeEach ->
+          readFileCallback = mocks.fs.stat.withArgs("src/#{dir}").lastCall.args[1]
+          readFileCallback 'not found'
+
+        it 'exists in src', (done)->
+          fs.stat "src/scaffold/#{dir}", done
+
+        it 'copies the directory', ->
+          expect(mocks.ncp).was.calledWith path.resolve("#{__dirname}/../src/scaffold/#{dir}"), "src/#{dir}"
