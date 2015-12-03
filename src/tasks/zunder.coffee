@@ -12,8 +12,8 @@ module.exports = (gulp, config)->
       'index.hbs'
       'main.js'
       'main.styl'
-      'routes.js'
-      'app/app.js'
+      'routes.jsx'
+      'app/app.jsx'
       'lib/base.styl'
       'lib/variables.styl'
     ]
