@@ -1,20 +1,12 @@
 {
   "name": "zunder",
   "version": "0.4.2",
-  "description": "A front-end build tool that makes developing apps with Browserify, CoffeeScript, and Stylus a breeze",
   "homepage": "https://github.com/chrisbreiding/zunder",
   "repository": "git://github.com/chrisbreiding/zunder.git",
   "author": "Chris Breiding (http://www.chrisbreiding.com/)",
   "license": "MIT",
   "main": "dist/index.js",
-  "keywords": [
-    "coffeescript",
-    "stylus",
-    "browserify"
-  ],
   "dependencies": {
-    "browserify": "^9.0.8",
-    "coffeeify": "^1.1.0",
     "del": "^1.1.1",
     "event-stream": "^3.3.0",
     "express": "^4.12.3",
@@ -27,16 +19,14 @@
     "gulp-uglify": "^1.2.0",
     "gulp-util": "^3.0.4",
     "gulp-watch": "^4.2.4",
-    "handlebars": "^3.0.2",
+    "gulp-webpack": "^1.5.0",
     "lodash": "^3.7.0",
     "mkdirp": "^0.5.0",
     "ncp": "^2.0.0",
     "portfinder": "^0.4.0",
     "rsvp": "^3.0.18",
     "through2": "^0.6.5",
-    "vinyl-buffer": "^1.0.0",
-    "vinyl-source-stream": "^1.1.0",
-    "watchify": "^3.1.2"
+    "webpack": "^1.12.9"
   },
   "devDependencies": {
     "chai": "~1.9.1",

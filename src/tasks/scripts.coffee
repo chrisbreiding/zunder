@@ -1,65 +1,19 @@
+fs = require 'fs'
+gulpWebpack = require 'gulp-webpack'
 gutil = require 'gulp-util'
-rev = require 'gulp-rev'
-rename = require 'gulp-rename'
-
-watchify = require 'watchify'
-browserify = require 'browserify'
-
-coffeeify = require 'coffeeify'
-uglify = require 'gulp-uglify'
-
-through = require 'through2'
-source = require 'vinyl-source-stream'
-buffer = require 'vinyl-buffer'
-handleErrors = require '../lib/handle-errors'
-
-transformIf = (transform, condition)->
-  if condition then transform else through
+watch = require 'gulp-watch'
+webpack = require 'webpack'
 
 module.exports = (gulp, config)->
 
-  bundle = (bundler, destination)->
-    bundler
-      .bundle()
-      .on('error', handleErrors)
-      .pipe source('app.js')
-      .pipe gulp.dest(destination)
+  gulp.task "#{config.prefix}scripts", ->
+    gulp.src config.webpackConfig.entry
+      .pipe gulpWebpack(config.webpackConfig, webpack)
+      .pipe gulp.dest('dist/')
 
-  gulp.task "#{config.prefix}watch-scripts", ->
-    bundler = browserify
-      entries: ["./#{config.srcDir}/main.coffee"]
-      extensions: ['.js', '.coffee', '.hbs']
-      cache: {}
-      packageCache: {}
-
-    watcher = watchify bundler
-
-    bundler.transform(coffeeify)
-
-    bundle bundler, config.devDir
-
-    rebundle = (files)->
-      for file in files
-        gutil.log gutil.colors.cyan('rebundle'), file.replace process.cwd(), ''
-      bundle bundler, config.devDir
-
-    watcher.on 'update', rebundle
-
-    rebundle
-
-  gulp.task "#{config.prefix}build-scripts", ["#{config.prefix}clean-prod"], ->
-    browserify(
-      entries: ["./#{config.srcDir}/main.coffee"]
-      extensions: ['.js', '.coffee', '.hbs']
-    )
-      .transform(coffeeify)
-      .bundle()
-      .pipe source('app.js')
-      .pipe buffer()
-      .pipe uglify()
-      .on('error', handleErrors)
-      .pipe rev()
-      .pipe gulp.dest(config.prodDir)
-      .pipe rev.manifest()
-      .pipe rename('scripts-manifest.json')
-      .pipe gulp.dest(config.prodDir)
+  gulp.task "#{config.prefix}watch-scripts", ["#{config.prefix}scripts"], ->
+    watch ['src/**/*.js', 'src/**/*.jsx'], (file)->
+      gutil.log "#{file.path} was changed"
+      gulp.src config.webpackConfig.entry
+        .pipe gulpWebpack(config.webpackConfig, webpack)
+        .pipe gulp.dest('dist/')

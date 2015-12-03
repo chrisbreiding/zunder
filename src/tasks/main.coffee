@@ -1,25 +1,21 @@
-server = require '../lib/server'
 deploy = require '../lib/deploy'
 
 module.exports = (gulp, config)->
 
-  devDeps = [
+  gulp.task "#{config.prefix}watch", [
     "#{config.prefix}watch-scripts"
     "#{config.prefix}watch-stylesheets"
     "#{config.prefix}watch-static"
     "#{config.prefix}watch-html"
+    "#{config.prefix}dev-server"
   ]
 
-  prodDeps = [
+  gulp.task "#{config.prefix}build", [
     "#{config.prefix}build-scripts"
     "#{config.prefix}build-stylesheets"
     "#{config.prefix}copy-static"
     "#{config.prefix}build-html"
   ]
-
-  gulp.task "#{config.prefix}dev", devDeps, -> server config.devDir, config.devPort
-
-  gulp.task "#{config.prefix}build", prodDeps
 
   gulp.task "#{config.prefix}prod", ["#{config.prefix}build"], -> server config.prodDir, config.prodPort
 

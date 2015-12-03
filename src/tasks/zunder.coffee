@@ -4,23 +4,27 @@ http = require 'http'
 ncp = require 'ncp'
 path = require 'path'
 
+
 module.exports = (gulp, config)->
+
+  src = (path)-> "#{config.srcDir}/#{path}"
 
   gulp.task "#{config.prefix}zunder", ->
 
     scaffoldFiles = [
-      'index.hbs'
-      'main.js'
-      'main.styl'
-      'routes.jsx'
-      'app/app.jsx'
-      'lib/base.styl'
-      'lib/variables.styl'
+      'webpack.config.js'
+      src 'index.hbs'
+      src 'main.js'
+      src 'main.styl'
+      src 'routes.jsx'
+      src 'app/app.jsx'
+      src 'lib/base.styl'
+      src 'lib/variables.styl'
     ]
 
     scaffoldDirs = [
-      'vendor/fontawesome'
-      'vendor/fonts'
+      src 'vendor/fontawesome'
+      src 'vendor/fonts'
     ]
 
     mkdirp config.srcDir, (err)->
@@ -28,20 +32,20 @@ module.exports = (gulp, config)->
 
       scaffoldFiles.forEach (file)->
 
-        fs.readFile "#{config.srcDir}/#{file}", (err)->
+        fs.readFile file, (err)->
           return unless err
           # err indicates the file doesn't exist
           # which is the only case where we want to touch it
 
           fs.readFile "#{__dirname}/../scaffold/#{file}", { encoding: 'utf-8' }, (err, contents)->
             throw err if err
-            fs.writeFile "#{config.srcDir}/#{file}", contents
+            fs.writeFile file, contents
 
       scaffoldDirs.forEach (dir)->
 
-        fs.stat "#{config.srcDir}/#{dir}", (err, stats)->
+        fs.stat dir, (err, stats)->
           return unless err
           # err indicates the dir doesn't exist
           # which is the only case where we want to touch it
 
-          ncp path.resolve("#{__dirname}/../scaffold/#{dir}"), "#{config.srcDir}/#{dir}"
+          ncp path.resolve("#{__dirname}/../scaffold/#{dir}"), dir
