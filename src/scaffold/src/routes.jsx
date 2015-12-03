@@ -1,10 +1,15 @@
-import React from 'react';
-import { Router, Route } from 'react-router';
+import React, { createClass } from 'react';
+import { Router, Route, Redirect } from 'react-router';
 
 import App from './app/app';
 
+const Root = createClass({ render () { return this.props.children; } });
+
 export default (
   <Router>
-    <Route path="/" component={App} />
+    <Redirect from="/" to="/app" />
+    <Route path="/" component={Root}>
+      <Route path="/app" component={App} />
+    </Route>
   </Router>
 );
