@@ -10,8 +10,8 @@ module.exports = (gulp, config)->
 
   process = ->
     gulp.src "#{config.srcDir}/main.styl"
-      .pipe plumber()
-      .pipe stylus(errors: true).on('error', handleErrors)
+      .pipe plumber(handleErrors)
+      .pipe stylus()
       .pipe rename('app.css')
       .pipe gulp.dest(config.devDir)
 
@@ -21,7 +21,8 @@ module.exports = (gulp, config)->
 
   gulp.task "#{config.prefix}build-stylesheets", ["#{config.prefix}clean-prod"], ->
     gulp.src "#{config.srcDir}/main.styl"
-      .pipe stylus(errors: true).on('error', handleErrors)
+      .pipe plumber(handleErrors)
+      .pipe stylus()
       .pipe minify()
       .pipe rename('app.css')
       .pipe rev()
