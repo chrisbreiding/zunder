@@ -1,3 +1,4 @@
+autoprefixer = require 'gulp-autoprefixer'
 gutil = require 'gulp-util'
 watch = require 'gulp-watch'
 plumber = require 'gulp-plumber'
@@ -15,6 +16,9 @@ module.exports = (gulp, config)->
     gulp.src "#{config.srcDir}/main.styl"
       .pipe plumber(handleErrors)
       .pipe stylus()
+      .pipe autoprefixer
+        browsers: ['last 2 versions']
+        cascade: false
       .pipe rename('app.css')
       .pipe gulp.dest(config.devDir)
       .on 'end', ->
@@ -28,6 +32,9 @@ module.exports = (gulp, config)->
     gulp.src "#{config.srcDir}/main.styl"
       .pipe plumber(handleErrors)
       .pipe stylus()
+      .pipe autoprefixer
+        browsers: ['last 2 versions']
+        cascade: false
       .pipe minify()
       .pipe rename('app.css')
       .pipe rev()
