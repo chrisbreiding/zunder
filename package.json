@@ -13,6 +13,7 @@
     "express": "^4.12.3",
     "glob": "^6.0.1",
     "gulp-minify-css": "^1.1.0",
+    "gulp-nodemon": "^2.0.4",
     "gulp-notify": "^2.2.0",
     "gulp-plumber": "^1.0.0",
     "gulp-rename": "^1.2.2",
@@ -29,7 +30,8 @@
     "portfinder": "^0.4.0",
     "rsvp": "^3.0.18",
     "through2": "^0.6.5",
-    "webpack": "^1.12.9"
+    "webpack": "^1.12.9",
+    "yargs": "^3.31.0"
   },
   "devDependencies": {
     "chai": "~1.9.1",

@@ -6,10 +6,10 @@ portfinder = require 'portfinder'
 globSync = require('glob').sync
 gutil = require 'gulp-util'
 
-mocks = globSync('./server/mocks/**/*.js').map (file) ->
-  require "#{process.cwd()}#{file.replace(/^./, '')}"
-
 runServer = (dir, port)->
+  mocks = globSync('./server/mocks/**/*.js').map (file) ->
+    require "#{process.cwd()}#{file.replace(/^./, '')}"
+
   app = express()
   app.use express.static(dir)
 

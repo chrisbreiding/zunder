@@ -1,6 +1,12 @@
-server = require '../lib/server'
+nodemon = require 'gulp-nodemon'
 
 module.exports = (gulp, config)->
 
   gulp.task "#{config.prefix}dev-server", ->
-    server config.devDir, config.devPort
+    args = ["--devDir=#{config.devDir}"]
+    args.push "--devPort=#{config.devPort}" if config.devPort?
+
+    nodemon
+      script: "#{__dirname}/../lib/run-dev-server.js"
+      watch: ["#{process.cwd()}/server"]
+      args: args
