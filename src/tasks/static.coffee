@@ -1,8 +1,10 @@
 watch = require 'gulp-watch'
+notifyChanged = require '../lib/notify-changed'
 
 module.exports = (gulp, config)->
 
-  process = ->
+  process = (file)->
+    notifyChanged file if file
     gulp.src "#{config.staticDir}/**/*"
       .pipe(gulp.dest config.devDir)
 

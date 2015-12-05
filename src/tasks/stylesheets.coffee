@@ -1,3 +1,4 @@
+gutil = require 'gulp-util'
 watch = require 'gulp-watch'
 plumber = require 'gulp-plumber'
 stylus = require 'gulp-stylus'
@@ -5,15 +6,19 @@ minify = require 'gulp-minify-css'
 rev = require 'gulp-rev'
 rename = require 'gulp-rename'
 handleErrors = require '../lib/handle-errors'
+notifyChanged = require '../lib/notify-changed'
 
 module.exports = (gulp, config)->
 
-  process = ->
+  process = (file)->
+    notifyChanged file if file
     gulp.src "#{config.srcDir}/main.styl"
       .pipe plumber(handleErrors)
       .pipe stylus()
       .pipe rename('app.css')
       .pipe gulp.dest(config.devDir)
+      .on 'end', ->
+        gutil.log gutil.colors.green 'Stylesheets re-compiled'
 
   gulp.task "#{config.prefix}watch-stylesheets", ->
     watch "#{config.srcDir}/**/*.styl", process
