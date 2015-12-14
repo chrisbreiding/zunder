@@ -28,7 +28,7 @@ module.exports = (gulp, config)->
     watch "#{config.srcDir}/**/*.styl", process
     process()
 
-  gulp.task "#{config.prefix}build-stylesheets", ["#{config.prefix}clean-prod"], ->
+  gulp.task "#{config.prefix}stylesheets-prod", ["#{config.prefix}clean-prod"], ->
     gulp.src "#{config.srcDir}/main.styl"
       .pipe plumber(handleErrors)
       .pipe stylus()

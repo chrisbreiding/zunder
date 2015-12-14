@@ -16,7 +16,7 @@ module.exports = (gulp, config)->
   scriptsManifest = "#{config.prodDir}/scripts-manifest.json"
   stylesheetsManifest = "#{config.prodDir}/stylesheets-manifest.json"
 
-  gulp.task "#{config.prefix}build-html", ["#{config.prefix}build-scripts", "#{config.prefix}build-stylesheets"], ->
+  gulp.task "#{config.prefix}html-prod", ["#{config.prefix}scripts-prod", "#{config.prefix}stylesheets-prod"], ->
     scriptName = JSON.parse(fs.readFileSync(scriptsManifest))['app.js']
     stylesheetName = JSON.parse(fs.readFileSync(stylesheetsManifest))['app.css']
     fs.unlinkSync scriptsManifest

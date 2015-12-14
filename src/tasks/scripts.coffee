@@ -1,6 +1,9 @@
 fs = require 'fs'
 gulpWebpack = require 'gulp-webpack'
 gutil = require 'gulp-util'
+rev = require 'gulp-rev'
+rename = require 'gulp-rename'
+uglify = require 'gulp-uglify'
 watch = require 'gulp-watch'
 webpack = require 'webpack'
 notifyChanged = require '../lib/notify-changed'
@@ -10,11 +13,21 @@ module.exports = (gulp, config)->
   gulp.task "#{config.prefix}scripts", ->
     gulp.src config.webpackConfig.entry
       .pipe gulpWebpack(config.webpackConfig, webpack)
-      .pipe gulp.dest('dist/')
+      .pipe gulp.dest(config.devDir)
 
   gulp.task "#{config.prefix}watch-scripts", ["#{config.prefix}scripts"], ->
     watch ['src/**/*.js', 'src/**/*.jsx'], (file)->
       notifyChanged file
       gulp.src config.webpackConfig.entry
         .pipe gulpWebpack(config.webpackConfig, webpack)
-        .pipe gulp.dest('dist/')
+        .pipe gulp.dest(config.devDir)
+
+  gulp.task "#{config.prefix}scripts-prod", ->
+    gulp.src config.webpackConfig.entry
+      .pipe gulpWebpack(config.webpackConfig, webpack)
+      .pipe uglify()
+      .pipe rev()
+      .pipe gulp.dest(config.prodDir)
+      .pipe rev.manifest()
+      .pipe rename('scripts-manifest.json')
+      .pipe gulp.dest(config.prodDir)
