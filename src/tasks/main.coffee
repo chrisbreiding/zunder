@@ -18,6 +18,8 @@ module.exports = (gulp, config)->
     "#{config.prefix}html-prod"
   ]
 
+  gulp.task "#{config.prefix}apply-prod-environment", -> process.env.NODE_ENV = 'production'
+
   gulp.task "#{config.prefix}prod", ["#{config.prefix}build-prod"], -> server config.prodDir, config.prodPort
 
   gulp.task "#{config.prefix}deploy", ["#{config.prefix}build-prod"], -> deploy config.prodDir
