@@ -15,7 +15,7 @@ module.exports = (gulp, config)->
     notifyChanged file if file
     gulp.src "#{config.srcDir}/main.styl"
       .pipe plumber(handleErrors)
-      .pipe stylus()
+      .pipe stylus(linenos: true)
       .pipe autoprefixer
         browsers: ['last 2 versions']
         cascade: false
