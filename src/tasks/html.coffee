@@ -1,10 +1,12 @@
 watch = require 'gulp-watch'
 fs = require 'fs'
 build = require '../lib/build-index'
+notifyChanged = require '../lib/notify-changed'
 
 module.exports = (gulp, config)->
 
-  process = ->
+  process = (file)->
+    notifyChanged file if file
     gulp.src "#{config.srcDir}/index.hbs"
       .pipe build(['app.js'], ['app.css'])
       .pipe gulp.dest(config.devDir)
