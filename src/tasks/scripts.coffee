@@ -8,6 +8,9 @@ source = require 'vinyl-source-stream'
 uglify = require 'gulp-uglify'
 watchify = require 'watchify'
 
+babelPresetEs2015 = require 'babel-preset-es2015'
+babelPresetReact = require 'babel-preset-react'
+
 handleErrors = require '../lib/handle-errors'
 notifyChanged = require '../lib/notify-changed'
 
@@ -32,7 +35,7 @@ module.exports = (gulp, config)->
 
     watcher = watchify bundler
 
-    bundler.transform babelify, presets: ["es2015", "react"]
+    bundler.transform babelify, presets: [babelPresetEs2015, babelPresetReact]
 
     bundle bundler, config.devDir
 
