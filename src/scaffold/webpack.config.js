@@ -3,7 +3,7 @@ const path = require('path');
 const APP_PATH = path.resolve(__dirname, 'src');
 
 module.exports = {
-  entry: `${APP_PATH}/main.js`,
+  entry: `${APP_PATH}/main.jsx`,
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'app.js'
@@ -13,7 +13,14 @@ module.exports = {
   },
   module: {
     loaders: [
-      { test: /\.jsx?$/, loaders: ['babel'], include: APP_PATH }
+      {
+        loader: 'babel',
+        test: /\.jsx?$/,
+        include: APP_PATH,
+        query: {
+          presets: ['react', 'es2015']
+        }
+      }
     ]
   }
 };

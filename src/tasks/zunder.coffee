@@ -1,3 +1,4 @@
+_ = require 'lodash'
 fs = require 'fs'
 mkdirp = require 'mkdirp'
 http = require 'http'
@@ -12,11 +13,11 @@ module.exports = (gulp, config)->
   gulp.task "#{config.prefix}zunder", ->
 
     scaffoldFiles = [
+      '.eslintrc'
       'webpack.config.js'
       src 'index.hbs'
-      src 'main.js'
+      src 'main.jsx'
       src 'main.styl'
-      src 'routes.jsx'
       src 'app/app.jsx'
       src 'lib/base.styl'
       src 'lib/variables.styl'
@@ -24,8 +25,18 @@ module.exports = (gulp, config)->
 
     scaffoldDirs = [
       src 'vendor/fontawesome'
-      src 'vendor/fonts'
+      'static/fonts'
     ]
+
+    directories = _(scaffoldFiles)
+      .concat scaffoldDirs
+      .filter (path)-> path.indexOf('/') > -1
+      .map (path)-> path.replace /\/[a-z\.]+$/, ''
+      .uniq()
+      .value()
+
+    directories.forEach (directory)->
+      mkdirp.sync directory
 
     mkdirp config.srcDir, (err)->
       throw err if err
