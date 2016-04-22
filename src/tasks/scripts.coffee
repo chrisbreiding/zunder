@@ -1,36 +1,59 @@
-fs = require 'fs'
-gulpWebpack = require 'gulp-webpack'
-gutil = require 'gulp-util'
-rev = require 'gulp-rev'
+babelify = require 'babelify'
+browserify = require 'browserify'
+buffer = require 'vinyl-buffer'
 rename = require 'gulp-rename'
+rev = require 'gulp-rev'
+source = require 'vinyl-source-stream'
 uglify = require 'gulp-uglify'
-watch = require 'gulp-watch'
-_ = require 'lodash'
-webpack = require 'webpack'
+watchify = require 'watchify'
+
+handleErrors = require '../lib/handle-errors'
 notifyChanged = require '../lib/notify-changed'
 
 module.exports = (gulp, config)->
 
-  gulp.task "#{config.prefix}scripts", ->
-    gulp.src config.webpackConfig.entry
-      .pipe gulpWebpack(config.webpackConfig, webpack)
-      .pipe gulp.dest(config.devDir)
+  bundle = (bundler, destination)->
+    bundler
+      .bundle()
+      .on 'error', handleErrors
+      .pipe plumber(handleErrors)
+      .pipe source('app.js')
+      .pipe gulp.dest(destination)
 
-  gulp.task "#{config.prefix}watch-scripts", ["#{config.prefix}scripts"], ->
-    watch ['src/**/*.js', 'src/**/*.jsx'], (file)->
-      notifyChanged file
-      gulp.src config.webpackConfig.entry
-        .pipe gulpWebpack(config.webpackConfig, webpack)
-        .pipe gulp.dest(config.devDir)
+  gulp.task "#{config.prefix}watch-scripts", ->
+    entry = if config.srcFile then "./#{config.srcDir}/#{srcFile}" else "./#{config.srcDir}/main.jsx"
+    bundler = browserify
+      entries: [entry]
+      extensions: ['.js', '.coffee', '.hbs']
+      cache: {}
+      packageCache: {}
 
-  gulp.task "#{config.prefix}scripts-prod", ["#{config.prefix}apply-prod-environment"], ->
-    webpackConfig = _.extend {}, config.webpackConfig,
-      plugins: (config.webpackConfig.plugins or []).concat(
-        new webpack.DefinePlugin 'process.env.NODE_ENV': JSON.stringify('production')
-      )
+    watcher = watchify bundler
 
-    gulp.src config.webpackConfig.entry
-      .pipe gulpWebpack(webpackConfig, webpack)
+    bundler.transform babelify, presets: ["es2015", "react"]
+
+    bundle bundler, config.devDir
+
+    rebundle = (files)->
+      for file in files
+        notifyChanged file.replace process.cwd(), ''
+      bundle bundler, config.devDir
+
+    watcher.on 'update', rebundle
+
+    rebundle
+
+  gulp.task "#{config.prefix}scripts-prod", ["#{config.prefix}clean-prod"], ->
+    browserify(
+      entries: ["./#{config.srcDir}/main.coffee"]
+      extensions: ['.js', '.coffee', '.hbs']
+    )
+      .transform babelify, presets: ["es2015", "react"]
+      .bundle()
+      .on 'error', handleErrors
+      .pipe plumber(handleErrors)
+      .pipe source('app.js')
+      .pipe buffer()
       .pipe uglify()
       .pipe rev()
       .pipe gulp.dest(config.prodDir)
