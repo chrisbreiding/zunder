@@ -1,16 +1,17 @@
 # Zunder
 
-An opinionated front-end build tool for developing apps with ES6/7 and Stylus.
+An opinionated front-end build tool for developing apps with ES2015 and Stylus.
 
 Zunder provides gulp tasks to do the following:
 
+* create boilerplate files to get you up and running quickly
 * watch your files for changes and update them
-* compile your ES6/7 JavaScript and Stylus
+* compile your ES2015 JavaScript and Stylus
 * run a server to serve your assets
 * build your assets for production with minification and cache-busting
 * deploy your app to github pages
 
-Zunder uses Webpack and babel, so you can use ES6 modules and all ES6/7 features supported by babel.
+Zunder uses babel with ES2015 and React presets, so you can use all ES2015 features supported by babel as well as JSX.
 
 ## Installation & Setup
 
@@ -47,7 +48,7 @@ $ gulp zunder
 $ gulp watch
 ```
 
-* watches JavaScript (ES6/7) and Stylus files
+* watches and compiles JavaScript (ES2015 and JSX) and Stylus files
 * if you place static assets in a root directory named `static`, they will be copied to the root of the app
 * builds src/index.hbs
 * serves the app on a port you've configured or one that's available (see Configuration below)
@@ -58,7 +59,7 @@ $ gulp watch
 $ gulp build
 ```
 
-* compiles JavaScript (ES6/7) and Stylus files
+* compiles JavaScript (ES2015 and JSX) and Stylus files
 * minifies the generated JS and CSS
 * adds a cache-buster to the generated JS and CSS files based on their contents
 * if you place static assets in a root directory named `static`, they will be copied to the root of the app
@@ -86,30 +87,9 @@ Remove the development and production directories.
 $ gulp zunder
 ```
 
-Runs scaffolding to get you started. Adds boilerplate files, including Font Awesome.
+Runs scaffolding to get you started. Adds boilerplate files, including some Stylus files, a basic React 'app', an example dev server API, and Font Awesome for your icon needs.
 
-Creates the following directories and files:
-
-```
-.
-|- src
-|  |- index.hbs
-|  |- main.js
-|  |- main.styl
-|  |- routes.js
-|  |- app
-|  |  |- app.js
-|  |- lib
-|  |  |- base.styl
-|  |  |- variables.styl
-|  |- vendor
-|  |  |- fontawesome
-|  |  |  |- fontawesome source files ...
-|  |  |- fonts
-|  |  |  |- fontawesome fonts ...
-```
-
-*Note*: `gulp zunder` will *not* override directories or files or any entries in your package.json that already exist. You can run it multiple times if necessary without worrying.
+It will *not* override files that already exist. You can run it multiple times if necessary without worrying.
 
 ### Running tests
 
