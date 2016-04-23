@@ -1,11 +1,12 @@
 del = require 'del'
+paths = require '../lib/paths'
 
-module.exports = (gulp, config)->
+module.exports = (gulp)->
 
-  gulp.task "#{config.prefix}clean-dev", ->
-    del config.devDir
+  gulp.task 'clean-dev', ->
+    del paths.devDir
 
-  gulp.task "#{config.prefix}clean-prod", ->
-    del config.prodDir
+  gulp.task 'clean-prod', ->
+    del paths.prodDir
 
-  gulp.task "#{config.prefix}clean", ["#{config.prefix}clean-dev", "#{config.prefix}clean-prod"]
+  gulp.task 'clean', ['clean-dev', 'clean-prod']

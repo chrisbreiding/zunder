@@ -1,9 +1,5 @@
 module.exports = (gulp, config = {})->
-  config.prefix        ||= ''
-  config.srcDir        ||= 'src'
-  config.staticDir     ||= 'static'
-  config.devDir        ||= 'dist'
-  config.prodDir       ||= 'dist-prod'
+  config.srcFile ||= 'main.jsx'
 
   tasks = require('fs').readdirSync "#{__dirname}/tasks/"
 

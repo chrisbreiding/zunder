@@ -6,12 +6,13 @@ globSync = require('glob').sync
 RSVP = require 'rsvp'
 
 exec = require '../lib/exec-promise'
+paths = require '../lib/paths'
 promisify = require '../lib/promisify'
 
 mkdirp = promisify require 'mkdirp'
 readFile = promisify fs.readFile
 
-module.exports = (gulp, config)->
+module.exports = (gulp)->
   devDeps = [
     'eslint'
     'eslint-plugin-react'
@@ -22,7 +23,7 @@ module.exports = (gulp, config)->
     'react-dom'
   ]
 
-  gulp.task "#{config.prefix}zunder", ->
+  gulp.task 'zunder', ->
     scaffolds = _ globSync("#{__dirname}/../scaffold/**/*", dot: true)
       .map (filePath)->
         filePath.replace "#{__dirname.replace('tasks', 'scaffold')}/", ''

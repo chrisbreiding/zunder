@@ -1,29 +1,31 @@
-watch = require 'gulp-watch'
 fs = require 'fs'
+watch = require 'gulp-watch'
+
 build = require '../lib/build-index'
 notifyChanged = require '../lib/notify-changed'
+paths = require '../lib/paths'
 
-module.exports = (gulp, config)->
+module.exports = (gulp)->
 
   process = (file)->
     notifyChanged file if file
-    gulp.src "#{config.srcDir}/index.hbs"
+    gulp.src 'src/index.hbs'
       .pipe build(['app.js'], ['app.css'])
-      .pipe gulp.dest(config.devDir)
+      .pipe gulp.dest(paths.devDir)
 
-  gulp.task "#{config.prefix}watch-html", ->
-    watch "#{config.srcDir}/index.hbs", process
+  gulp.task 'watch-html', ->
+    watch 'src/index.hbs', process
     process()
 
-  scriptsManifest = "#{config.prodDir}/scripts-manifest.json"
-  stylesheetsManifest = "#{config.prodDir}/stylesheets-manifest.json"
+  scriptsManifest = "#{paths.prodDir}/scripts-manifest.json"
+  stylesheetsManifest = "#{paths.prodDir}/stylesheets-manifest.json"
 
-  gulp.task "#{config.prefix}html-prod", ["#{config.prefix}scripts-prod", "#{config.prefix}stylesheets-prod"], ->
+  gulp.task 'html-prod', ['scripts-prod', 'stylesheets-prod'], ->
     scriptName = JSON.parse(fs.readFileSync(scriptsManifest))['app.js']
     stylesheetName = JSON.parse(fs.readFileSync(stylesheetsManifest))['app.css']
     fs.unlinkSync scriptsManifest
     fs.unlinkSync stylesheetsManifest
 
-    gulp.src "#{config.srcDir}/index.hbs"
+    gulp.src 'src/index.hbs'
       .pipe build([scriptName], [stylesheetName])
-      .pipe gulp.dest(config.prodDir)
+      .pipe gulp.dest(paths.prodDir)

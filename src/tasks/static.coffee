@@ -1,16 +1,17 @@
 watch = require 'gulp-watch'
 notifyChanged = require '../lib/notify-changed'
+paths = require '../lib/paths'
 
-module.exports = (gulp, config)->
+module.exports = (gulp)->
 
   process = (file)->
     notifyChanged file if file
-    gulp.src "#{config.staticDir}/**/*"
-      .pipe(gulp.dest config.devDir)
+    gulp.src 'static/**/*'
+      .pipe(gulp.dest paths.devDir)
 
-  gulp.task "#{config.prefix}watch-static", ->
-    watch "#{config.staticDir}/**/*", process
+  gulp.task 'watch-static', ->
+    watch 'static/**/*', process
     process()
 
-  gulp.task "#{config.prefix}copy-static", ["#{config.prefix}clean-prod"], ->
-    gulp.src("#{config.staticDir}/**/*").pipe(gulp.dest config.prodDir)
+  gulp.task 'copy-static', ['clean-prod'], ->
+    gulp.src('static/**/*').pipe(gulp.dest paths.prodDir)

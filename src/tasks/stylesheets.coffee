@@ -6,30 +6,32 @@ stylus = require 'gulp-stylus'
 minify = require 'gulp-clean-css'
 rev = require 'gulp-rev'
 rename = require 'gulp-rename'
+
 handleErrors = require '../lib/handle-errors'
 notifyChanged = require '../lib/notify-changed'
+paths = require '../lib/paths'
 
-module.exports = (gulp, config)->
+module.exports = (gulp)->
 
   process = (file)->
     notifyChanged file if file
-    gulp.src "#{config.srcDir}/main.styl"
+    gulp.src 'src/main.styl'
       .pipe plumber(handleErrors)
       .pipe stylus(linenos: true)
       .pipe autoprefixer
         browsers: ['last 2 versions']
         cascade: false
       .pipe rename('app.css')
-      .pipe gulp.dest(config.devDir)
+      .pipe gulp.dest(paths.devDir)
       .on 'end', ->
         gutil.log gutil.colors.green 'Stylesheets re-compiled'
 
-  gulp.task "#{config.prefix}watch-stylesheets", ->
-    watch "#{config.srcDir}/**/*.styl", process
+  gulp.task 'watch-stylesheets', ->
+    watch 'src/**/*.styl', process
     process()
 
-  gulp.task "#{config.prefix}stylesheets-prod", ["#{config.prefix}clean-prod"], ->
-    gulp.src "#{config.srcDir}/main.styl"
+  gulp.task 'stylesheets-prod', ['clean-prod'], ->
+    gulp.src 'src/main.styl'
       .pipe plumber(handleErrors)
       .pipe stylus()
       .pipe autoprefixer
@@ -38,7 +40,7 @@ module.exports = (gulp, config)->
       .pipe minify()
       .pipe rename('app.css')
       .pipe rev()
-      .pipe gulp.dest(config.prodDir)
+      .pipe gulp.dest(paths.prodDir)
       .pipe rev.manifest()
       .pipe rename('stylesheets-manifest.json')
-      .pipe gulp.dest(config.prodDir)
+      .pipe gulp.dest(paths.prodDir)

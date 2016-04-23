@@ -1,27 +1,28 @@
 deploy = require '../lib/deploy'
+paths = require '../lib/paths'
 server = require '../lib/server'
 
-module.exports = (gulp, config)->
+module.exports = (gulp)->
 
-  gulp.task "#{config.prefix}watch", [
-    "#{config.prefix}watch-scripts"
-    "#{config.prefix}watch-stylesheets"
-    "#{config.prefix}watch-static"
-    "#{config.prefix}watch-html"
-    "#{config.prefix}dev-server"
+  gulp.task 'watch', [
+    'watch-scripts'
+    'watch-stylesheets'
+    'watch-static'
+    'watch-html'
+    'dev-server'
   ]
 
-  gulp.task "#{config.prefix}build-prod", [
-    "#{config.prefix}scripts-prod"
-    "#{config.prefix}stylesheets-prod"
-    "#{config.prefix}copy-static"
-    "#{config.prefix}html-prod"
+  gulp.task 'build-prod', [
+    'scripts-prod'
+    'stylesheets-prod'
+    'copy-static'
+    'html-prod'
   ]
 
-  gulp.task "#{config.prefix}apply-prod-environment", -> process.env.NODE_ENV = 'production'
+  gulp.task 'apply-prod-environment', -> process.env.NODE_ENV = 'production'
 
-  gulp.task "#{config.prefix}prod", ["#{config.prefix}build-prod"], -> server config.prodDir, config.prodPort
+  gulp.task 'prod', ['build-prod'], -> server paths.prodDir
 
-  gulp.task "#{config.prefix}deploy", ["#{config.prefix}build-prod"], -> deploy config.prodDir
+  gulp.task 'deploy', ['build-prod'], -> deploy paths.prodDir
 
-  gulp.task "#{config.prefix}default", ["#{config.prefix}watch"]
+  gulp.task 'default', ['watch']

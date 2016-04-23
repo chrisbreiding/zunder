@@ -13,9 +13,10 @@ babelPresetReact = require 'babel-preset-react'
 
 handleErrors = require '../lib/handle-errors'
 notifyChanged = require '../lib/notify-changed'
+paths = require '../lib/paths'
 
 module.exports = (gulp, config)->
-  entries = [if config.srcFile then "./#{config.srcDir}/#{srcFile}" else "./#{config.srcDir}/main.jsx"]
+  entries = ["./src/#{config.srcFile}"]
   extensions = ['.js', '.jsx']
 
   bundle = (bundler, destination)->
@@ -26,7 +27,7 @@ module.exports = (gulp, config)->
       .pipe source('app.js')
       .pipe gulp.dest(destination)
 
-  gulp.task "#{config.prefix}watch-scripts", ->
+  gulp.task 'watch-scripts', ->
     bundler = browserify
       entries: entries
       extensions: extensions
@@ -34,23 +35,21 @@ module.exports = (gulp, config)->
       packageCache: {}
 
     watcher = watchify bundler
-
     bundler.transform babelify, presets: [babelPresetEs2015, babelPresetReact]
-
-    bundle bundler, config.devDir
+    bundle bundler, paths.devDir
 
     rebundle = (files)->
       for file in files
         notifyChanged event: 'change', path: file
-      bundle bundler, config.devDir
+      bundle bundler, paths.devDir
 
     watcher.on 'update', rebundle
 
     rebundle
 
-  gulp.task "#{config.prefix}scripts-prod", ["#{config.prefix}apply-prod-environment"], ->
+  gulp.task 'scripts-prod', ['apply-prod-environment'], ->
     browserify { entries, extensions }
-      .transform babelify, presets: ["es2015", "react"]
+      .transform babelify, presets: [babelPresetEs2015, babelPresetReact]
       .bundle()
       .on 'error', handleErrors
       .pipe plumber(handleErrors)
@@ -58,7 +57,7 @@ module.exports = (gulp, config)->
       .pipe buffer()
       .pipe uglify()
       .pipe rev()
-      .pipe gulp.dest(config.prodDir)
+      .pipe gulp.dest(paths.prodDir)
       .pipe rev.manifest()
       .pipe rename('scripts-manifest.json')
-      .pipe gulp.dest(config.prodDir)
+      .pipe gulp.dest(paths.prodDir)
