@@ -3,18 +3,13 @@ fs = require 'fs'
 _ = require 'lodash'
 gutil = require 'gulp-util'
 globSync = require('glob').sync
-http = require 'http'
-path = require 'path'
 RSVP = require 'rsvp'
 
 exec = require '../lib/exec-promise'
 promisify = require '../lib/promisify'
 
-copyContents = promisify require 'ncp'
 mkdirp = promisify require 'mkdirp'
 readFile = promisify fs.readFile
-writeFile = promisify fs.writeFile
-readDir = promisify fs.stat
 
 module.exports = (gulp, config)->
   devDeps = [

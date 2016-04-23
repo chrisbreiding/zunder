@@ -91,21 +91,6 @@ Runs scaffolding to get you started. Adds boilerplate files, including some Styl
 
 It will *not* override files that already exist. You can run it multiple times if necessary without worrying.
 
-### Running tests
-
-One-off:
-
-```sh
-$ npm test
-```
-
-Continuous testing while developing:
-
-```sh
-$ npm install -g testem
-$ testem
-```
-
 ## License
 
 The MIT License (MIT)

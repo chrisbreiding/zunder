@@ -31,7 +31,6 @@
     "lodash": "^4.11.1",
     "mkdirp": "^0.5.1",
     "morgan": "^1.7.0",
-    "ncp": "^2.0.0",
     "portfinder": "^1.0.3",
     "rsvp": "^3.2.1",
     "through2": "^2.0.1",
@@ -41,20 +40,14 @@
     "yargs": "^4.6.0"
   },
   "devDependencies": {
-    "chai": "^3.5.0",
     "coffee-script": "^1.10.0",
     "eslint": "^2.8.0",
-    "eslint-plugin-react": "^5.0.1",
-    "mocha": "^2.4.5",
-    "proxyquire": "^1.7.4",
-    "sinon": "^1.17.3",
-    "sinon-chai": "^2.8.0"
+    "eslint-plugin-react": "^5.0.1"
   },
   "peerDependencies": {
     "gulp": ">=3.7.0"
   },
   "scripts": {
-    "test": "mocha --compilers coffee:coffee-script/register --require test/common --reporter spec",
     "prepublish": "coffee --compile --output dist/lib src/lib; coffee --compile --output dist/tasks src/tasks; coffee --compile --output dist/ src/index.coffee; cp -R src/scaffold/ dist/scaffold/"
   }
 }
