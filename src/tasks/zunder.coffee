@@ -2,6 +2,7 @@ fs = require 'fs'
 
 _ = require 'lodash'
 gutil = require 'gulp-util'
+globSync = require('glob').sync
 http = require 'http'
 path = require 'path'
 RSVP = require 'rsvp'
@@ -16,8 +17,6 @@ writeFile = promisify fs.writeFile
 readDir = promisify fs.stat
 
 module.exports = (gulp, config)->
-  src = (path)-> "#{config.srcDir}/#{path}"
-
   devDeps = [
     'eslint'
     'eslint-plugin-react'
@@ -28,29 +27,17 @@ module.exports = (gulp, config)->
     'react-dom'
   ]
 
-  scaffoldFiles = [
-    '.eslintrc'
-    src 'index.hbs'
-    src 'main.jsx'
-    src 'main.styl'
-    src 'app/app.jsx'
-    src 'lib/base.styl'
-    src 'lib/variables.styl'
-  ]
-
-  scaffoldDirs = [
-    src 'vendor/fontawesome'
-    'static/fonts'
-  ]
-
-  directories = _(scaffoldFiles)
-    .concat scaffoldDirs
-    .filter (filePath)-> filePath.indexOf('/') > -1
-    .map (filePath)-> filePath.replace /\/[a-z\.]+$/, ''
-    .uniq()
-    .value()
-
   gulp.task "#{config.prefix}zunder", ->
+    scaffolds = _ globSync("#{__dirname}/../scaffold/**/*", dot: true)
+      .map (filePath)->
+        filePath.replace "#{__dirname.replace('tasks', 'scaffold')}/", ''
+      .reject (filePath)->
+        filePath.indexOf('.DS_Store') > -1
+      .value()
+    files = _.filter scaffolds, (filePath)->
+      /\/?[-_A-Za-z]*\.\w+$/.test filePath
+    directories = _.reject scaffolds, (filePath)->
+      _.includes files, filePath
 
     gutil.log gutil.colors.green 'ZUNDER!'
 
@@ -69,22 +56,14 @@ module.exports = (gulp, config)->
           mkdirp directory
 
       .then ->
-        RSVP.all scaffoldFiles.map (file)->
+        RSVP.all files.map (file)->
           readFile(file).catch ->
             # erroring indicates the file doesn't exist
             # which is the only case where we want to touch it
-            readFile("#{__dirname}/../scaffold/#{file}", { encoding: 'utf-8' })
-              .then (contents)->
-                gutil.log "- #{file}"
-                writeFile file, contents
-
-      .then ->
-        RSVP.all scaffoldDirs.map (dir)->
-          readDir(dir).catch ->
-            # err indicates the dir doesn't exist
-            # which is the only case where we want to touch it
-            gutil.log "- #{dir}/*"
-            copyContents path.resolve("#{__dirname}/../scaffold/#{dir}"), dir
+            gutil.log "- #{file}"
+            fs
+              .createReadStream "#{__dirname}/../scaffold/#{file}"
+              .pipe fs.createWriteStream(file)
 
       .catch (err)->
         throw err

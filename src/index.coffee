@@ -4,7 +4,6 @@ module.exports = (gulp, config = {})->
   config.staticDir     ||= 'static'
   config.devDir        ||= 'dist'
   config.prodDir       ||= 'dist-prod'
-  config.webpackConfig ||= require './scaffold/webpack.config'
 
   tasks = require('fs').readdirSync "#{__dirname}/tasks/"
 
