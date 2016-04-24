@@ -1,6 +1,6 @@
 {
   "name": "zunder",
-  "version": "0.5.5",
+  "version": "1.0.0",
   "homepage": "https://github.com/chrisbreiding/zunder",
   "repository": "git://github.com/chrisbreiding/zunder.git",
   "author": "Chris Breiding (http://www.chrisbreiding.com/)",
@@ -48,7 +48,9 @@
     "gulp": ">=3.7.0"
   },
   "babel": {
-    "presets": ["es2015"]
+    "presets": [
+      "es2015"
+    ]
   },
   "scripts": {
     "clean": "rm -rf dist && mkdir dist",
