@@ -1,13 +1,14 @@
 'use strict';
 
 const autoprefixer = require('gulp-autoprefixer');
+const globber = require('node-sass-globbing');
 const gutil = require('gulp-util');
-const watch = require('gulp-watch');
-const plumber = require('gulp-plumber');
-const stylus = require('gulp-stylus');
 const minify = require('gulp-clean-css');
-const rev = require('gulp-rev');
+const plumber = require('gulp-plumber');
 const rename = require('gulp-rename');
+const rev = require('gulp-rev');
+const sass = require('gulp-sass');
+const watch = require('gulp-watch');
 
 const handleErrors = require('../lib/handle-errors');
 const notifyChanged = require('../lib/notify-changed');
@@ -18,9 +19,13 @@ module.exports = (gulp) => {
 
   function process (file) {
     if (file) notifyChanged(file);
-    return gulp.src('src/main.styl')
+    return gulp.src('src/main.scss')
       .pipe(plumber(handleErrors))
-      .pipe(stylus({ linenos: true }))
+      .pipe(sass({
+        importer: globber,
+        sourceComments: true,
+        outputStyle: 'expanded',
+      }))
       .pipe(autoprefixer(autoprefixOptions))
       .pipe(rename('app.css'))
       .pipe(gulp.dest(paths.devDir))
@@ -30,14 +35,17 @@ module.exports = (gulp) => {
   }
 
   gulp.task('watch-stylesheets', () => {
-    watch('src/**/*.styl', process);
+    watch('src/**/*.scss', process);
     return process();
   });
 
   gulp.task('stylesheets-prod', ['clean-prod'], () => {
-    return gulp.src('src/main.styl')
+    return gulp.src('src/main.scss')
       .pipe(plumber(handleErrors))
-      .pipe(stylus())
+      .pipe(sass({
+        importer: globber,
+        outputStyle: 'compressed',
+      }))
       .pipe(autoprefixer(autoprefixOptions))
       .pipe(minify())
       .pipe(rename('app.css'))
