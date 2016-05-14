@@ -14,7 +14,6 @@
     "react"
   ],
   "rules": {
-    "arrow-body-style": ["error", "as-needed"],
     "array-bracket-spacing": ["error", "never"],
     "arrow-parens": ["error", "always"],
     "arrow-spacing": "error",
