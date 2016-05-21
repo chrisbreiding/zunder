@@ -1,6 +1,6 @@
 'use strict';
 
-const gulp = require('gulp');
+const vfs = require('vinyl-fs');
 const watch = require('gulp-watch');
 const notifyChanged = require('./notify-changed');
 const paths = require('./paths');
@@ -8,7 +8,7 @@ const paths = require('./paths');
 module.exports = () => {
   function process (file) {
     if (file) notifyChanged(file);
-    return gulp.src('static/**/*').pipe(gulp.dest(paths.devDir));
+    return vfs.src('static/**/*').pipe(vfs.dest(paths.devDir));
   }
 
   return {
@@ -18,7 +18,7 @@ module.exports = () => {
     },
 
     buildProd () {
-      return gulp.src('static/**/*').pipe(gulp.dest(paths.prodDir));
+      return vfs.src('static/**/*').pipe(vfs.dest(paths.prodDir));
     },
   };
 };

@@ -19,7 +19,6 @@
     "event-stream": "^3.3.2",
     "express": "^4.13.4",
     "glob": "^7.0.3",
-    "gulp": ">=3.7.0",
     "gulp-autoprefixer": "^3.1.0",
     "gulp-clean-css": "^2.0.6",
     "gulp-nodemon": "^2.0.6",
@@ -39,7 +38,9 @@
     "portfinder": "^1.0.3",
     "rsvp": "^3.2.1",
     "through2": "^2.0.1",
+    "undertaker": "^0.15.0",
     "vinyl-buffer": "^1.0.0",
+    "vinyl-fs": "^2.4.3",
     "vinyl-source-stream": "^1.1.0",
     "watchify": "^3.7.0",
     "yargs": "^4.6.0"

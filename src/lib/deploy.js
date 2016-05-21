@@ -6,8 +6,11 @@ const gutil = require('gulp-util');
 const RSVP = require('rsvp');
 
 const exec = require('./exec-promise');
+const paths = require('./paths');
 
-module.exports = (dir) => {
+module.exports = () => {
+  const dir = paths.prodDir;
+
   function execInBuild (command) {
     return exec(command, { cwd: dir });
   }
@@ -60,5 +63,5 @@ module.exports = (dir) => {
     .then(addAll)
     .then(commit)
     .then(push)
-    .catch(error => { throw error });
+    .catch((error) => { throw error });
 };

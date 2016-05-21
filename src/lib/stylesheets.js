@@ -1,6 +1,6 @@
 'use strict';
 
-const gulp = require('gulp');
+const vfs = require('vinyl-fs');
 const autoprefixer = require('gulp-autoprefixer');
 const gutil = require('gulp-util');
 const minify = require('gulp-clean-css');
@@ -21,7 +21,7 @@ module.exports = () => {
   let firstTime = true;
   function process (file) {
     if (file) notifyChanged(file);
-    return gulp.src('src/main.scss')
+    return vfs.src('src/main.scss')
       .pipe(plumber(handleErrors))
       .pipe(sass({
         importer: globber,
@@ -30,7 +30,7 @@ module.exports = () => {
       }))
       .pipe(autoprefixer(autoprefixOptions))
       .pipe(rename('app.css'))
-      .pipe(gulp.dest(paths.devDir))
+      .pipe(vfs.dest(paths.devDir))
       .on('end', () => {
         if (firstTime) {
           firstTime = false;
@@ -47,7 +47,7 @@ module.exports = () => {
     },
 
     buildProd () {
-      return gulp.src('src/main.scss')
+      return vfs.src('src/main.scss')
         .pipe(plumber(handleErrors))
         .pipe(sass({
           importer: globber,
@@ -57,10 +57,10 @@ module.exports = () => {
         .pipe(minify())
         .pipe(rename('app.css'))
         .pipe(rev())
-        .pipe(gulp.dest(paths.prodDir))
+        .pipe(vfs.dest(paths.prodDir))
         .pipe(rev.manifest())
         .pipe(rename('stylesheets-manifest.json'))
-        .pipe(gulp.dest(paths.prodDir));
+        .pipe(vfs.dest(paths.prodDir));
     },
   };
 };

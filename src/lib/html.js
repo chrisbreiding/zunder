@@ -1,6 +1,6 @@
 const fs = require('fs');
-const gulp = require('gulp');
 const watch = require('gulp-watch');
+const vfs = require('vinyl-fs');
 
 const build = require('./build-index');
 const notifyChanged = require('./notify-changed');
@@ -8,9 +8,9 @@ const paths = require('./paths');
 
 function process (file) {
   if (file) notifyChanged(file);
-  return gulp.src('src/index.hbs')
+  return vfs.src('src/index.hbs')
     .pipe(build(['app.js'], ['app.css']))
-    .pipe(gulp.dest(paths.devDir));
+    .pipe(vfs.dest(paths.devDir));
 }
 
 module.exports = () => {
@@ -30,9 +30,9 @@ module.exports = () => {
       fs.unlinkSync(scriptsManifest);
       fs.unlinkSync(stylesheetsManifest);
 
-      return gulp.src('src/index.hbs')
-      .pipe(build([scriptName], [stylesheetName]))
-      .pipe(gulp.dest(paths.prodDir));
+      return vfs.src('src/index.hbs')
+        .pipe(build([scriptName], [stylesheetName]))
+        .pipe(vfs.dest(paths.prodDir));
     },
   };
 };

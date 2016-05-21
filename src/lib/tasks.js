@@ -1,9 +1,8 @@
 'use strict';
 
-const gulp = require('gulp');
 const del = require('del');
+const Undertaker = require('undertaker');
 
-const { getConfig } = require('./config');
 const deploy = require('./deploy');
 const html = require('./html');
 const paths = require('./paths');
@@ -13,50 +12,45 @@ const setup = require('./setup');
 const staticAssets = require('./static');
 const stylesheets = require('./stylesheets');
 
-module.exports = () => {
-  return getConfig().then((config) => {
-    // clean
-    gulp.task('clean-dev', () => del(paths.devDir));
-    gulp.task('clean-prod', () => del(paths.prodDir));
-    gulp.task('clean', ['clean-dev', 'clean-prod']);
+function applyProdEnv (cb) {
+  process.env.NODE_ENV = 'production';
+  cb();
+}
 
-    // html
-    gulp.task('watch-html', html().watch);
-    gulp.task('html-prod', ['scripts-prod', 'stylesheets-prod'], html().buildProd);
+const taker = new Undertaker();
 
-    // scripts
-    gulp.task('watch-scripts', scripts(config).watch);
-    gulp.task('scripts-prod', ['apply-prod-environment'], scripts(config).buildProd);
+module.exports = (config) => {
+  const cleanDev = () => del(paths.devDir)
+  const cleanProd = () => del(paths.prodDir)
+  const clean = taker.parallel(cleanDev, cleanProd);
 
-    // server
-    gulp.task('dev-server', server().watch);
+  const buildProd = taker.series(
+    taker.parallel(
+      scripts(config).buildProd,
+      stylesheets().buildProd,
+      staticAssets().buildProd
+    ),
+    html().buildProd
+  );
 
-    // static
-    gulp.task('watch-static', staticAssets().watch);
-    gulp.task('copy-static', ['clean-prod'], staticAssets().buildProd);
+  const runProdServer = () => server().run(paths.prodDir);
 
-    // scaffolding
-    gulp.task('setup', setup().run);
+  const buildAndDeploy = taker.series(applyProdEnv, cleanProd, buildProd, deploy);
+  const buildAndServe = taker.series(applyProdEnv, cleanProd, buildProd, runProdServer);
 
-    // stylesheets
-    gulp.task('watch-stylesheets', stylesheets().watch);
-    gulp.task('stylesheets-prod', ['clean-prod'], stylesheets().buildProd);
+  const watch = taker.parallel(
+    scripts(config).watch,
+    stylesheets().watch,
+    staticAssets().watch,
+    html().watch,
+    server().watch
+  );
 
-    // watch
-    gulp.task('watch', ['watch-scripts', 'watch-stylesheets', 'watch-static', 'watch-html', 'dev-server']);
-
-    // prod
-    gulp.task('apply-prod-environment', () => process.env.NODE_ENV = 'production');
-    gulp.task('build-prod', ['scripts-prod', 'stylesheets-prod', 'copy-static', 'html-prod']);
-    gulp.task('build', ['build-prod'], () => server().run(paths.prodDir));
-    gulp.task('deploy', ['build-prod'], () => deploy(paths.prodDir));
-
-    return {
-      clean () { gulp.start('clean'); },
-      deploy () { gulp.start('deploy'); },
-      build () { gulp.start('build'); },
-      setup () { gulp.start('setup'); },
-      watch () { gulp.start('watch'); },
-    };
-  });
+  return {
+    clean,
+    deploy: buildAndDeploy,
+    build: buildAndServe,
+    setup: setup().run,
+    watch,
+  };
 };

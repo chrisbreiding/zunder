@@ -3,7 +3,7 @@
 const babelify = require('babelify');
 const browserify = require('browserify');
 const buffer = require('vinyl-buffer');
-const gulp = require('gulp');
+const vfs = require('vinyl-fs');
 const plumber = require('gulp-plumber');
 const rename = require('gulp-rename');
 const rev = require('gulp-rev');
@@ -28,7 +28,7 @@ module.exports = (config) => {
       .on('error', handleErrors)
       .pipe(plumber(handleErrors))
       .pipe(source('app.js'))
-      .pipe(gulp.dest(destination));
+      .pipe(vfs.dest(destination));
   }
 
   function rebundle (bundler, files) {
@@ -62,10 +62,10 @@ module.exports = (config) => {
         .pipe(buffer())
         .pipe(uglify())
         .pipe(rev())
-        .pipe(gulp.dest(paths.prodDir))
+        .pipe(vfs.dest(paths.prodDir))
         .pipe(rev.manifest())
         .pipe(rename('scripts-manifest.json'))
-        .pipe(gulp.dest(paths.prodDir));
+        .pipe(vfs.dest(paths.prodDir));
     },
   };
 };

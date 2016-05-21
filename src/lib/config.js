@@ -2,8 +2,6 @@
 
 const Promise = require('RSVP').Promise;
 
-module.exports = {
-  getConfig () {
-    return Promise.resolve({ srcFile: 'main.jsx' });
-  },
+module.exports = () => {
+  return Promise.resolve({ srcFile: 'main.jsx' });
 };

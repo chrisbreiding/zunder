@@ -2,14 +2,17 @@
 /* eslint-disable no-console */
 'use strict';
 
-require('./tasks');
-const args = require('yargs').argv;
 const chalk = require('chalk');
+const args = require('yargs').argv;
+
+const getConfig = require('./config');
 const loadTasks = require('./tasks');
 
 const task = args._[0] || 'watch';
 
-loadTasks().then((tasks) => {
+getConfig().then((config) => {
+  const tasks = loadTasks(config);
+
   if (!tasks[task]) {
     console.log(chalk.red.bold(`'zunder ${task}' is not a task\n`));
     console.log(`Available tasks are:\n- ${Object.keys(tasks).join('\n- ')}`);
