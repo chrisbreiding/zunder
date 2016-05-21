@@ -1,12 +1,11 @@
 #!/usr/bin/env node
-/* eslint-disable no-console */
 'use strict';
 
-const chalk = require('chalk');
 const args = require('yargs').argv;
 
 const getConfig = require('./config');
 const loadTasks = require('./tasks');
+const util = require('./util');
 
 const task = args._[0] || 'watch';
 
@@ -14,10 +13,11 @@ getConfig().then((config) => {
   const tasks = loadTasks(config);
 
   if (!tasks[task]) {
-    console.log(chalk.red.bold(`'zunder ${task}' is not a task\n`));
-    console.log(`Available tasks are:\n- ${Object.keys(tasks).join('\n- ')}`);
+    util.log(util.colors.red.bold(`\nzunder ${task}`), util.colors.red('is not a task\n'));
+    util.log(util.colors.underline('Available tasks'));
+    util.log(`- ${Object.keys(tasks).join('\n- ')}`);
     return;
   }
-  console.log(chalk.cyan(`Running ${task} task`));
+  util.log(util.colors.cyan(`Running ${task} task`));
   tasks[task]();
 });

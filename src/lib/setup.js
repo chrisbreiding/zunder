@@ -3,12 +3,12 @@
 const fs = require('fs');
 
 const _ = require('lodash');
-const gutil = require('gulp-util');
 const globSync = require('glob').sync;
 const RSVP = require('rsvp');
 
 const exec = require('./exec-promise');
 const promisify = require('./promisify');
+const util = require('./util');
 
 const mkdirp = promisify(require('mkdirp'));
 const readFile = promisify(fs.readFile);
@@ -36,17 +36,17 @@ module.exports = () => {
 
       return RSVP.Promise.resolve()
         .then(() => {
-          gutil.log('installing dev dependencies');
-          devDeps.forEach((dep) => gutil.log(`- ${dep}`));
+          util.log(util.colors.underline('installing dev dependencies'));
+          devDeps.forEach((dep) => util.log(`- ${dep}`));
           exec(`npm install --save-dev ${devDeps.join(' ')} --progress=false`)
         })
         .then(() => {
-          gutil.log('installing dependencies');
-          deps.forEach((dep) => gutil.log(`- ${dep}`));
+          util.log(util.colors.underline('installing dependencies'));
+          deps.forEach((dep) => util.log(`- ${dep}`));
           return exec(`npm install --save ${deps.join(' ')} --progress=false`)
         })
         .then(() => {
-          gutil.log('scaffolding files');
+          util.log(util.colors.underline('scaffolding files'));
           return RSVP.all(directories.map((directory) => mkdirp(directory)));
         })
         .then(() => {
@@ -54,7 +54,7 @@ module.exports = () => {
             return readFile(file).catch(() => {
                // erroring indicates the file doesn't exist
                // which is the only case where the scaffold should go in place
-              gutil.log(`- ${file}`);
+              util.log(`- ${file}`);
               return fs.createReadStream(`${__dirname}/../scaffold/${file}`)
                 .pipe(fs.createWriteStream(file));
             });

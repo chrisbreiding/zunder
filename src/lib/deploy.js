@@ -2,11 +2,11 @@
 
 const _ = require('lodash');
 const fs = require('fs');
-const gutil = require('gulp-util');
 const RSVP = require('rsvp');
 
 const exec = require('./exec-promise');
 const paths = require('./paths');
+const util = require('./util');
 
 module.exports = () => {
   const dir = paths.prodDir;
@@ -16,14 +16,14 @@ module.exports = () => {
   }
 
   function log (message) {
-    gutil.log(gutil.colors.green(`. ${message}`));
+    util.log(util.colors.green(`. ${message}`));
   }
 
   function initRepo () {
     if (fs.existsSync(`${dir}/.git`)) return RSVP.resolve();
 
     return exec('git config --get remote.origin.url').then((result) => {
-      const url = result.stdout.replace(gutil.linefeed, '');
+      const url = result.stdout.replace(util.linefeed, '');
       return execInBuild('git init').then(() => {
         log('create repo');
         return execInBuild(`git remote add origin ${url}`);

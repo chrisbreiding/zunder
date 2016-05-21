@@ -2,7 +2,6 @@
 
 const vfs = require('vinyl-fs');
 const autoprefixer = require('gulp-autoprefixer');
-const gutil = require('gulp-util');
 const minify = require('gulp-clean-css');
 const plumber = require('gulp-plumber');
 const rename = require('gulp-rename');
@@ -14,6 +13,7 @@ const globber = require('node-sass-globbing');
 const handleErrors = require('./handle-errors');
 const notifyChanged = require('./notify-changed');
 const paths = require('./paths');
+const util = require('./util');
 
 module.exports = () => {
   const autoprefixOptions = { browsers: ['last 2 versions'], cascade: false };
@@ -36,7 +36,7 @@ module.exports = () => {
           firstTime = false;
           return;
         }
-        gutil.log(gutil.colors.green('Stylesheets re-compiled'));
+        util.log(util.colors.green('Stylesheets re-compiled'));
       });
   }
 

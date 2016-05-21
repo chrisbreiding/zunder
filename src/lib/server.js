@@ -3,12 +3,12 @@
 const bodyParser = require('body-parser');
 const globSync = require('glob').sync;
 const nodemon = require('gulp-nodemon');
-const gutil = require('gulp-util');
 const express = require('express');
 const morgan = require('morgan');
 const portfinder = require('portfinder');
 
 const paths = require('./paths');
+const util = require('./util');
 
 function setupMockServer (app) {
   let server;
@@ -37,7 +37,7 @@ function runServer (dir, port) {
 
   return app.listen(port, () => {
     const url = `http://localhost:${port}`;
-    gutil.log(`listening on ${gutil.colors.yellow(url)}...`);
+    util.log(`listening on ${util.colors.yellow(url)}...`);
   });
 }
 

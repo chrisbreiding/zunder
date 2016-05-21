@@ -1,7 +1,7 @@
 'use strict';
 
-const gutil = require('gulp-util');
 const pathUtil = require('path');
+const util = require('./util');
 
 const eventMap = {
   add: 'added',
@@ -10,6 +10,6 @@ const eventMap = {
 };
 
 module.exports = ({ path, event = 'change' }) => {
-  const file = gutil.colors.magenta(pathUtil.basename(path));
-  gutil.log(`${file} was ${eventMap[event]}`);
+  const file = util.colors.magenta(pathUtil.basename(path));
+  util.log(`${file} was ${eventMap[event]}`);
 };
