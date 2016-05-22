@@ -22,7 +22,7 @@ module.exports = () => {
     },
 
     buildProd () {
-      util.logSubTask('building static files');
+      util.logSubTask('copying static files');
 
       return vfs.src('static/**/*').pipe(vfs.dest(paths.prodDir));
     },

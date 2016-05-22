@@ -16,7 +16,7 @@ module.exports = () => {
   }
 
   function log (message) {
-    util.log(util.colors.green(`. ${message}`));
+    util.logSubTask(`. ${message}`);
   }
 
   function initRepo () {
@@ -32,12 +32,12 @@ module.exports = () => {
   }
 
   function checkoutBranch () {
-    log('checkout gh-pages branch');
     return execInBuild('git branch').then((result) => {
-      const branchExists = _.any(result.stdout.split('\n'), (branch) => {
+      const branchExists = _.some(result.stdout.split('\n'), (branch) => {
         return /gh\-pages/.test(branch);
       });
       const flag = branchExists ? '' : '-b';
+      log('checkout gh-pages branch');
       return execInBuild(`git checkout ${flag} gh-pages`);
     });
   }
@@ -58,10 +58,11 @@ module.exports = () => {
     return execInBuild('git push -f origin gh-pages');
   }
 
+  util.logSubTask('deploying');
   return initRepo()
     .then(checkoutBranch)
     .then(addAll)
     .then(commit)
     .then(push)
-    .catch((error) => { throw error });
+    .catch((error) => util.logError(error));
 };

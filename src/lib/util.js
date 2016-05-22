@@ -13,11 +13,16 @@ function logSubTask (message) {
   log(colors.blue(message));
 }
 
+function logError (error) {
+  log(colors.red(error));
+}
+
 module.exports = {
   colors,
   log,
-  logTask,
+  logError,
   logSubTask,
+  logTask,
   linefeed,
   PluginError,
   replaceExtension,
