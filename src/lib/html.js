@@ -5,6 +5,7 @@ const vfs = require('vinyl-fs');
 const build = require('./build-index');
 const notifyChanged = require('./notify-changed');
 const paths = require('./paths');
+const util = require('./util');
 
 function process (file) {
   if (file) notifyChanged(file);
@@ -16,11 +17,15 @@ function process (file) {
 module.exports = () => {
   return {
     watch () {
+      util.logSubTask('watching index.hbs');
+
       watch('src/index.hbs', process);
       return process();
     },
 
     buildProd () {
+      util.logSubTask('building index.hbs');
+
       const scriptsManifest = `${paths.prodDir}/scripts-manifest.json`;
       const stylesheetsManifest = `${paths.prodDir}/stylesheets-manifest.json`;
 

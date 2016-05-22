@@ -42,11 +42,15 @@ module.exports = () => {
 
   return {
     watch () {
+      util.logSubTask('watching stylesheets');
+
       watch('src/**/*.scss', process);
       return process();
     },
 
     buildProd () {
+      util.logSubTask('building stylesheets');
+
       return vfs.src('src/main.scss')
         .pipe(plumber(handleErrors))
         .pipe(sass({

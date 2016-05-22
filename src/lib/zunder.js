@@ -18,6 +18,6 @@ getConfig().then((config) => {
     util.log(`- ${Object.keys(tasks).join('\n- ')}`);
     return;
   }
-  util.log(util.colors.cyan(`Running ${task} task`));
+  util.logTask(`Running ${task} task`);
   tasks[task]();
 });

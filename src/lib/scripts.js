@@ -17,6 +17,7 @@ const babelPresetReact = require('babel-preset-react');
 const handleErrors = require('./handle-errors');
 const notifyChanged = require('./notify-changed');
 const paths = require('./paths');
+const util = require('./util');
 
 module.exports = (config) => {
   const entries = [`./src/${config.srcFile}`];
@@ -38,6 +39,8 @@ module.exports = (config) => {
 
   return {
     watch () {
+      util.logSubTask('watching scripts');
+
       const bundler = browserify({
         entries,
         extensions,
@@ -53,6 +56,8 @@ module.exports = (config) => {
     },
 
     buildProd () {
+      util.logSubTask('building scripts');
+
       return browserify({ entries, extensions })
         .transform(babelify, babelOptions)
         .bundle()
