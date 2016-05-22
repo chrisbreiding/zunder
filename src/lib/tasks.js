@@ -19,14 +19,14 @@ function applyProdEnv (cb) {
 
 const taker = new Undertaker();
 
-module.exports = (config) => {
+module.exports = () => {
   const cleanDev = () => del(paths.devDir)
   const cleanProd = () => del(paths.prodDir)
   const clean = taker.parallel(cleanDev, cleanProd);
 
   const buildProd = taker.series(
     taker.parallel(
-      scripts(config).buildProd,
+      scripts().buildProd,
       stylesheets().buildProd,
       staticAssets().buildProd
     ),
@@ -39,7 +39,7 @@ module.exports = (config) => {
   const buildAndServe = taker.series(applyProdEnv, cleanProd, buildProd, runProdServer);
 
   const watch = taker.parallel(
-    scripts(config).watch,
+    scripts().watch,
     stylesheets().watch,
     staticAssets().watch,
     html().watch,

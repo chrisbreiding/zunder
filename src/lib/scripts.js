@@ -2,6 +2,7 @@
 
 const babelify = require('babelify');
 const browserify = require('browserify');
+const fs = require('fs');
 const buffer = require('vinyl-buffer');
 const vfs = require('vinyl-fs');
 const plumber = require('gulp-plumber');
@@ -19,8 +20,26 @@ const notifyChanged = require('./notify-changed');
 const paths = require('./paths');
 const util = require('./util');
 
-module.exports = (config) => {
-  const entries = [`./src/${config.srcFile}`];
+function getSrcFile () {
+  // see if src/main.jsx or src/main.js exists and return
+  // appropriate path or throw if neither exists
+  let srcFile = './src/main.jsx';
+  try {
+    fs.readFileSync(`${process.cwd()}/src/main.jsx`);
+    return srcFile;
+  } catch (e) {
+    srcFile = './src/main.js';
+    try {
+      fs.readFileSync(`${process.cwd()}/src/main.js`);
+      return srcFile;
+    } catch (e) {
+      throw new Error('src/main.jsx or src/main.js must exist');
+    }
+  }
+}
+
+module.exports = () => {
+  const entries = [getSrcFile()];
   const extensions = ['.js', '.jsx'];
   const babelOptions = { presets: [babelPresetEs2015, babelPresetReact] };
 
