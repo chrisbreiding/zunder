@@ -1,7 +1,9 @@
 'use strict';
 
+const _ = require('lodash');
 const babelify = require('babelify');
 const browserify = require('browserify');
+const cjsxify = require('cjsxify');
 const fs = require('fs');
 const buffer = require('vinyl-buffer');
 const vfs = require('vinyl-fs');
@@ -20,28 +22,43 @@ const notifyChanged = require('./notify-changed');
 const paths = require('./paths');
 const util = require('./util');
 
-function getSrcFile () {
-  // see if src/main.jsx or src/main.js exists and return
-  // appropriate path or throw if neither exists
-  let srcFile = './src/main.jsx';
-  try {
-    fs.readFileSync(`${process.cwd()}/src/main.jsx`);
-    return srcFile;
-  } catch (e) {
-    srcFile = './src/main.js';
+const babel = {
+  transform: babelify,
+  options: { presets: [babelPresetEs2015, babelPresetReact] },
+};
+
+const coffee = {
+  transform: cjsxify,
+  options: {},
+};
+
+const files = {
+  'main.jsx': babel,
+  'main.js': babel,
+  'main.cjsx': coffee,
+  'main.coffee': coffee,
+};
+
+function getSrcConfig () {
+  return _.reduce(files, (config, ify, fileName) => {
+    if (config) return config;
     try {
-      fs.readFileSync(`${process.cwd()}/src/main.js`);
-      return srcFile;
+      fs.readFileSync(`${process.cwd()}/src/${fileName}`);
     } catch (e) {
-      throw new Error('src/main.jsx or src/main.js must exist');
+      return null;
     }
-  }
+    return { fileName, ify };
+  }, null);
 }
 
 module.exports = () => {
-  const entries = [getSrcFile()];
-  const extensions = ['.js', '.jsx'];
-  const babelOptions = { presets: [babelPresetEs2015, babelPresetReact] };
+  const srcConfig = getSrcConfig();
+  if (!srcConfig) {
+    util.logError(`One of the following files must exist under src:\n- ${_.keys(files).join('\n- ')}\n`);
+    return;
+  }
+  const entries = [`./src/${srcConfig.fileName}`];
+  const extensions = ['.js', '.jsx', '.coffee', '.cjsx'];
 
   function bundle (bundler, destination) {
     return bundler.bundle()
@@ -67,7 +84,7 @@ module.exports = () => {
         packageCache: {},
       });
 
-      bundler.transform(babelify, babelOptions)
+      bundler.transform(srcConfig.ify.transform, srcConfig.ify.options)
       watchify(bundler).on('update', (files) => rebundle(bundler, files));
       rebundle(bundler, []);
 
@@ -78,7 +95,7 @@ module.exports = () => {
       util.logSubTask('building scripts');
 
       return browserify({ entries, extensions })
-        .transform(babelify, babelOptions)
+        .transform(srcConfig.ify.transform, srcConfig.ify.options)
         .bundle()
         .on('error', handleErrors)
         .pipe(plumber(handleErrors))
