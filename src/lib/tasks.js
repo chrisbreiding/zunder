@@ -2,6 +2,7 @@
 
 const del = require('del');
 const Undertaker = require('undertaker');
+const args = require('yargs').argv;
 
 const deploy = require('./deploy');
 const html = require('./html');
@@ -33,10 +34,10 @@ module.exports = () => {
     html().buildProd
   );
 
-  const runProdServer = () => server().run(paths.prodDir);
+  const runProdServer = () => server().run(paths.prodDir, args.port);
 
   const buildAndDeploy = taker.series(applyProdEnv, cleanProd, buildProd, deploy);
-  const buildAndServe = taker.series(applyProdEnv, cleanProd, buildProd, runProdServer);
+  const cleanAndBuildProd = taker.series(applyProdEnv, cleanProd, buildProd);
 
   const watch = taker.parallel(
     scripts().watch,
@@ -49,7 +50,8 @@ module.exports = () => {
   return {
     clean,
     deploy: buildAndDeploy,
-    build: buildAndServe,
+    'build-prod': cleanAndBuildProd,
+    'serve-prod': runProdServer,
     setup: setup().run,
     watch,
   };
