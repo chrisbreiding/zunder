@@ -40,7 +40,7 @@ const files = {
 };
 
 function getSrcConfig () {
-  return _.reduce(files, (config, ify, fileName) => {
+  const config = _.reduce(files, (config, ify, fileName) => {
     if (config) return config;
     try {
       fs.readFileSync(`${process.cwd()}/src/${fileName}`);
@@ -49,34 +49,39 @@ function getSrcConfig () {
     }
     return { fileName, ify };
   }, null);
-}
 
-module.exports = () => {
-  const srcConfig = getSrcConfig();
-  if (!srcConfig) {
+  if (!config) {
     util.logError(`One of the following files must exist under src:\n- ${_.keys(files).join('\n- ')}\n`);
     return;
   }
-  const entries = [`./src/${srcConfig.fileName}`];
-  const extensions = ['.js', '.jsx', '.coffee', '.cjsx'];
 
-  function bundle (bundler, destination) {
-    return bundler.bundle()
-      .on('error', handleErrors)
-      .pipe(plumber(handleErrors))
-      .pipe(source('app.js'))
-      .pipe(vfs.dest(destination));
-  }
+  return {
+    entries: [`./src/${config.fileName}`],
+    ify: config.ify,
+  };
+}
 
-  function rebundle (bundler, files) {
-    files.forEach((path) => notifyChanged({ path }));
-    return bundle(bundler, paths.devDir);
-  }
+const extensions = ['.js', '.jsx', '.coffee', '.cjsx'];
 
+function bundle (bundler, destination) {
+  return bundler.bundle()
+    .on('error', handleErrors)
+    .pipe(plumber(handleErrors))
+    .pipe(source('app.js'))
+    .pipe(vfs.dest(destination));
+}
+
+function rebundle (bundler, files) {
+  files.forEach((path) => notifyChanged({ path }));
+  return bundle(bundler, paths.devDir);
+}
+
+module.exports = () => {
   return {
     watch () {
       util.logSubTask('watching scripts');
 
+      const { entries, ify } = getSrcConfig();
       const bundler = browserify({
         entries,
         extensions,
@@ -84,7 +89,7 @@ module.exports = () => {
         packageCache: {},
       });
 
-      bundler.transform(srcConfig.ify.transform, srcConfig.ify.options)
+      bundler.transform(ify.transform, ify.options)
       watchify(bundler).on('update', (files) => rebundle(bundler, files));
       rebundle(bundler, []);
 
@@ -94,8 +99,9 @@ module.exports = () => {
     buildProd () {
       util.logSubTask('building scripts');
 
+      const { entries, ify } = getSrcConfig();
       return browserify({ entries, extensions })
-        .transform(srcConfig.ify.transform, srcConfig.ify.options)
+        .transform(ify.transform, ify.options)
         .bundle()
         .on('error', handleErrors)
         .pipe(plumber(handleErrors))
