@@ -16,4 +16,5 @@ if (tasks[task]) {
   util.log(util.colors.red.bold(`\nzunder ${task}`), util.colors.red('is not a task\n'));
   util.log(util.colors.underline('Available tasks'));
   util.log(`- ${Object.keys(tasks).join('\n- ')}`);
+  process.exit(1);
 }
