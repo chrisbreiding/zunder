@@ -9,6 +9,13 @@ const util = require('./util');
 const task = args._[0] || 'watch';
 const tasks = loadTasks();
 
+try {
+  require(`${process.cwd()}/zunderfile`);
+  util.log(util.colors.green('using zunderfile'));
+} catch (e) {
+  // no zunderfile set up
+}
+
 if (tasks[task]) {
   util.logTask(`Running ${task} task`);
   tasks[task]();

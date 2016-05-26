@@ -30,6 +30,14 @@ $ ./node_modules/.bin/zunder setup
 
 ## Tasks
 
+Note: To avoid having to type `./node_modules/.bin/` before commands, add the following to your shell profile (e.g. .bash_profile, .bashrc, .zshrc):
+
+```sh
+export PATH=./node_modules/.bin/:$PATH
+```
+
+Then you can run `zunder watch` instead of `./node_modules/.bin/zunder watch`.
+
 ### watch
 
 ```sh
@@ -83,6 +91,49 @@ $ ./node_modules/.bin/zunder setup
 Installs dependencies and runs scaffolding to get you started. Adds boilerplate files, including an .eslintrc, some SCSS files, a basic React 'app', an example dev server API, and Font Awesome for your icon needs.
 
 It will *not* override files that already exist. You can run it multiple times if necessary without worrying.
+
+## zunderfile / Task hooks
+
+You can run your own tasks during certain lifecycle events of zunder tasks by create a `zunderfile.js` at the root of your project:
+
+```javascript
+// zunderfile.js
+var zunder = require('zunder');
+var exec = require('child_proceess').exec;
+var vfs = require('vinyl-fs');
+
+// reset database before starting development
+zunder.on('before:watch', function () {
+  exec('rake db:reset', { cwd: process.cwd() + '/../my-rails-app' });
+});
+
+// copy all font-awesome fonts from bower into the
+// prod directory after building for production
+zunder.on('after:build-prod', function () {
+  vfs.src('bower_components/font-awesome/fonts/**')           
+    .pipe(vfs.dest(zunder.config.prodDir));
+});
+```
+
+### hooks
+
+The following hooks are available:
+
+* before:clean
+* after:clean
+* before:watch
+* before:build-prod
+* after:build-prod
+* before:serve-prod
+* before:deploy
+* after:deploy
+
+### zunder config
+
+The zunder instance (returned from `require('zunder')`) has a config object with the following properties:
+
+* `devDir`: the build directory for the `watch` task
+* `prodDir`: the build directory for the `build-prod`, `serve-prod`, and `deploy` tasks
 
 ## License
 

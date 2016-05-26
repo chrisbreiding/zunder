@@ -13,9 +13,16 @@ const setup = require('./setup');
 const staticAssets = require('./static');
 const stylesheets = require('./stylesheets');
 
+const instance = require('../instance');
+
 function applyProdEnv (cb) {
   process.env.NODE_ENV = 'production';
   cb();
+}
+
+const emit = (event) => (cb) => {
+  instance.emit(event);
+  cb()
 }
 
 const taker = new Undertaker();
@@ -23,7 +30,11 @@ const taker = new Undertaker();
 module.exports = () => {
   const cleanDev = () => del(paths.devDir)
   const cleanProd = () => del(paths.prodDir)
-  const clean = taker.parallel(cleanDev, cleanProd);
+  const clean = taker.parallel(
+    emit('before:clean'),
+    cleanDev, cleanProd,
+    emit('after:clean')
+  );
 
   const buildProd = taker.series(
     taker.parallel(
@@ -34,17 +45,32 @@ module.exports = () => {
     html().buildProd
   );
 
-  const runProdServer = () => server().run(paths.prodDir, args.port);
+  const runProdServer = taker.series(
+    emit('before:serve-prod'),
+    () => server().run(paths.prodDir, args.port)
+  );
 
-  const buildAndDeploy = taker.series(applyProdEnv, cleanProd, buildProd, deploy);
-  const cleanAndBuildProd = taker.series(applyProdEnv, cleanProd, buildProd);
+  const buildAndDeploy = taker.series(
+    emit('before:deploy'),
+    applyProdEnv, cleanProd, buildProd, deploy,
+    emit('after:deploy')
+  );
 
-  const watch = taker.parallel(
-    scripts().watch,
-    stylesheets().watch,
-    staticAssets().watch,
-    html().watch,
-    server().watch
+  const cleanAndBuildProd = taker.series(
+    emit('before:build-prod'),
+    applyProdEnv, cleanProd, buildProd,
+    emit('after:build-prod')
+  );
+
+  const watch = taker.series(
+    emit('before:watch'),
+    taker.parallel(
+      scripts().watch,
+      stylesheets().watch,
+      staticAssets().watch,
+      html().watch,
+      server().watch
+    )
   );
 
   return {

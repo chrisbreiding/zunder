@@ -5,6 +5,7 @@
   "repository": "git://github.com/chrisbreiding/zunder.git",
   "author": "Chris Breiding (http://www.chrisbreiding.com/)",
   "license": "MIT",
+  "main": "dist/index.js",
   "bin": {
     "zunder": "dist/lib/zunder.js"
   },
