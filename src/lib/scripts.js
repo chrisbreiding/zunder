@@ -16,6 +16,8 @@ const watchify = require('watchify');
 
 const babelPresetEs2015 = require('babel-preset-es2015');
 const babelPresetReact = require('babel-preset-react');
+const babelPresetStage1 = require('babel-preset-stage-1');
+const babelPluginDecorators = require('babel-plugin-transform-decorators-legacy').default;
 
 const handleErrors = require('./handle-errors');
 const notifyChanged = require('./notify-changed');
@@ -24,7 +26,10 @@ const util = require('./util');
 
 const babel = {
   transform: babelify,
-  options: { presets: [babelPresetEs2015, babelPresetReact] },
+  options: {
+    plugins: [babelPluginDecorators],
+    presets: [babelPresetEs2015, babelPresetReact, babelPresetStage1],
+  },
 };
 
 const coffee = {
