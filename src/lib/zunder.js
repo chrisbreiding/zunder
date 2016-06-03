@@ -3,11 +3,10 @@
 
 const args = require('yargs').argv;
 
-const loadTasks = require('./tasks');
+const tasks = require('./tasks').clit;
 const util = require('./util');
 
 const task = args._[0] || 'watch';
-const tasks = loadTasks();
 
 try {
   require(`${process.cwd()}/zunderfile`);

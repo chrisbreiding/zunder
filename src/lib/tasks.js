@@ -27,58 +27,78 @@ const emit = (event) => (cb) => {
 
 const taker = new Undertaker();
 
-module.exports = () => {
-  const cleanDev = () => del(paths.devDir)
-  const cleanProd = () => del(paths.prodDir)
-  const clean = taker.parallel(
-    emit('before:clean'),
-    cleanDev, cleanProd,
-    emit('after:clean')
-  );
+const cleanDev = () => del(paths.devDir)
+const cleanProd = () => del(paths.prodDir)
+const clean = taker.parallel(
+  emit('before:clean'),
+  cleanDev, cleanProd,
+  emit('after:clean')
+);
 
-  const buildProd = taker.series(
-    taker.parallel(
-      scripts().buildProd,
-      stylesheets().buildProd,
-      staticAssets().buildProd
-    ),
-    html().buildProd
-  );
+const buildProdScripts = scripts().buildProd;
+const buildProdStylesheets = stylesheets().buildProd;
+const buildProdStaticAssets = staticAssets().buildProd;
+const buildProdHtml = html().buildProd;
 
-  const runProdServer = taker.series(
-    emit('before:serve-prod'),
-    () => server().run(paths.prodDir, args.port)
-  );
+const buildProd = taker.series(
+  taker.parallel(buildProdScripts, buildProdStylesheets, buildProdStaticAssets),
+  buildProdHtml
+);
 
-  const buildAndDeploy = taker.series(
-    emit('before:deploy'),
-    applyProdEnv, cleanProd, buildProd, deploy,
-    emit('after:deploy')
-  );
+const runProdServer = taker.series(
+  emit('before:serve-prod'),
+  () => server().run(paths.prodDir, args.port)
+);
 
-  const cleanAndBuildProd = taker.series(
-    emit('before:build-prod'),
-    applyProdEnv, cleanProd, buildProd,
-    emit('after:build-prod')
-  );
+const buildAndDeploy = taker.series(
+  emit('before:deploy'),
+  applyProdEnv, cleanProd, buildProd, deploy,
+  emit('after:deploy')
+);
 
-  const watch = taker.series(
-    emit('before:watch'),
-    taker.parallel(
-      scripts().watch,
-      stylesheets().watch,
-      staticAssets().watch,
-      html().watch,
-      server().watch
-    )
-  );
+const cleanAndBuildProd = taker.series(
+  emit('before:build-prod'),
+  applyProdEnv, cleanProd, buildProd,
+  emit('after:build-prod')
+);
 
-  return {
+const watchScripts = scripts().watch;
+const watchStylesheets = stylesheets().watch;
+const watchStaticAssets = staticAssets().watch;
+const watchHtml = html().watch;
+const watchServer = server().watch;
+
+const watch = taker.series(
+  emit('before:watch'),
+  taker.parallel(watchScripts, watchStylesheets, watchStaticAssets, watchHtml, watchServer)
+);
+
+module.exports = {
+  api: {
+    undertaker: taker,
+
+    applyProdEnv,
+
+    buildProdScripts,
+    buildProdStylesheets,
+    buildProdStaticAssets,
+    buildProdHtml,
+
+    cleanDev,
+    cleanProd,
+
+    watchScripts,
+    watchStylesheets,
+    watchStaticAssets,
+    watchHtml,
+    watchServer,
+  },
+  cli: {
     clean,
     deploy: buildAndDeploy,
     'build-prod': cleanAndBuildProd,
     'serve-prod': runProdServer,
     setup: setup().run,
     watch,
-  };
+  },
 };

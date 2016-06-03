@@ -1,10 +1,15 @@
+const _ = require('lodash');
 const EventEmitter = require('events');
 const paths = require('./lib/paths')
+const api = require('./lib/tasks').api;
 
-class ZunderEmitter extends EventEmitter {}
+class Zunder extends EventEmitter {
+  constructor (config) {
+    super();
 
-const instance = new ZunderEmitter();
+    this.config = config;
+    _.extend(this, api);
+  }
+}
 
-instance.config = paths;
-
-module.exports = instance;
+module.exports = new Zunder(paths);
