@@ -7,7 +7,7 @@ Zunder provides gulp tasks to do the following:
 * install react and eslint dependencies
 * create boilerplate files to get you up and running quickly
 * watch your files for changes and update them
-* compile your ES2015 JavaScript and SCSS
+* compile your ES2015 JavaScript, CJSX (CoffeeScript equivalent of JSX) and SCSS
 * run a server to serve your assets
 * build your assets for production with minification and cache-busting
 * deploy your app to github pages
@@ -46,7 +46,7 @@ $ ./node_modules/.bin/zunder watch
 
 Use while developing your app.
 
-* watches and compiles JavaScript (ES2015 and JSX) and SCSS files
+* watches and compiles JavaScript (ES2015 and JSX), CJSX and SCSS files
 * copies assets from the `static` directory
 * builds src/index.hbs
 * serves the app on an available port
@@ -59,7 +59,7 @@ $ ./node_modules/.bin/zunder build
 
 Use to test out the production version of your app before deploying.
 
-* compiles JavaScript (ES2015 and JSX) and SCSS files
+* compiles JavaScript (ES2015 and JSX), CJSX and SCSS files
 * minifies the generated JS and CSS
 * adds a cache-buster to the generated JS and CSS files based on their contents
 * copies assets from the `static` directory
