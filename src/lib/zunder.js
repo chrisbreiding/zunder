@@ -3,7 +3,7 @@
 
 const args = require('yargs').argv;
 
-const tasks = require('./tasks').clit;
+const tasks = require('./tasks').cli;
 const util = require('./util');
 
 const task = args._[0] || 'watch';
