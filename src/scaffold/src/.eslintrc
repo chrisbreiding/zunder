@@ -3,6 +3,7 @@
     "browser": true,
     "node": true
   },
+  "parser": "babel-eslint",
   "parserOptions": {
     "ecmaVersion": 6,
     "sourceType": "module",
@@ -82,7 +83,7 @@
     "prefer-rest-params": "error",
     "prefer-spread": "error",
     "prefer-template": "error",
-    "semi-spacing": "error",
+    "semi": ["error", "never"],
     "space-before-blocks": "error",
     "space-before-function-paren": "error",
     "space-in-parens": ["error", "never"],
@@ -92,7 +93,6 @@
     "use-isnan": "error",
     "valid-typeof": "error",
 
-    "jsx-quotes": ["error", "prefer-single"],
     "react/jsx-uses-react": "error",
     "react/jsx-uses-vars": "error",
     "react/react-in-jsx-scope": "error"
