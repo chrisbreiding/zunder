@@ -14,7 +14,7 @@ const mkdirp = promisify(require('mkdirp'));
 const readFile = promisify(fs.readFile);
 
 module.exports = () => {
-  const devDeps = ['eslint', 'eslint-plugin-react'];
+  const devDeps = ['eslint', 'eslint-plugin-react', 'babel-eslint'];
   const deps = ['react', 'react-dom'];
 
   return {
