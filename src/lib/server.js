@@ -1,13 +1,14 @@
 'use strict';
 
 const bodyParser = require('body-parser');
+const express = require('express');
 const globSync = require('glob').sync;
 const nodemon = require('gulp-nodemon');
-const express = require('express');
+const _ = require('lodash');
 const morgan = require('morgan');
 const portfinder = require('portfinder');
+const argv = require('yargs').argv;
 
-const paths = require('./paths');
 const util = require('./util');
 
 function setupMockServer (app) {
@@ -44,16 +45,22 @@ function runServer (dir, port) {
 module.exports = () => {
   return {
     watch () {
+      // gather command line args to pass them into nodemon
+      const args = _(argv)
+        .omit('_', '$0')
+        .map((val, key) => `--${key}=${val}`)
+        .value();
+
       return nodemon({
         script: `${__dirname}/run-dev-server.js`,
         watch: [`${process.cwd()}/server`],
-        args: [`--devDir=${paths.devDir}`],
+        args,
       });
     },
 
-    run (dir, port) {
-      if (port) {
-        runServer(dir, port);
+    run (dir) {
+      if (argv.port) {
+        runServer(dir, argv.port);
       } else {
         portfinder.getPort((err, port) => {
           runServer(dir, port);

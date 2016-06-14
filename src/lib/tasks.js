@@ -47,7 +47,7 @@ const buildProd = taker.series(
 
 const runProdServer = taker.series(
   emit('before:serve-prod'),
-  () => server().run(paths.prodDir, args.port)
+  () => server().run(paths.prodDir)
 );
 
 const buildAndDeploy = taker.series(
