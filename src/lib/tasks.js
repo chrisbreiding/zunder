@@ -13,6 +13,7 @@ const staticAssets = require('./static');
 const stylesheets = require('./stylesheets');
 
 const instance = require('./instance');
+const util = require('./util');
 
 function applyProdEnv (cb) {
   process.env.NODE_ENV = 'production';
@@ -25,6 +26,16 @@ const emit = (event) => (cb) => {
 }
 
 const taker = new Undertaker();
+
+const errorsReported = {};
+taker.on('error', ({ error }) => {
+  if (errorsReported[error.message]) return;
+
+  errorsReported[error.message] = true;
+
+  util.logError('Unexpected error:')
+  util.log(error.showStack === false ? `${error.plugin}: ${error.message}` : error.stack);
+});
 
 const cleanDev = () => del(config.devDir)
 const cleanProd = () => del(config.prodDir)

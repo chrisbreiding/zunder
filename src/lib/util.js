@@ -13,8 +13,8 @@ function logSubTask (message) {
   log(colors.blue(message));
 }
 
-function logError (error) {
-  log(colors.red(error));
+function logError (error, ...args) {
+  log(colors.red(error), ...args);
 }
 
 module.exports = {
