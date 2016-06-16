@@ -1,30 +1,43 @@
 'use strict';
 
-const vfs = require('vinyl-fs');
+const _ = require('lodash');
+const es = require('event-stream');
 const watch = require('gulp-watch');
+const vfs = require('vinyl-fs');
 
 const notifyChanged = require('./notify-changed');
 const config = require('./config');
 const util = require('./util');
 
-module.exports = () => {
-  function process (file) {
-    if (file) notifyChanged(file);
-    return vfs.src(config.staticGlobs).pipe(vfs.dest(config.devDir));
-  }
+const copy = (globs, dest) => vfs.src(globs).pipe(vfs.dest(dest))
 
+const process = (dest) => (file) => {
+  if (file) notifyChanged(file);
+
+  if (_.isArray(config.staticGlobs)) {
+    return copy(config.staticGlobs, dest)
+  } else {
+    const streams = _.map(config.staticGlobs, (dir, glob) => {
+      return copy(glob, `${dest}${dir}`);
+    })
+    return es.merge(streams)
+  }
+}
+
+module.exports = () => {
   return {
     watch () {
       util.logSubTask('watching static files');
 
-      watch(config.staticGlobs, process);
-      return process();
+      const watches = _.isArray(config.staticGlobs) ? config.staticGlobs : _.keys(config.staticGlobs)
+      watch(watches, process(config.devDir));
+      return process(config.devDir)();
     },
 
     buildProd () {
       util.logSubTask('copying static files');
 
-      return vfs.src(config.staticGlobs).pipe(vfs.dest(config.prodDir));
+      return process(config.prodDir)();
     },
   };
 };
