@@ -4,4 +4,5 @@
 module.exports = {
   devDir: 'dist',
   prodDir: 'dist-prod',
+  staticDirs: ['static'],
 };

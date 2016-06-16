@@ -7,24 +7,28 @@ const notifyChanged = require('./notify-changed');
 const config = require('./config');
 const util = require('./util');
 
+const getSrc = () => (
+  config.staticDirs.map((dir) => `${dir}/**/*`)
+)
+
 module.exports = () => {
   function process (file) {
     if (file) notifyChanged(file);
-    return vfs.src('static/**/*').pipe(vfs.dest(config.devDir));
+    return vfs.src(getSrc()).pipe(vfs.dest(config.devDir));
   }
 
   return {
     watch () {
       util.logSubTask('watching static files');
 
-      watch('static/**/*', process);
+      watch(getSrc(), process);
       return process();
     },
 
     buildProd () {
       util.logSubTask('copying static files');
 
-      return vfs.src('static/**/*').pipe(vfs.dest(config.prodDir));
+      return vfs.src(getSrc()).pipe(vfs.dest(config.prodDir));
     },
   };
 };
