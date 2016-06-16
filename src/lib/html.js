@@ -9,7 +9,7 @@ const util = require('./util');
 
 function process (file) {
   if (file) notifyChanged(file);
-  return vfs.src('src/index.hbs')
+  return vfs.src('src/*.hbs')
     .pipe(build(['app.js'], ['app.css']))
     .pipe(vfs.dest(paths.devDir));
 }
@@ -17,14 +17,14 @@ function process (file) {
 module.exports = () => {
   return {
     watch () {
-      util.logSubTask('watching index.hbs');
+      util.logSubTask('watching hbs files');
 
-      watch('src/index.hbs', process);
+      watch('src/*.hbs', process);
       return process();
     },
 
     buildProd () {
-      util.logSubTask('building index.hbs');
+      util.logSubTask('building hbs files');
 
       const scriptsManifest = `${paths.prodDir}/scripts-manifest.json`;
       const stylesheetsManifest = `${paths.prodDir}/stylesheets-manifest.json`;
