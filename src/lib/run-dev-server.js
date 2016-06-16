@@ -1,6 +1,6 @@
 'use strict';
 
-const paths = require('./paths')
+const argv = require('yargs').argv;
 const server = require('./server');
 
-server().run(paths.devDir);
+server().run(argv.devDir);

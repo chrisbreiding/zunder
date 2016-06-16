@@ -9,6 +9,7 @@ const morgan = require('morgan');
 const portfinder = require('portfinder');
 const argv = require('yargs').argv;
 
+const config = require('./config');
 const util = require('./util');
 
 function setupMockServer (app) {
@@ -49,6 +50,7 @@ module.exports = () => {
       const args = _(argv)
         .omit('_', '$0')
         .map((val, key) => `--${key}=${val}`)
+        .concat([`--devDir=${config.devDir}`])
         .value();
 
       return nodemon({

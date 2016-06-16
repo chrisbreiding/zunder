@@ -4,13 +4,13 @@ const vfs = require('vinyl-fs');
 const watch = require('gulp-watch');
 
 const notifyChanged = require('./notify-changed');
-const paths = require('./paths');
+const config = require('./config');
 const util = require('./util');
 
 module.exports = () => {
   function process (file) {
     if (file) notifyChanged(file);
-    return vfs.src('static/**/*').pipe(vfs.dest(paths.devDir));
+    return vfs.src('static/**/*').pipe(vfs.dest(config.devDir));
   }
 
   return {
@@ -24,7 +24,7 @@ module.exports = () => {
     buildProd () {
       util.logSubTask('copying static files');
 
-      return vfs.src('static/**/*').pipe(vfs.dest(paths.prodDir));
+      return vfs.src('static/**/*').pipe(vfs.dest(config.prodDir));
     },
   };
 };

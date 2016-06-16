@@ -15,7 +15,7 @@ const vfs = require('vinyl-fs');
 
 const handleErrors = require('./handle-errors');
 const notifyChanged = require('./notify-changed');
-const paths = require('./paths');
+const config = require('./config');
 const util = require('./util');
 
 const files = {
@@ -39,8 +39,8 @@ const files = {
 };
 
 function getSrcConfig () {
-  const config = _.reduce(files, (config, compiler, fileName) => {
-    if (config) return config;
+  const srcConfig = _.reduce(files, (srcConfig, compiler, fileName) => {
+    if (srcConfig) return srcConfig;
     try {
       fs.readFileSync(`${process.cwd()}/src/${fileName}`);
     } catch (e) {
@@ -49,26 +49,26 @@ function getSrcConfig () {
     return { fileName, compiler };
   }, null);
 
-  if (!config) {
+  if (!srcConfig) {
     util.logError(`One of the following files must exist under src:\n- ${_.keys(files).join('\n- ')}\n`);
     return;
   }
 
-  return config;
+  return srcConfig;
 }
 
 module.exports = () => {
   const autoprefixOptions = { browsers: ['last 2 versions'], cascade: false };
 
   let firstTime = true;
-  function process (config, file) {
+  function process (srcConfig, file) {
     if (file) notifyChanged(file);
-    return vfs.src(`src/${config.fileName}`)
+    return vfs.src(`src/${srcConfig.fileName}`)
       .pipe(plumber(handleErrors))
-      .pipe(config.compiler.dev())
+      .pipe(srcConfig.compiler.dev())
       .pipe(autoprefixer(autoprefixOptions))
       .pipe(rename('app.css'))
-      .pipe(vfs.dest(paths.devDir))
+      .pipe(vfs.dest(config.devDir))
       .on('end', () => {
         if (firstTime) {
           firstTime = false;
@@ -82,26 +82,26 @@ module.exports = () => {
     watch () {
       util.logSubTask('watching stylesheets');
 
-      const config = getSrcConfig();
-      watch(config.compiler.watch, _.partial(process, config));
-      return process(config);
+      const srcConfig = getSrcConfig();
+      watch(srcConfig.compiler.watch, _.partial(process, srcConfig));
+      return process(srcConfig);
     },
 
     buildProd () {
       util.logSubTask('building stylesheets');
 
-      const config = getSrcConfig();
-      return vfs.src(`src/${config.fileName}`)
+      const srcConfig = getSrcConfig();
+      return vfs.src(`src/${srcConfig.fileName}`)
         .pipe(plumber(handleErrors))
-        .pipe(config.compiler.prod())
+        .pipe(srcConfig.compiler.prod())
         .pipe(autoprefixer(autoprefixOptions))
         .pipe(minify())
         .pipe(rename('app.css'))
         .pipe(rev())
-        .pipe(vfs.dest(paths.prodDir))
+        .pipe(vfs.dest(config.prodDir))
         .pipe(rev.manifest())
         .pipe(rename('stylesheets-manifest.json'))
-        .pipe(vfs.dest(paths.prodDir));
+        .pipe(vfs.dest(config.prodDir));
     },
   };
 };

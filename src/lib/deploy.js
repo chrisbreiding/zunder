@@ -5,11 +5,11 @@ const fs = require('fs');
 const RSVP = require('rsvp');
 
 const exec = require('./exec-promise');
-const paths = require('./paths');
+const config = require('./config');
 const util = require('./util');
 
 module.exports = () => {
-  const dir = paths.prodDir;
+  const dir = config.prodDir;
 
   function execInBuild (command) {
     return exec(command, { cwd: dir });

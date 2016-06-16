@@ -21,7 +21,7 @@ const babelPluginDecorators = require('babel-plugin-transform-decorators-legacy'
 
 const handleErrors = require('./handle-errors');
 const notifyChanged = require('./notify-changed');
-const paths = require('./paths');
+const config = require('./config');
 const util = require('./util');
 
 const babel = {
@@ -78,7 +78,7 @@ function bundle (bundler, destination) {
 
 function rebundle (bundler, files) {
   files.forEach((path) => notifyChanged({ path }));
-  return bundle(bundler, paths.devDir);
+  return bundle(bundler, config.devDir);
 }
 
 module.exports = () => {
@@ -114,10 +114,10 @@ module.exports = () => {
         .pipe(buffer())
         .pipe(uglify())
         .pipe(rev())
-        .pipe(vfs.dest(paths.prodDir))
+        .pipe(vfs.dest(config.prodDir))
         .pipe(rev.manifest())
         .pipe(rename('scripts-manifest.json'))
-        .pipe(vfs.dest(paths.prodDir));
+        .pipe(vfs.dest(config.prodDir));
     },
   };
 };

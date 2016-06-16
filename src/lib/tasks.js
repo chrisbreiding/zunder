@@ -2,18 +2,17 @@
 
 const del = require('del');
 const Undertaker = require('undertaker');
-const args = require('yargs').argv;
 
 const deploy = require('./deploy');
 const html = require('./html');
-const paths = require('./paths');
+const config = require('./config');
 const scripts = require('./scripts');
 const server = require('./server');
 const setup = require('./setup');
 const staticAssets = require('./static');
 const stylesheets = require('./stylesheets');
 
-const instance = require('../instance');
+const instance = require('./instance');
 
 function applyProdEnv (cb) {
   process.env.NODE_ENV = 'production';
@@ -27,8 +26,8 @@ const emit = (event) => (cb) => {
 
 const taker = new Undertaker();
 
-const cleanDev = () => del(paths.devDir)
-const cleanProd = () => del(paths.prodDir)
+const cleanDev = () => del(config.devDir)
+const cleanProd = () => del(config.prodDir)
 const clean = taker.parallel(
   emit('before:clean'),
   cleanDev, cleanProd,
@@ -47,7 +46,7 @@ const buildProd = taker.series(
 
 const runProdServer = taker.series(
   emit('before:serve-prod'),
-  () => server().run(paths.prodDir)
+  () => server().run(config.prodDir)
 );
 
 const buildAndDeploy = taker.series(
