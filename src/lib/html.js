@@ -6,6 +6,7 @@ const build = require('./build-index');
 const notifyChanged = require('./notify-changed');
 const config = require('./config');
 const util = require('./util');
+const { closeOnExit } = require('./exit')
 
 function process (file) {
   if (file) notifyChanged(file);
@@ -19,8 +20,12 @@ module.exports = () => {
     watch () {
       util.logSubTask('watching hbs files');
 
-      watch('src/*.hbs', process);
-      return process();
+      const watcher = watch('src/*.hbs', process);
+      process();
+
+      closeOnExit(watcher);
+
+      return watcher;
     },
 
     buildProd () {

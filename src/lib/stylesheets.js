@@ -17,6 +17,7 @@ const handleErrors = require('./handle-errors');
 const notifyChanged = require('./notify-changed');
 const config = require('./config');
 const util = require('./util');
+const { closeOnExit } = require('./exit')
 
 const files = {
   'main.styl': {
@@ -83,8 +84,12 @@ module.exports = () => {
       util.logSubTask('watching stylesheets');
 
       const srcConfig = getSrcConfig();
-      watch(srcConfig.compiler.watch, _.partial(process, srcConfig));
-      return process(srcConfig);
+      const watcher = watch(srcConfig.compiler.watch, _.partial(process, srcConfig));
+      process(srcConfig);
+
+      closeOnExit(watcher);
+
+      return watcher;
     },
 
     buildProd () {

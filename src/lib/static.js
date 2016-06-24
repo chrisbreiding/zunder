@@ -8,6 +8,7 @@ const vfs = require('vinyl-fs');
 const notifyChanged = require('./notify-changed');
 const config = require('./config');
 const util = require('./util');
+const { closeOnExit } = require('./exit')
 
 const copy = (globs, dest) => vfs.src(globs).pipe(vfs.dest(dest))
 
@@ -30,8 +31,12 @@ module.exports = () => {
       util.logSubTask('watching static files');
 
       const watches = _.isArray(config.staticGlobs) ? config.staticGlobs : _.keys(config.staticGlobs)
-      watch(watches, process(config.devDir));
-      return process(config.devDir)();
+      const watcher = watch(watches, process(config.devDir));
+      process(config.devDir)();
+
+      closeOnExit(watcher);
+
+      return watcher;
     },
 
     buildProd () {
