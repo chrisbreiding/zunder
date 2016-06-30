@@ -3,6 +3,7 @@
 const _ = require('lodash');
 const babelify = require('babelify');
 const browserify = require('browserify');
+const resolutions = require('browserify-resolutions');
 const cjsxify = require('cjsxify');
 const fs = require('fs');
 const buffer = require('vinyl-buffer');
@@ -94,7 +95,9 @@ module.exports = () => {
         packageCache: {},
       });
 
-      bundler.transform(ify.transform, ify.options)
+      bundler
+        .plugin(resolutions, config.resolutions)
+        .transform(ify.transform, ify.options);
       watchify(bundler).on('update', (files) => rebundle(bundler, files));
       rebundle(bundler, []);
 
@@ -106,6 +109,7 @@ module.exports = () => {
 
       const { entries, ify } = getSrcConfig();
       return browserify({ entries, extensions })
+        .plugin(resolutions, '*')
         .transform(ify.transform, ify.options)
         .bundle()
         .on('error', handleErrors)

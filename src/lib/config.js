@@ -5,4 +5,5 @@ module.exports = {
   devDir: 'dist',
   prodDir: 'dist-prod',
   staticGlobs: ['static/**'],
+  resolutions: [],
 };
