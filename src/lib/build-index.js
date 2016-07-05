@@ -21,6 +21,7 @@ module.exports = (scripts, stylesheets) => {
       compiled = template({
         scripts,
         stylesheets,
+        env: process.env,
       });
     } catch (error) {
       this.emit('error', new util.PluginError(PLUGIN_NAME, error));

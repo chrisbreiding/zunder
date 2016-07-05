@@ -15,10 +15,13 @@ const stylesheets = require('./stylesheets');
 const instance = require('./instance');
 const util = require('./util');
 
-function applyProdEnv (cb) {
-  process.env.NODE_ENV = 'production';
+const applyEnv = (env) => (cb) => {
+  process.env.NODE_ENV = env;
   cb();
 }
+
+const applyDevEnv = applyEnv('development')
+const applyProdEnv = applyEnv('production')
 
 const emit = (event) => (cb) => {
   instance.emit(event);
@@ -80,6 +83,7 @@ const watchServer = server().watch;
 
 const watch = taker.series(
   emit('before:watch'),
+  applyDevEnv,
   taker.parallel(watchScripts, watchStylesheets, watchStaticAssets, watchHtml, watchServer)
 );
 
@@ -87,6 +91,7 @@ module.exports = {
   api: {
     undertaker: taker,
 
+    applyDevEnv,
     applyProdEnv,
 
     buildProdScripts,
