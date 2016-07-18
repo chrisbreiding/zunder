@@ -28,6 +28,12 @@ module.exports = () => {
       return watcher;
     },
 
+    buildDev () {
+      util.logSubTask('building hbs files (dev)');
+
+      process();
+    },
+
     buildProd () {
       util.logSubTask('building hbs files');
 

@@ -104,6 +104,20 @@ module.exports = () => {
       return rebundle;
     },
 
+    buildDev () {
+      util.logSubTask('building scripts (dev)');
+
+      const { entries, ify } = getSrcConfig();
+      return browserify({ entries, extensions })
+        .plugin(resolutions, '*')
+        .transform(ify.transform, ify.options)
+        .bundle()
+        .on('error', handleErrors)
+        .pipe(plumber(handleErrors))
+        .pipe(source('app.js'))
+        .pipe(vfs.dest(config.devDir));
+    },
+
     buildProd () {
       util.logSubTask('building scripts');
 

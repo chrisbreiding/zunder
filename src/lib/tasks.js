@@ -75,6 +75,11 @@ const cleanAndBuildProd = taker.series(
   emit('after:build-prod')
 );
 
+const buildDevScripts = scripts().buildDev
+const buildDevStylesheets = stylesheets().buildDev
+const buildDevStaticAssets = staticAssets().buildDev
+const buildDevHtml = html().buildDev
+
 const watchScripts = scripts().watch;
 const watchStylesheets = stylesheets().watch;
 const watchStaticAssets = staticAssets().watch;
@@ -93,6 +98,11 @@ module.exports = {
 
     applyDevEnv,
     applyProdEnv,
+
+    buildDevScripts,
+    buildDevStylesheets,
+    buildDevStaticAssets,
+    buildDevHtml,
 
     buildProdScripts,
     buildProdStylesheets,

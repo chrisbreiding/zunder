@@ -92,6 +92,13 @@ module.exports = () => {
       return watcher;
     },
 
+    buildDev () {
+      util.logSubTask('building stylesheets (dev)');
+
+      const srcConfig = getSrcConfig();
+      process(srcConfig);
+    },
+
     buildProd () {
       util.logSubTask('building stylesheets');
 

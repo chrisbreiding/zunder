@@ -39,6 +39,12 @@ module.exports = () => {
       return watcher;
     },
 
+    buildDev () {
+      util.logSubTask('copying static files (dev)');
+
+      return process(config.devDir)();
+    },
+
     buildProd () {
       util.logSubTask('copying static files');
 
