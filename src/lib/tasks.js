@@ -83,14 +83,13 @@ const buildDevStylesheets = stylesheets().buildDev
 const buildDevStaticAssets = staticAssets().buildDev
 const buildDevHtml = html().buildDev
 
-const buildTests = tests().build
 const runTests = tests().run
 const test = taker.series(
   emit('before:test'),
   applyTestEnv, runTests,
   emit('after:test')
 )
-const watchTests = tests().watch;
+const watchTests = tests().watch
 
 const watchScripts = scripts().watch;
 const watchStylesheets = stylesheets().watch;
@@ -101,7 +100,6 @@ const watchServer = server().watch;
 const watch = taker.series(
   emit('before:watch'),
   applyDevEnv,
-  buildTests,
   taker.parallel(
     watchScripts,
     watchTests,

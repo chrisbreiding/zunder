@@ -65,12 +65,6 @@ function buildScripts (globOrFile) {
 
 module.exports = () => {
   return {
-    build () {
-      if (!hasSpecs()) return undertakerNoop()
-
-      return buildScripts([scriptsGlob])
-    },
-
     run () {
       if (!hasSpecs()) {
         util.logError('No tests found to run. Tests must be suffixed with .spec.{ext}, like .spec.js or .spec.coffee')
@@ -104,6 +98,7 @@ module.exports = () => {
             r: util.fileExists(testSetupFile()) ? testSetupFile() : undefined,
           })))
       })
+      buildScripts([scriptsGlob])
 
       closeOnExit(watcher)
 
