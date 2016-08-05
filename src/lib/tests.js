@@ -21,7 +21,7 @@ const util = require('./util')
 
 const scriptsGlob = 'src/**/*.+(js|jsx|coffee|cjsx)'
 const undertakerNoop = () => Promise.resolve()
-const testSetupFile = () => `${config.testDir}/${config.testSetup}`
+const testSetupFile = () => config.testSetup
 
 function hasSpecs () {
   return !!globSync('src/**/*.spec.*').length
