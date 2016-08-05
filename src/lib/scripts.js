@@ -3,34 +3,27 @@
 const _ = require('lodash');
 const babelify = require('babelify');
 const browserify = require('browserify');
-const resolutions = require('browserify-resolutions');
+const buffer = require('vinyl-buffer');
 const cjsxify = require('cjsxify');
 const fs = require('fs');
-const buffer = require('vinyl-buffer');
-const vfs = require('vinyl-fs');
 const plumber = require('gulp-plumber');
 const rename = require('gulp-rename');
+const resolutions = require('browserify-resolutions');
 const rev = require('gulp-rev');
 const source = require('vinyl-source-stream');
 const uglify = require('gulp-uglify');
+const vfs = require('vinyl-fs');
 const watchify = require('watchify');
 
-const babelPresetEs2015 = require('babel-preset-es2015');
-const babelPresetReact = require('babel-preset-react');
-const babelPresetStage1 = require('babel-preset-stage-1');
-const babelPluginDecorators = require('babel-plugin-transform-decorators-legacy').default;
-
-const handleErrors = require('./handle-errors');
+const babelConfig = require('./babel-config');
+const handleErrors = require('./handle-errors')('Scripts');
 const notifyChanged = require('./notify-changed');
 const config = require('./config');
 const util = require('./util');
 
 const babel = {
   transform: babelify,
-  options: {
-    plugins: [babelPluginDecorators],
-    presets: [babelPresetEs2015, babelPresetReact, babelPresetStage1],
-  },
+  options: babelConfig(),
 };
 
 const coffee = {

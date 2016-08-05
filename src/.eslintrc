@@ -5,6 +5,9 @@
   "parserOptions": {
     "ecmaVersion": 6,
   },
+  "globals": {
+    "Promise": true
+  },
   "rules": {
     "array-bracket-spacing": ["error", "never"],
     "arrow-parens": ["error", "always"],

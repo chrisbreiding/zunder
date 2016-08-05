@@ -4,6 +4,8 @@
 module.exports = {
   devDir: 'dist',
   prodDir: 'dist-prod',
-  staticGlobs: ['static/**'],
   resolutions: [],
+  staticGlobs: ['static/**'],
+  testDir: 'dist-test',
+  testSetup: 'lib/test-setup.js',
 };

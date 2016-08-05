@@ -13,7 +13,7 @@ const _ = require('lodash');
 const globber = require('node-sass-globbing');
 const vfs = require('vinyl-fs');
 
-const handleErrors = require('./handle-errors');
+const handleErrors = require('./handle-errors')('Stylesheets');
 const notifyChanged = require('./notify-changed');
 const config = require('./config');
 const util = require('./util');

@@ -11,6 +11,7 @@ const server = require('./server');
 const setup = require('./setup');
 const staticAssets = require('./static');
 const stylesheets = require('./stylesheets');
+const tests = require('./tests')
 
 const instance = require('./instance');
 const util = require('./util');
@@ -22,6 +23,7 @@ const applyEnv = (env) => (cb) => {
 
 const applyDevEnv = applyEnv('development')
 const applyProdEnv = applyEnv('production')
+const applyTestEnv = applyEnv('test')
 
 const emit = (event) => (cb) => {
   instance.emit(event);
@@ -42,9 +44,10 @@ taker.on('error', ({ error }) => {
 
 const cleanDev = () => del(config.devDir)
 const cleanProd = () => del(config.prodDir)
+const cleanTests = () => del(config.testDir)
 const clean = taker.parallel(
   emit('before:clean'),
-  cleanDev, cleanProd,
+  cleanDev, cleanProd, cleanTests,
   emit('after:clean')
 );
 
@@ -80,6 +83,15 @@ const buildDevStylesheets = stylesheets().buildDev
 const buildDevStaticAssets = staticAssets().buildDev
 const buildDevHtml = html().buildDev
 
+const buildTests = tests().build
+const runTests = tests().run
+const test = taker.series(
+  emit('before:test'),
+  applyTestEnv, runTests,
+  emit('after:test')
+)
+const watchTests = tests().watch;
+
 const watchScripts = scripts().watch;
 const watchStylesheets = stylesheets().watch;
 const watchStaticAssets = staticAssets().watch;
@@ -89,7 +101,15 @@ const watchServer = server().watch;
 const watch = taker.series(
   emit('before:watch'),
   applyDevEnv,
-  taker.parallel(watchScripts, watchStylesheets, watchStaticAssets, watchHtml, watchServer)
+  buildTests,
+  taker.parallel(
+    watchScripts,
+    watchTests,
+    watchStylesheets,
+    watchStaticAssets,
+    watchHtml,
+    watchServer
+  )
 );
 
 module.exports = {
@@ -111,8 +131,12 @@ module.exports = {
 
     cleanDev,
     cleanProd,
+    cleanTests,
+
+    runTests,
 
     watchScripts,
+    watchTests,
     watchStylesheets,
     watchStaticAssets,
     watchHtml,
@@ -124,6 +148,7 @@ module.exports = {
     'build-prod': cleanAndBuildProd,
     'serve-prod': runProdServer,
     setup: setup().run,
+    test,
     watch,
   },
 };
