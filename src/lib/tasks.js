@@ -116,6 +116,7 @@ module.exports = {
 
     applyDevEnv,
     applyProdEnv,
+    applyTestEnv,
 
     buildDevScripts,
     buildDevStylesheets,
