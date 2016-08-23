@@ -66,7 +66,7 @@ function bundle (bundler, destination) {
   return bundler.bundle()
     .on('error', handleErrors)
     .pipe(plumber(handleErrors))
-    .pipe(source('app.js'))
+    .pipe(source(config.scriptName))
     .pipe(vfs.dest(destination));
 }
 
@@ -107,7 +107,7 @@ module.exports = () => {
         .bundle()
         .on('error', handleErrors)
         .pipe(plumber(handleErrors))
-        .pipe(source('app.js'))
+        .pipe(source(config.scriptName))
         .pipe(vfs.dest(config.devDir));
     },
 
@@ -121,7 +121,7 @@ module.exports = () => {
         .bundle()
         .on('error', handleErrors)
         .pipe(plumber(handleErrors))
-        .pipe(source('app.js'))
+        .pipe(source(config.scriptName))
         .pipe(buffer())
         .pipe(uglify())
         .pipe(rev())

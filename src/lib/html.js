@@ -11,7 +11,7 @@ const { closeOnExit } = require('./exit')
 function process (file) {
   if (file) notifyChanged(file);
   return vfs.src('src/*.hbs')
-    .pipe(build(['app.js'], ['app.css']))
+    .pipe(build([config.scriptName], [config.stylesheetName]))
     .pipe(vfs.dest(config.devDir));
 }
 
@@ -40,8 +40,8 @@ module.exports = () => {
       const scriptsManifest = `${config.prodDir}/scripts-manifest.json`;
       const stylesheetsManifest = `${config.prodDir}/stylesheets-manifest.json`;
 
-      const scriptName = JSON.parse(fs.readFileSync(scriptsManifest))['app.js'];
-      const stylesheetName = JSON.parse(fs.readFileSync(stylesheetsManifest))['app.css'];
+      const scriptName = JSON.parse(fs.readFileSync(scriptsManifest))[config.scriptName];
+      const stylesheetName = JSON.parse(fs.readFileSync(stylesheetsManifest))[config.stylesheetName];
 
       fs.unlinkSync(scriptsManifest);
       fs.unlinkSync(stylesheetsManifest);

@@ -68,7 +68,7 @@ module.exports = () => {
       .pipe(plumber(handleErrors))
       .pipe(srcConfig.compiler.dev())
       .pipe(autoprefixer(autoprefixOptions))
-      .pipe(rename('app.css'))
+      .pipe(rename(config.stylesheetName))
       .pipe(vfs.dest(config.devDir))
       .on('end', () => {
         if (firstTime) {
@@ -108,7 +108,7 @@ module.exports = () => {
         .pipe(srcConfig.compiler.prod())
         .pipe(autoprefixer(autoprefixOptions))
         .pipe(minify())
-        .pipe(rename('app.css'))
+        .pipe(rename(config.stylesheetName))
         .pipe(rev())
         .pipe(vfs.dest(config.prodDir))
         .pipe(rev.manifest())
