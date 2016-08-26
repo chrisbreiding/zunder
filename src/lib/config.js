@@ -2,6 +2,7 @@
 
 // properties are changed and added through instance.setConfig()
 module.exports = {
+  cacheBust: true,
   devDir: 'dist',
   prodDir: 'dist-prod',
   scriptName: 'app.js',

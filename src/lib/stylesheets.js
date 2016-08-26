@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const autoprefixer = require('gulp-autoprefixer');
+const gulpif = require('gulp-if');
 const minify = require('gulp-clean-css');
 const plumber = require('gulp-plumber');
 const rename = require('gulp-rename');
@@ -109,10 +110,10 @@ module.exports = () => {
         .pipe(autoprefixer(autoprefixOptions))
         .pipe(minify())
         .pipe(rename(config.stylesheetName))
-        .pipe(rev())
+        .pipe(gulpif(config.cacheBust, rev()))
         .pipe(vfs.dest(config.prodDir))
-        .pipe(rev.manifest())
-        .pipe(rename('stylesheets-manifest.json'))
+        .pipe(gulpif(config.cacheBust, rev.manifest()))
+        .pipe(gulpif(config.cacheBust, rename('stylesheets-manifest.json')))
         .pipe(vfs.dest(config.prodDir));
     },
   };

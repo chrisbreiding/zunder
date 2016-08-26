@@ -5,6 +5,7 @@ const babelify = require('babelify');
 const browserify = require('browserify');
 const buffer = require('vinyl-buffer');
 const cjsxify = require('cjsxify');
+const gulpif = require('gulp-if');
 const fs = require('fs');
 const plumber = require('gulp-plumber');
 const rename = require('gulp-rename');
@@ -124,10 +125,10 @@ module.exports = () => {
         .pipe(source(config.scriptName))
         .pipe(buffer())
         .pipe(uglify())
-        .pipe(rev())
+        .pipe(gulpif(config.cacheBust, rev()))
         .pipe(vfs.dest(config.prodDir))
-        .pipe(rev.manifest())
-        .pipe(rename('scripts-manifest.json'))
+        .pipe(gulpif(config.cacheBust, rev.manifest()))
+        .pipe(gulpif(config.cacheBust, rename('scripts-manifest.json')))
         .pipe(vfs.dest(config.prodDir));
     },
   };
