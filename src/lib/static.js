@@ -1,8 +1,8 @@
 'use strict';
 
 const _ = require('lodash');
-const es = require('event-stream');
 const watch = require('gulp-watch');
+const streamToPromise = require('stream-to-promise')
 const vfs = require('vinyl-fs');
 
 const notifyChanged = require('./notify-changed');
@@ -18,10 +18,9 @@ const process = (dest) => (file) => {
   if (_.isArray(config.staticGlobs)) {
     return copy(config.staticGlobs, dest)
   } else {
-    const streams = _.map(config.staticGlobs, (dir, glob) => {
-      return copy(glob, `${dest}${dir}`);
-    })
-    return es.merge(streams)
+    return Promise.all(_.map(config.staticGlobs, (dir, glob) => {
+      return streamToPromise(copy(glob, `${dest}${dir}`))
+    }))
   }
 }
 
