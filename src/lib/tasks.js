@@ -57,14 +57,12 @@ const buildProdStaticAssets = staticAssets().buildProd;
 const buildProdHtml = html().buildProd;
 
 const buildProd = taker.series(
-  emit('before:build-prod'),
   taker.parallel(
     buildProdScripts,
     buildProdStylesheets,
     buildProdStaticAssets
   ),
   buildProdHtml,
-  emit('after:build-prod')
 );
 
 const runProdServer = taker.series(
