@@ -92,7 +92,7 @@ const buildDevHtml = html().buildDev
 const runTests = tests().run
 const test = taker.series(
   emit('before:test'),
-  applyTestEnv, runTests,
+  applyTestEnv, cleanTests, runTests,
   emit('after:test')
 )
 const watchTests = tests().watch
@@ -106,6 +106,10 @@ const watchServer = server().watch;
 const watch = taker.series(
   emit('before:watch'),
   applyDevEnv,
+  taker.parallel(
+    cleanDev,
+    cleanTests
+  ),
   taker.parallel(
     watchScripts,
     watchTests,
