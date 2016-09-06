@@ -87,6 +87,19 @@ const buildDevStylesheets = stylesheets().buildDev
 const buildDevStaticAssets = staticAssets().buildDev
 const buildDevHtml = html().buildDev
 
+const buildDev = taker.series(
+  emit('before:build-dev'),
+  applyDevEnv,
+  cleanDev,
+  taker.parallel(
+    buildDevScripts,
+    buildDevStylesheets,
+    buildDevStaticAssets,
+    buildDevHtml
+  ),
+  emit('after:build-dev')
+)
+
 const runTests = tests().run
 const test = taker.series(
   emit('before:test'),
@@ -152,6 +165,7 @@ module.exports = {
   cli: {
     clean,
     deploy: buildAndDeploy,
+    'build-dev': buildDev,
     'build-prod': cleanAndBuildProd,
     'serve-prod': runProdServer,
     setup: setup().run,
