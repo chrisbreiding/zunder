@@ -62,7 +62,7 @@ const buildProd = taker.series(
     buildProdStylesheets,
     buildProdStaticAssets
   ),
-  buildProdHtml,
+  buildProdHtml
 );
 
 const runProdServer = taker.series(
