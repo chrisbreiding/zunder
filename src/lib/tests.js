@@ -23,8 +23,8 @@ const scriptsGlob = 'src/**/*.+(js|jsx|coffee|cjsx)'
 const undertakerNoop = () => Promise.resolve()
 const testSetupFile = () => config.testSetup
 
-function hasSpecs () {
-  return !!globSync('src/**/*.spec.*').length
+function hasSpecs (dir) {
+  return !!globSync(`${dir}/**/*.spec.*`).length
 }
 
 function getSpecFile (file) {
@@ -65,13 +65,25 @@ function buildScripts (globOrFile) {
 
 module.exports = () => {
   return {
-    run () {
-      if (!hasSpecs()) {
-        util.logError('No tests found to run. Tests must be suffixed with .spec.{ext}, like .spec.js or .spec.coffee')
+    build () {
+      util.logSubTask('building scripts (test)')
+
+      if (!hasSpecs('src')) {
+        util.logError(`No tests found to build in src directory. Tests must be suffixed with .spec.{ext}, like .spec.js or .spec.coffee`)
         return undertakerNoop()
       }
 
+      return buildScripts([scriptsGlob])
+    },
+
+    run () {
       util.logSubTask('running tests')
+
+      if (!hasSpecs(config.testDir)) {
+        util.logError(`No tests found to run in '${config.testDir}'. Ensure you have tests in your src directory and that you have built them. Tests must be suffixed with .spec.{ext}, like .spec.js or .spec.coffee`)
+        return undertakerNoop()
+      }
+
       const mocha = new Mocha()
       if (util.fileExists(testSetupFile())) {
         mocha.addFile(testSetupFile())
@@ -87,7 +99,7 @@ module.exports = () => {
     },
 
     watch () {
-      if (!hasSpecs()) return undertakerNoop()
+      if (!hasSpecs('src')) return undertakerNoop()
 
       util.logSubTask('watching tests')
       const watcher =  watch(scriptsGlob, (file) => {

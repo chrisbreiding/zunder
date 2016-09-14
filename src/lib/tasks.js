@@ -100,10 +100,11 @@ const buildDev = taker.series(
   emit('after:build-dev')
 )
 
+const buildTests = tests().build
 const runTests = tests().run
 const test = taker.series(
   emit('before:test'),
-  applyTestEnv, cleanTests, runTests,
+  applyTestEnv, cleanTests, buildTests, runTests,
   emit('after:test')
 )
 const watchTests = tests().watch
@@ -153,6 +154,7 @@ module.exports = {
     cleanProd,
     cleanTests,
 
+    buildTests,
     runTests,
 
     watchScripts,
