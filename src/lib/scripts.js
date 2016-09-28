@@ -1,12 +1,14 @@
 'use strict';
 
 const _ = require('lodash');
+const babel = require('gulp-babel');
 const babelify = require('babelify');
 const browserify = require('browserify');
 const buffer = require('vinyl-buffer');
 const cjsxify = require('cjsxify');
 const gulpif = require('gulp-if');
 const fs = require('fs');
+const pathUtil = require('path')
 const plumber = require('gulp-plumber');
 const rename = require('gulp-rename');
 const resolutions = require('browserify-resolutions');
@@ -22,21 +24,24 @@ const notifyChanged = require('./notify-changed');
 const config = require('./config');
 const util = require('./util');
 
-const babel = {
+const scriptsGlob = 'src/**/*.+(js|jsx|coffee|cjsx)'
+const noSpecsGlob = '!src/**/*.spec.+(js|jsx)'
+
+const babelFileConfig = {
   transform: babelify,
   options: babelConfig(),
 };
 
-const coffee = {
+const coffeeFileConfig = {
   transform: cjsxify,
   options: {},
 };
 
 const files = {
-  'main.jsx': babel,
-  'main.js': babel,
-  'main.cjsx': coffee,
-  'main.coffee': coffee,
+  'main.jsx': babelFileConfig,
+  'main.js': babelFileConfig,
+  'main.cjsx': coffeeFileConfig,
+  'main.coffee': coffeeFileConfig,
 };
 
 function getSrcConfig () {
@@ -76,6 +81,21 @@ function rebundle (bundler, files) {
   return bundle(bundler, config.devDir);
 }
 
+function copy (globOrFile, customErrorHandler = () => null) {
+  let file = globOrFile
+  let dest = config.testDir
+
+  if (!_.isArray(globOrFile)) {
+    file = globOrFile.path
+    dest = pathUtil.dirname(file).replace('src', config.testDir).replace(`${__dirname}/`, '')
+  }
+
+  return vfs.src(file)
+    .pipe(plumber(customErrorHandler(file) || handleErrors))
+    .pipe(babel(babelConfig()))
+    .pipe(vfs.dest(dest))
+}
+
 module.exports = () => {
   return {
     watch () {
@@ -98,6 +118,14 @@ module.exports = () => {
       return rebundle;
     },
 
+    copy,
+
+    copyDev () {
+      util.logSubTask('copying scripts (dev)');
+
+      return copy([scriptsGlob])
+    },
+
     buildDev () {
       util.logSubTask('building scripts (dev)');
 
@@ -110,6 +138,12 @@ module.exports = () => {
         .pipe(plumber(handleErrors))
         .pipe(source(config.scriptName))
         .pipe(vfs.dest(config.devDir));
+    },
+
+    copyProd () {
+      util.logSubTask('copying scripts (prod)');
+
+      return copy([scriptsGlob, noSpecsGlob])
     },
 
     buildProd () {

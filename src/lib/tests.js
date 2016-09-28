@@ -1,22 +1,17 @@
 'use strict'
 
-const _ = require('lodash')
-const babel = require('gulp-babel')
 const config = require('./config')
 const globSync = require('glob').sync
 const gulpif = require('gulp-if')
 const gutil = require('gulp-util')
 const mocha = require('gulp-spawn-mocha')
 const Mocha = require('mocha')
-const pathUtil = require('path')
-const plumber = require('gulp-plumber')
 const through = require('through')
-const vfs = require('vinyl-fs')
 const watch = require('gulp-watch')
 
-const babelConfig = require('./babel-config')
 const { closeOnExit } = require('./exit')
-const handleErrors = require('./handle-errors')
+const handleErrors = require('./handle-errors');
+const scripts = require('./scripts')
 const util = require('./util')
 
 const scriptsGlob = 'src/**/*.+(js|jsx|coffee|cjsx)'
@@ -44,24 +39,11 @@ function passSpecFile (specFile) {
   })
 }
 
-function buildScripts (globOrFile) {
-  let file = globOrFile
-  let dest = config.testDir
-
-  if (!_.isArray(globOrFile)) {
-    file = globOrFile.path
-    dest = pathUtil.dirname(file).replace('src', config.testDir).replace(`${__dirname}/`, '')
-  }
-
-  return vfs.src(file)
-    .pipe(plumber(handleErrors('Tests', (err) => {
-      // ignore mocha exit errors and non-spec compile errors, since
-      // browserify should catch those
-      return !/Mocha exited/.test(err.message) && /\.spec\./.test(file)
-    })))
-    .pipe(babel(babelConfig()))
-    .pipe(vfs.dest(dest))
-}
+const errorHandler = (file) => handleErrors('Tests', (err) => {
+  // ignore mocha exit errors and non-spec compile errors, since
+  // browserify should catch those
+  return !/Mocha exited/.test(err.message) && /\.spec\./.test(file)
+})
 
 module.exports = () => {
   return {
@@ -73,7 +55,7 @@ module.exports = () => {
         return undertakerNoop()
       }
 
-      return buildScripts([scriptsGlob])
+      return scripts().copy([scriptsGlob], errorHandler)
     },
 
     run () {
@@ -104,13 +86,13 @@ module.exports = () => {
       util.logSubTask('watching tests')
       const watcher =  watch(scriptsGlob, (file) => {
         const specFile = getSpecFile(file)
-        return buildScripts(file)
+        return scripts().copy(file, errorHandler)
           .pipe(passSpecFile(specFile))
           .pipe(gulpif(!!specFile, mocha({
             r: util.fileExists(testSetupFile()) ? testSetupFile() : undefined,
           })))
       })
-      buildScripts([scriptsGlob])
+      scripts().copy([scriptsGlob], errorHandler)
 
       closeOnExit(watcher)
 

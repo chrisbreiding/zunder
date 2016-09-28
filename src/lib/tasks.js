@@ -55,6 +55,7 @@ const buildProdScripts = scripts().buildProd;
 const buildProdStylesheets = stylesheets().buildProd;
 const buildProdStaticAssets = staticAssets().buildProd;
 const buildProdHtml = html().buildProd;
+const copyProdScripts = scripts().copyProd;
 
 const buildProd = taker.series(
   taker.parallel(
@@ -86,6 +87,7 @@ const buildDevScripts = scripts().buildDev
 const buildDevStylesheets = stylesheets().buildDev
 const buildDevStaticAssets = staticAssets().buildDev
 const buildDevHtml = html().buildDev
+const copyDevScripts = scripts().copyDev;
 
 const buildDev = taker.series(
   emit('before:build-dev'),
@@ -144,11 +146,13 @@ module.exports = {
     buildDevStylesheets,
     buildDevStaticAssets,
     buildDevHtml,
+    copyDevScripts,
 
     buildProdScripts,
     buildProdStylesheets,
     buildProdStaticAssets,
     buildProdHtml,
+    copyProdScripts,
 
     cleanDev,
     cleanProd,
