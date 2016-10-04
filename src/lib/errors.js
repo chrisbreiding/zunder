@@ -26,8 +26,10 @@ module.exports = {
 
       errorsReported[error.message] = true
 
-      util.logError('Unexpected error:')
+      util.logError('\nUnexpected error:\n')
       util.log(error.showStack === false ? `${error.plugin}: ${error.message}` : error.stack)
+
+      process.exit(1)
     })
   },
 }
