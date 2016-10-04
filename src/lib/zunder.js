@@ -11,8 +11,13 @@ const task = args._[0] || 'watch';
 try {
   require(`${process.cwd()}/zunderfile`);
   util.log(util.colors.green('using zunderfile'));
-} catch (e) {
-  // no zunderfile set up
+} catch (err) {
+  // ignore if it's just that no zunderfile is present
+  if (err.code !== 'MODULE_NOT_FOUND') {
+    util.logError('An unexpected error was thrown while loading your zunderfile:\n')
+    util.logError(err.stack)
+    process.exit(1)
+  }
 }
 
 if (tasks[task]) {
