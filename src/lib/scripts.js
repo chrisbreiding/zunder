@@ -19,7 +19,7 @@ const vfs = require('vinyl-fs');
 const watchify = require('watchify');
 
 const babelConfig = require('./babel-config');
-const handleErrors = require('./handle-errors')('Scripts');
+const handleErrors = require('./errors').createTaskErrorHandler('Scripts');
 const notifyChanged = require('./notify-changed');
 const config = require('./config');
 const util = require('./util');

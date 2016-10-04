@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 const EventEmitter = require('events');
-const api = require('./tasks').api;
+const api = require('../tasks').api;
 const config = require('./config')
 
 class Zunder extends EventEmitter {

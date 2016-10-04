@@ -10,7 +10,7 @@ const through = require('through')
 const watch = require('gulp-watch')
 
 const { closeOnExit } = require('./exit')
-const handleErrors = require('./handle-errors');
+const errors = require('./errors');
 const scripts = require('./scripts')
 const util = require('./util')
 
@@ -39,7 +39,7 @@ function passSpecFile (specFile) {
   })
 }
 
-const errorHandler = (file) => handleErrors('Tests', (err) => {
+const errorHandler = (file) => errors.createTaskErrorHandler('Tests', (err) => {
   // ignore mocha exit errors and non-spec compile errors, since
   // browserify should catch those
   return !/Mocha exited/.test(err.message) && /\.spec\./.test(file)
