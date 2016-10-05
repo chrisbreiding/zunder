@@ -23,8 +23,8 @@ const { closeOnExit } = require('./exit')
 const files = {
   'main.styl': {
     watch: 'src/**/*.styl',
-    dev: () => stylus({ linenos: true }),
-    prod: () => stylus(),
+    dev: () => stylus({ linenos: true, 'include css': true }),
+    prod: () => stylus({ 'include css': true }),
   },
   'main.scss': {
     watch: 'src/**/*.scss',
