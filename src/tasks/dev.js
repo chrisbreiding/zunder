@@ -1,5 +1,7 @@
 const { emit } = require('../lib/events')
+const config = require('../lib/config');
 const html = require('../lib/html');
+const server = require('../lib/server');
 const scripts = require('../lib/scripts');
 const staticAssets = require('../lib/static');
 const stylesheets = require('../lib/stylesheets');
@@ -30,6 +32,11 @@ module.exports = (taker) => {
     emit('after:build-dev')
   )
 
+  const runDevServer = taker.series(
+    emit('before:serve-prod'),
+    () => server().run(config.devDir)
+  )
+
   return {
     buildDevScripts,
     buildDevStylesheets,
@@ -38,5 +45,6 @@ module.exports = (taker) => {
     copyDevScripts,
 
     buildDev,
+    runDevServer,
   }
 }

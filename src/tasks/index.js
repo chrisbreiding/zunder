@@ -57,6 +57,7 @@ module.exports = {
     deploy: deployTasks.buildAndDeploy,
     'build-dev': devTasks.buildDev,
     'build-prod': prodTasks.cleanAndBuildProd,
+    'serve-dev': devTasks.runDevServer,
     'serve-prod': prodTasks.runProdServer,
     setup: setup().run,
     test: testTasks.test,
