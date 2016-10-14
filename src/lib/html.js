@@ -1,54 +1,66 @@
-const fs = require('fs');
-const watch = require('gulp-watch');
-const vfs = require('vinyl-fs');
+const _ = require('lodash')
+const del = require('del')
+const fs = require('fs')
+const watch = require('gulp-watch')
+const vfs = require('vinyl-fs')
 
-const build = require('./build-index');
-const notifyChanged = require('./notify-changed');
-const config = require('./config');
-const util = require('./util');
+const build = require('./build-index')
+const notifyChanged = require('./notify-changed')
+const config = require('./config')
+const util = require('./util')
 const { closeOnExit } = require('./exit')
 
 function process (file) {
-  if (file) notifyChanged(file);
+  if (file) notifyChanged(file)
+
+  const scriptNames = _.flatMap(config.externalBundles, 'scriptName').concat([config.scriptName])
+
   return vfs.src('src/*.hbs')
-    .pipe(build([config.scriptName], [config.stylesheetName]))
-    .pipe(vfs.dest(config.devDir));
+    .pipe(build(scriptNames, [config.stylesheetName]))
+    .pipe(vfs.dest(config.devDir))
 }
 
 module.exports = () => {
   return {
     watch () {
-      util.logSubTask('watching hbs files');
+      util.logSubTask('watching hbs files')
 
-      const watcher = watch('src/*.hbs', process);
-      process();
+      const watcher = watch('src/*.hbs', process)
+      process()
 
-      closeOnExit(watcher);
+      closeOnExit(watcher)
 
-      return watcher;
+      return watcher
     },
 
     buildDev () {
-      util.logSubTask('building hbs files (dev)');
+      util.logSubTask('building hbs files (dev)')
 
-      process();
+      process()
     },
 
     buildProd () {
-      util.logSubTask('building hbs files');
+      util.logSubTask('building hbs files')
 
-      const scriptsManifest = `${config.prodDir}/scripts-manifest.json`;
-      const stylesheetsManifest = `${config.prodDir}/stylesheets-manifest.json`;
+      const scriptNames = _.map(config.externalBundles, 'scriptName').concat(config.scriptName)
+      const stylesheetNames = [config.stylesheetName]
 
-      const scriptName = JSON.parse(fs.readFileSync(scriptsManifest))[config.scriptName];
-      const stylesheetName = JSON.parse(fs.readFileSync(stylesheetsManifest))[config.stylesheetName];
+      let cacheBustedScriptNames
+      let cacheBustedStylesheetNames
 
-      fs.unlinkSync(scriptsManifest);
-      fs.unlinkSync(stylesheetsManifest);
+      if (config.cacheBust) {
+        const cacheManifest = JSON.parse(fs.readFileSync(`${config.prodDir}/cache-manifest.json`))
+        cacheBustedScriptNames = _.map(scriptNames, (scriptName) => cacheManifest[scriptName])
+        cacheBustedStylesheetNames = _.map(stylesheetNames, (stylesheetName) => cacheManifest[stylesheetName])
+        del(`${config.prodDir}/cache-manifest.json`)
+      } else {
+        cacheBustedScriptNames = scriptNames
+        cacheBustedStylesheetNames = stylesheetNames
+      }
 
       return vfs.src('src/index.hbs')
-        .pipe(build([scriptName], [stylesheetName]))
-        .pipe(vfs.dest(config.prodDir));
+        .pipe(build(cacheBustedScriptNames, cacheBustedStylesheetNames))
+        .pipe(vfs.dest(config.prodDir))
     },
-  };
-};
+  }
+}

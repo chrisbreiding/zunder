@@ -4,6 +4,7 @@
 module.exports = {
   cacheBust: true,
   devDir: 'dist',
+  externalBundles: [],
   prodDir: 'dist-prod',
   scriptName: 'app.js',
   stylesheetName: 'app.css',
@@ -11,4 +12,4 @@ module.exports = {
   staticGlobs: ['static/**'],
   testDir: 'dist-test',
   testSetup: 'lib/test-setup.js',
-};
+}
