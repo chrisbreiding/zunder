@@ -10,7 +10,6 @@ const gulpif = require('gulp-if')
 const fs = require('fs')
 const pathUtil = require('path')
 const plumber = require('gulp-plumber')
-const rename = require('gulp-rename')
 const resolutions = require('browserify-resolutions')
 const rev = require('gulp-rev')
 const source = require('vinyl-source-stream')
@@ -20,10 +19,13 @@ const vfs = require('vinyl-fs')
 const watchify = require('watchify')
 
 const babelConfig = require('./babel-config')
-const handleErrors = require('./errors').createTaskErrorHandler('Scripts')
+const errors = require('./errors')
 const notifyChanged = require('./notify-changed')
 const config = require('./config')
 const util = require('./util')
+
+const handleTaskError = errors.createTaskErrorHandler('Scripts')
+const handleFatalError = errors.createFatalErrorHandler('Scripts')
 
 const scriptsGlob = 'src/**/*.+(js|jsx|coffee|cjsx)'
 const noSpecsGlob = '!src/**/*.spec.+(js|jsx)'
@@ -79,20 +81,22 @@ function copy (globOrFile, customErrorHandler = () => null) {
   }
 
   return vfs.src(file)
-    .pipe(plumber(customErrorHandler(file) || handleErrors))
+    .pipe(plumber(customErrorHandler(file) || handleTaskError))
     .pipe(babel(babelConfig()))
     .pipe(vfs.dest(dest))
 }
 
-function buildExternalBundles () {
+function buildExternalBundles (exitOnError) {
+  const errorHandler = exitOnError ? handleFatalError : handleTaskError
+
   return _.map(config.externalBundles, (external) => {
     return streamToPromise(
       browserify()
         .plugin(resolutions, config.resolutions)
         .require(external.libs)
         .bundle()
-        .on('error', handleErrors)
-        .pipe(plumber(handleErrors))
+        .on('error', errorHandler)
+        .pipe(gulpif(!exitOnError, plumber(errorHandler)))
         .pipe(source(external.scriptName))
         .pipe(vfs.dest(config.devDir))
     )
@@ -106,8 +110,8 @@ module.exports = () => {
 
       function bundle (bundler, destination) {
         return bundler.bundle()
-          .on('error', handleErrors)
-          .pipe(plumber(handleErrors))
+          .on('error', handleTaskError)
+          .pipe(plumber(handleTaskError))
           .pipe(source(config.scriptName))
           .pipe(vfs.dest(destination))
       }
@@ -131,7 +135,7 @@ module.exports = () => {
       watchify(bundler).on('update', (files) => rebundle(bundler, files))
       rebundle(bundler, [])
 
-      return Promise.all([rebundle].concat(buildExternalBundles()))
+      return Promise.all([rebundle].concat(buildExternalBundles(true)))
     },
 
     copy,
@@ -154,13 +158,12 @@ module.exports = () => {
           .external(externalLibs)
           .transform(ify.transform, ify.options)
           .bundle()
-          .on('error', handleErrors)
-          .pipe(plumber(handleErrors))
+          .on('error', handleFatalError)
           .pipe(source(config.scriptName))
           .pipe(vfs.dest(config.devDir))
       )
 
-      return Promise.all([mainBundle].concat(buildExternalBundles()))
+      return Promise.all([mainBundle].concat(buildExternalBundles(false)))
     },
 
     copyProd () {
@@ -181,8 +184,7 @@ module.exports = () => {
           .external(externalLibs)
           .transform(ify.transform, ify.options)
           .bundle()
-          .on('error', handleErrors)
-          .pipe(plumber(handleErrors))
+          .on('error', handleFatalError)
           .pipe(source(config.scriptName))
           .pipe(buffer())
           .pipe(uglify())
@@ -198,8 +200,7 @@ module.exports = () => {
             .plugin(resolutions, config.resolutions)
             .require(external.libs)
             .bundle()
-            .on('error', handleErrors)
-            .pipe(plumber(handleErrors))
+            .on('error', handleFatalError)
             .pipe(source(external.scriptName))
             .pipe(buffer())
             .pipe(uglify())

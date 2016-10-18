@@ -6,6 +6,16 @@ const util = require('../lib/util')
 const errorsReported = {}
 
 module.exports = {
+  createFatalErrorHandler (task) {
+    const handleFatalError = (err) => {
+      util.logError(`Error thrown by ${task} task:`)
+      util.logError(err.stack)
+      process.exit(1)
+    }
+
+    return handleFatalError
+  },
+
   createTaskErrorHandler (type = 'Error', condition = () => true) {
     const handleTaskError = (err) => {
       if (!condition(err)) return

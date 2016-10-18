@@ -14,11 +14,16 @@ const _ = require('lodash')
 const globber = require('node-sass-globbing')
 const vfs = require('vinyl-fs')
 
-const handleErrors = require('./errors').createTaskErrorHandler('Stylesheets')
+const errors = require('./errors')
 const notifyChanged = require('./notify-changed')
 const config = require('./config')
 const util = require('./util')
 const { closeOnExit } = require('./exit')
+
+const handleTaskError = errors.createTaskErrorHandler('Stylesheets')
+const handleFatalError = errors.createFatalErrorHandler('Stylesheets')
+
+function noop () {}
 
 const files = {
   'main.styl': {
@@ -63,11 +68,12 @@ module.exports = () => {
   const autoprefixOptions = { browsers: ['last 2 versions'], cascade: false }
 
   let firstTime = true
-  function buildStylesheets (srcConfig, file) {
+  function buildStylesheets (exitOnError, srcConfig, file) {
     if (file) notifyChanged(file)
     return vfs.src(`src/${srcConfig.fileName}`)
-      .pipe(plumber(handleErrors))
+      .pipe(gulpif(!exitOnError, plumber(handleTaskError)))
       .pipe(srcConfig.compiler.dev())
+      .on('error', exitOnError ? handleFatalError : noop)
       .pipe(autoprefixer(autoprefixOptions))
       .pipe(rename(config.stylesheetName))
       .pipe(vfs.dest(config.devDir))
@@ -85,8 +91,8 @@ module.exports = () => {
       util.logSubTask('watching stylesheets')
 
       const srcConfig = getSrcConfig()
-      const watcher = watch(srcConfig.compiler.watch, _.partial(buildStylesheets, srcConfig))
-      buildStylesheets(srcConfig)
+      const watcher = watch(srcConfig.compiler.watch, _.partial(false, buildStylesheets, srcConfig))
+      buildStylesheets(false, srcConfig)
 
       closeOnExit(watcher)
 
@@ -97,7 +103,7 @@ module.exports = () => {
       util.logSubTask('building stylesheets (dev)')
 
       const srcConfig = getSrcConfig()
-      buildStylesheets(srcConfig)
+      buildStylesheets(true, srcConfig)
     },
 
     buildProd () {
@@ -105,8 +111,8 @@ module.exports = () => {
 
       const srcConfig = getSrcConfig()
       return vfs.src(`src/${srcConfig.fileName}`)
-        .pipe(plumber(handleErrors))
         .pipe(srcConfig.compiler.prod())
+        .on('error', handleFatalError)
         .pipe(autoprefixer(autoprefixOptions))
         .pipe(minify())
         .pipe(rename(config.stylesheetName))
