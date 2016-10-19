@@ -103,7 +103,7 @@ module.exports = () => {
       util.logSubTask('building stylesheets (dev)')
 
       const srcConfig = getSrcConfig()
-      buildStylesheets(true, srcConfig)
+      return buildStylesheets(true, srcConfig)
     },
 
     buildProd () {
