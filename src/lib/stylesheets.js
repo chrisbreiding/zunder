@@ -91,7 +91,7 @@ module.exports = () => {
       util.logSubTask('watching stylesheets')
 
       const srcConfig = getSrcConfig()
-      const watcher = watch(srcConfig.compiler.watch, _.partial(false, buildStylesheets, srcConfig))
+      const watcher = watch(srcConfig.compiler.watch, _.partial(buildStylesheets, false, srcConfig))
       buildStylesheets(false, srcConfig)
 
       closeOnExit(watcher)
