@@ -20,11 +20,9 @@ module.exports = (taker) => {
   const { cleanProd } = clean(taker)
 
   const buildProd = taker.series(
-    taker.parallel(
-      buildProdScripts,
-      buildProdStylesheets,
-      buildProdStaticAssets
-    ),
+    buildProdScripts,
+    buildProdStylesheets,
+    buildProdStaticAssets,
     buildProdHtml
   )
 

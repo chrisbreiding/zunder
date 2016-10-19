@@ -23,12 +23,10 @@ module.exports = (taker) => {
     emit('before:build-dev'),
     applyDevEnv,
     cleanDev,
-    taker.parallel(
-      buildDevScripts,
-      buildDevStylesheets,
-      buildDevStaticAssets,
-      buildDevHtml
-    ),
+    buildDevScripts,
+    buildDevStylesheets,
+    buildDevStaticAssets,
+    buildDevHtml,
     emit('after:build-dev')
   )
 
