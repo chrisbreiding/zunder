@@ -22,7 +22,7 @@ module.exports = {
 
       return notify.onError({
         title: type,
-        message: "<%= error.message %>",
+        message: "<%= error.stack %>",
       })(err)
     }
 
