@@ -36,7 +36,7 @@ module.exports = () => {
     buildDev () {
       util.logSubTask('building hbs files (dev)')
 
-      process()
+      return process()
     },
 
     buildProd () {
