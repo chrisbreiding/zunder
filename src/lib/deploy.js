@@ -34,8 +34,8 @@ module.exports = () => {
 
   function checkoutBranch () {
     return execInBuild('git branch').then((result) => {
-      const branchExists = _.some(result.stdout.split('\n'), (branch) => {
-        return new RegExp(branch).test(branch);
+      const branchExists = _.some(result.stdout.split('\n'), (existingBranch) => {
+        return new RegExp(branch).test(existingBranch);
       });
       const flag = branchExists ? '' : '-b';
       log(`checkout ${branch} branch`);
