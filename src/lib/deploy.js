@@ -10,6 +10,7 @@ const util = require('./util');
 
 module.exports = () => {
   const dir = config.prodDir;
+  const branch = config.deployBranch
 
   function execInBuild (command) {
     return exec(command, { cwd: dir });
@@ -34,11 +35,11 @@ module.exports = () => {
   function checkoutBranch () {
     return execInBuild('git branch').then((result) => {
       const branchExists = _.some(result.stdout.split('\n'), (branch) => {
-        return /gh\-pages/.test(branch);
+        return new RegExp(branch).test(branch);
       });
       const flag = branchExists ? '' : '-b';
-      log('checkout gh-pages branch');
-      return execInBuild(`git checkout ${flag} gh-pages`);
+      log(`checkout ${branch} branch`);
+      return execInBuild(`git checkout ${flag} ${branch}`);
     });
   }
 
@@ -54,8 +55,8 @@ module.exports = () => {
   }
 
   function push () {
-    log('push to gh-pages branch');
-    return execInBuild('git push -f origin gh-pages');
+    log(`push to ${branch} branch`);
+    return execInBuild(`git push -f origin ${branch}`);
   }
 
   util.logSubTask('deploying');

@@ -3,6 +3,7 @@
 // properties are changed and added through instance.setConfig()
 module.exports = {
   cacheBust: true,
+  deployBranch: 'gh-pages',
   devDir: 'dist',
   externalBundles: [],
   prodDir: 'dist-prod',
