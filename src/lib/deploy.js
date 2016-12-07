@@ -2,7 +2,6 @@
 
 const _ = require('lodash');
 const fs = require('fs');
-const RSVP = require('rsvp');
 
 const exec = require('./exec-promise');
 const config = require('./config');
@@ -21,7 +20,7 @@ module.exports = () => {
   }
 
   function initRepo () {
-    if (fs.existsSync(`${dir}/.git`)) return RSVP.resolve();
+    if (fs.existsSync(`${dir}/.git`)) return Promise.resolve();
 
     return exec('git config --get remote.origin.url').then((result) => {
       const url = result.stdout.replace(util.linefeed, '');

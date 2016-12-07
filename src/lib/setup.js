@@ -4,7 +4,6 @@ const fs = require('fs');
 
 const _ = require('lodash');
 const globSync = require('glob').sync;
-const RSVP = require('rsvp');
 
 const exec = require('./exec-promise');
 const promisify = require('./promisify');
@@ -34,7 +33,7 @@ module.exports = () => {
         return _.includes(files, filePath);
       });
 
-      return RSVP.Promise.resolve()
+      return Promise.resolve()
         .then(() => {
           util.log(util.colors.underline('installing dev dependencies'));
           devDeps.forEach((dep) => util.log(`- ${dep}`));
@@ -47,10 +46,10 @@ module.exports = () => {
         })
         .then(() => {
           util.log(util.colors.underline('scaffolding files'));
-          return RSVP.all(directories.map((directory) => mkdirp(directory)));
+          return Promise.all(directories.map((directory) => mkdirp(directory)));
         })
         .then(() => {
-          return RSVP.all(files.map((file) => {
+          return Promise.all(files.map((file) => {
             return readFile(file).catch(() => {
                // erroring indicates the file doesn't exist
                // which is the only case where the scaffold should go in place

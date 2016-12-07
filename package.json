@@ -47,7 +47,6 @@
     "morgan": "^1.7.0",
     "node-sass-globbing": "0.0.23",
     "portfinder": "^1.0.3",
-    "rsvp": "^3.2.1",
     "stream-to-promise": "^2.2.0",
     "through": "^2.3.8",
     "through2": "^2.0.1",
