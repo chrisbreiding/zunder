@@ -1,7 +1,9 @@
 'use strict'
 
+// these are the default values
 // properties are changed and added through instance.setConfig()
 module.exports = {
+  appCache: false,
   cacheBust: true,
   deployBranch: 'gh-pages',
   devDir: 'dist',

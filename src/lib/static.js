@@ -12,7 +12,7 @@ const { closeOnExit } = require('./exit')
 
 const copy = (globs, dest) => vfs.src(globs).pipe(vfs.dest(dest))
 
-const process = (dest) => (file) => {
+const copyFiles = (dest) => (file) => {
   if (file) notifyChanged(file);
 
   if (_.isArray(config.staticGlobs)) {
@@ -30,8 +30,8 @@ module.exports = () => {
       util.logSubTask('watching static files');
 
       const watches = _.isArray(config.staticGlobs) ? config.staticGlobs : _.keys(config.staticGlobs)
-      const watcher = watch(watches, process(config.devDir));
-      process(config.devDir)();
+      const watcher = watch(watches, copyFiles(config.devDir));
+      copyFiles(config.devDir)();
 
       closeOnExit(watcher);
 
@@ -41,13 +41,13 @@ module.exports = () => {
     buildDev () {
       util.logSubTask('copying static files (dev)');
 
-      return process(config.devDir)();
+      return copyFiles(config.devDir)();
     },
 
     buildProd () {
       util.logSubTask('copying static files');
 
-      return process(config.prodDir)();
+      return copyFiles(config.prodDir)();
     },
   };
 };

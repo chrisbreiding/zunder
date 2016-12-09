@@ -1,3 +1,5 @@
+'use strict'
+
 const { emit } = require('../lib/events')
 const html = require('../lib/html');
 const scripts = require('../lib/scripts');

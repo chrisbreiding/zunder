@@ -1,19 +1,28 @@
+'use strict'
+
+const cache = require('../lib/cache')
 const config = require('../lib/config')
 const { emit } = require('../lib/events')
-const html = require('../lib/html');
-const scripts = require('../lib/scripts');
-const server = require('../lib/server');
-const staticAssets = require('../lib/static');
-const stylesheets = require('../lib/stylesheets');
+const html = require('../lib/html')
+const scripts = require('../lib/scripts')
+const server = require('../lib/server')
+const staticAssets = require('../lib/static')
+const stylesheets = require('../lib/stylesheets')
 
 const env = require('./env')
 const clean = require('./clean')
 
-const buildProdScripts = scripts().buildProd;
-const buildProdStylesheets = stylesheets().buildProd;
-const buildProdStaticAssets = staticAssets().buildProd;
-const buildProdHtml = html().buildProd;
-const copyProdScripts = scripts().copyProd;
+
+const buildProdScripts = scripts().buildProd
+const buildProdStylesheets = stylesheets().buildProd
+const buildProdStaticAssets = staticAssets().buildProd
+const buildProdHtml = html().buildProd
+const copyProdScripts = scripts().copyProd
+const cacher = cache()
+const cacheBust = cacher.cacheBust
+const replaceCacheNames = cacher.replaceCacheNames
+const removeCacheManifest = cacher.removeCacheManifest
+const createAppCache = cacher.createAppCache
 
 module.exports = (taker) => {
   const { applyProdEnv } = env(taker)
@@ -23,7 +32,11 @@ module.exports = (taker) => {
     buildProdScripts,
     buildProdStylesheets,
     buildProdStaticAssets,
-    buildProdHtml
+    buildProdHtml,
+    cacheBust,
+    replaceCacheNames,
+    removeCacheManifest,
+    createAppCache
   )
 
   const runProdServer = taker.series(
@@ -43,6 +56,10 @@ module.exports = (taker) => {
     buildProdStaticAssets,
     buildProdHtml,
     copyProdScripts,
+    cacheBust,
+    replaceCacheNames,
+    removeCacheManifest,
+    createAppCache,
 
     buildProd,
     runProdServer,

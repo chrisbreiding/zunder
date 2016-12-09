@@ -36,6 +36,10 @@ module.exports = {
     buildProdStaticAssets: prodTasks.buildProdStaticAssets,
     buildProdHtml: prodTasks.buildProdHtml,
     copyProdScripts: prodTasks.copyProdScripts,
+    cacheBust: prodTasks.cacheBust,
+    replaceCacheNames: prodTasks.replaceCacheNames,
+    removeCacheManifest: prodTasks.removeCacheManifest,
+    createAppCache: prodTasks.createAppCache,
 
     cleanDev: cleanTasks.cleanDev,
     cleanProd: cleanTasks.cleanProd,

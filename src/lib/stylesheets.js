@@ -6,7 +6,6 @@ const gulpif = require('gulp-if')
 const minify = require('gulp-clean-css')
 const plumber = require('gulp-plumber')
 const rename = require('gulp-rename')
-const rev = require('gulp-rev')
 const sass = require('gulp-sass')
 const stylus = require('gulp-stylus')
 const watch = require('gulp-watch')
@@ -116,10 +115,7 @@ module.exports = () => {
         .pipe(autoprefixer(autoprefixOptions))
         .pipe(minify())
         .pipe(rename(config.stylesheetName))
-        .pipe(gulpif(config.cacheBust, rev()))
         .pipe(vfs.dest(config.prodDir))
-        .pipe(gulpif(config.cacheBust, rev.manifest(`${config.prodDir}/cache-manifest.json`, { base: `${process.cwd()}/${config.prodDir}`, merge: true })))
-        .pipe(gulpif(config.cacheBust, vfs.dest(config.prodDir)))
     },
   }
 }

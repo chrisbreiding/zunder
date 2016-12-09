@@ -6,7 +6,6 @@ const globSync = require('glob').sync
 const nodemon = require('gulp-nodemon')
 const _ = require('lodash')
 const morgan = require('morgan')
-const path = require('path')
 const portfinder = require('portfinder')
 const argv = require('yargs').argv
 

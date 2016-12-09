@@ -27,19 +27,21 @@
     "gulp-autoprefixer": "^3.1.0",
     "gulp-babel": "^6.1.2",
     "gulp-clean-css": "^2.0.6",
+    "gulp-compile-handlebars": "^0.6.1",
     "gulp-if": "^2.0.1",
     "gulp-nodemon": "^2.0.6",
     "gulp-notify": "^2.2.0",
     "gulp-plumber": "^1.1.0",
     "gulp-rename": "^1.2.2",
     "gulp-rev": "^7.0.0",
+    "gulp-rev-delete-original": "^0.2.2",
+    "gulp-rev-replace": "^0.4.3",
     "gulp-sass": "^2.3.1",
     "gulp-spawn-mocha": "^3.0.0",
     "gulp-stylus": "^2.4.0",
     "gulp-uglify": "^1.5.3",
     "gulp-util": "^3.0.7",
     "gulp-watch": "^4.3.5",
-    "handlebars": "^4.0.5",
     "istanbul": "^0.4.5",
     "lodash": "^4.11.1",
     "mkdirp": "^0.5.1",
@@ -49,7 +51,6 @@
     "portfinder": "^1.0.3",
     "stream-to-promise": "^2.2.0",
     "through": "^2.3.8",
-    "through2": "^2.0.1",
     "undertaker": "^0.15.0",
     "vinyl-buffer": "^1.0.0",
     "vinyl-fs": "^2.4.3",
@@ -59,7 +60,7 @@
   },
   "devDependencies": {
     "babel-cli": "^6.7.7",
-    "eslint": "^3.10.2",
+    "eslint": "^3.11.1",
     "eslint-plugin-react": "^5.0.1"
   },
   "babel": {
@@ -70,8 +71,12 @@
   "scripts": {
     "build": "babel src --out-dir dist --ignore scaffold/*",
     "clean": "rm -rf dist && mkdir dist",
-    "copy": "cp -R src/scaffold dist/scaffold",
+    "copy-scaffold": "mkdir -p dist/scaffold; cp -R src/scaffold dist/scaffold",
+    "copy-static": "mkdir -p dist/lib; cp -R src/lib/*.hbs dist/lib/",
+    "copy": "npm run copy-scaffold; npm run copy-static",
     "prepublish": "npm run clean; npm run build; npm run copy",
-    "start": "babel src --watch --out-dir dist --ignore scaffold/*"
+    "watch-babel": "babel src --watch --out-dir dist --ignore scaffold/*",
+    "watch-static": "chokidar 'src/lib/*.hbs' -c 'npm run copy-static'",
+    "start": "npm run copy; concurrently --kill-others --names 'babel: ,static:' --prefix '{name}' 'npm run watch-babel' 'npm run watch-static'"
   }
 }

@@ -1,23 +1,34 @@
+'use strict'
+
 const _ = require('lodash')
-const del = require('del')
-const fs = require('fs')
+const handlebars = require('gulp-compile-handlebars')
 const watch = require('gulp-watch')
+const rename = require('gulp-rename')
 const vfs = require('vinyl-fs')
 
-const build = require('./build-index')
 const notifyChanged = require('./notify-changed')
 const config = require('./config')
 const util = require('./util')
 const { closeOnExit } = require('./exit')
 
-function process (file) {
+const buildHtml = (dest) => (file) => {
   if (file) notifyChanged(file)
 
-  const scriptNames = _.flatMap(config.externalBundles, 'scriptName').concat([config.scriptName])
+  const scripts = _.flatMap(config.externalBundles, 'scriptName').concat([config.scriptName])
+  const stylesheets = [config.stylesheetName]
 
   return vfs.src('src/*.hbs')
-    .pipe(build(scriptNames, [config.stylesheetName]))
-    .pipe(vfs.dest(config.devDir))
+    .pipe(handlebars({
+      scripts,
+      stylesheets,
+      env: process.env,
+      isDev: process.env.NODE_ENV === 'development',
+      isProd: process.env.NODE_ENV === 'production',
+    }))
+    .pipe(rename({
+      extname: '.html',
+    }))
+    .pipe(vfs.dest(dest))
 }
 
 module.exports = () => {
@@ -25,8 +36,8 @@ module.exports = () => {
     watch () {
       util.logSubTask('watching hbs files')
 
-      const watcher = watch('src/*.hbs', process)
-      process()
+      const watcher = watch('src/*.hbs', buildHtml(config.devDir))
+      buildHtml(config.devDir)()
 
       closeOnExit(watcher)
 
@@ -36,31 +47,13 @@ module.exports = () => {
     buildDev () {
       util.logSubTask('building hbs files (dev)')
 
-      return process()
+      return buildHtml(config.devDir)()
     },
 
     buildProd () {
       util.logSubTask('building hbs files')
 
-      const scriptNames = _.map(config.externalBundles, 'scriptName').concat(config.scriptName)
-      const stylesheetNames = [config.stylesheetName]
-
-      let cacheBustedScriptNames
-      let cacheBustedStylesheetNames
-
-      if (config.cacheBust) {
-        const cacheManifest = JSON.parse(fs.readFileSync(`${config.prodDir}/cache-manifest.json`))
-        cacheBustedScriptNames = _.map(scriptNames, (scriptName) => cacheManifest[scriptName])
-        cacheBustedStylesheetNames = _.map(stylesheetNames, (stylesheetName) => cacheManifest[stylesheetName])
-        del(`${config.prodDir}/cache-manifest.json`)
-      } else {
-        cacheBustedScriptNames = scriptNames
-        cacheBustedStylesheetNames = stylesheetNames
-      }
-
-      return vfs.src('src/index.hbs')
-        .pipe(build(cacheBustedScriptNames, cacheBustedStylesheetNames))
-        .pipe(vfs.dest(config.prodDir))
+      return buildHtml(config.prodDir)()
     },
   }
 }
