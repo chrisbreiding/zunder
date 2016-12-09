@@ -4,6 +4,7 @@
 // properties are changed and added through instance.setConfig()
 module.exports = {
   appCache: false,
+  appCacheTransform: null,
   cacheBust: true,
   deployBranch: 'gh-pages',
   devDir: 'dist',
