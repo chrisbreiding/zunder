@@ -54,7 +54,7 @@ module.exports = () => {
       files = _.reject(files, (file) => /\.html$/.test(file))
       files = _.map(files, (file) => file.replace(`${config.prodDir}/`, ''))
       if (_.isFunction(config.appCacheTransform)) {
-        files = config.appCacheTransform(files)
+        files = _.compact(config.appCacheTransform(files))
       }
       return vfs.src(`${__dirname}/appcache.manifest.hbs`)
         .pipe(handlebars({ files }))
