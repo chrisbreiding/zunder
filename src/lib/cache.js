@@ -35,7 +35,7 @@ module.exports = () => {
 
       const manifest = vfs.src(`${config.prodDir}/${revManifestName}`)
 
-      return vfs.src(`${config.prodDir}/*.+(css|html)`)
+      return vfs.src(`${config.prodDir}/*.+(js|css|html)`)
         .pipe(revReplace({ manifest }))
         .pipe(vfs.dest(config.prodDir))
     },
