@@ -1,5 +1,7 @@
 const applyEnv = (env) => (cb) => {
-  process.env.NODE_ENV = env;
+  if (!process.env.NODE_ENV) {
+    process.env.NODE_ENV = env;
+  }
   cb();
 }
 
