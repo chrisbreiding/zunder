@@ -15,7 +15,7 @@ try {
   // ignore if it's just that no zunderfile is present
   if (err.code !== 'MODULE_NOT_FOUND') {
     util.logError('An unexpected error was thrown while loading your zunderfile:\n')
-    util.log(err.stack)
+    util.log(err.stack || err)
     process.exit(1)
   }
 }

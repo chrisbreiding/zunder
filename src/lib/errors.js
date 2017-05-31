@@ -9,7 +9,7 @@ module.exports = {
   createFatalErrorHandler (task) {
     const handleFatalError = (err) => {
       util.logError(`Error thrown by ${task} task:`)
-      util.logError(err.stack)
+      util.logError(err.stack || err)
       process.exit(1)
     }
 

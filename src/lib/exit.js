@@ -14,7 +14,7 @@ function handler (shouldExit, shouldErr = false, err) {
     }
   });
 
-  if (err && err.stack) util.logError(err.stack)
+  if (err) util.logError(err.stack || err)
   if (shouldExit) process.exit(shouldErr ? 1 : 0)
 }
 
