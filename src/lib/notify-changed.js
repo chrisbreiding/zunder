@@ -9,7 +9,7 @@ const eventMap = {
   unlink: 'removed',
 };
 
-module.exports = ({ path, event = 'change' }) => {
-  const file = util.colors.magenta(pathUtil.basename(path));
-  util.log(`${file} was ${eventMap[event]}`);
+module.exports = (prefix, { path, event = 'change' }) => {
+  const file = util.colors.magenta.italic(pathUtil.basename(path));
+  util.logActionStart(prefix, `${file} was ${eventMap[event]}`);
 };

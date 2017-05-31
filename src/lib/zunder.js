@@ -24,8 +24,12 @@ if (tasks[task]) {
   util.logTask(`Running ${task} task`);
   tasks[task]();
 } else {
-  util.log(util.colors.red.bold(`\nzunder ${task}`), util.colors.red('is not a task\n'));
+  util.log()
+  util.log(util.colors.red.bold(`zunder ${task}`), util.colors.red('is not a task'));
+  util.log()
   util.log(util.colors.underline('Available tasks'));
-  util.log(`- ${Object.keys(tasks).join('\n- ')}`);
+  Object.keys(tasks).forEach((task) => {
+    util.log(`• ${task}`);
+  })
   process.exit(1);
 }

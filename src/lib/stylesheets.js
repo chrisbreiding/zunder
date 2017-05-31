@@ -66,9 +66,13 @@ function getSrcConfig () {
 module.exports = () => {
   const autoprefixOptions = { browsers: ['last 2 versions'], cascade: false }
 
-  let firstTime = true
-  function buildStylesheets (exitOnError, srcConfig, file) {
-    if (file) notifyChanged(file)
+  function buildStylesheets (srcConfig, exitOnError, logOnFinish, file) {
+    const coloredStylesheetName = util.colors.magenta(config.stylesheetName)
+
+    if (file) {
+      notifyChanged(`Compiling ${coloredStylesheetName} after`, file)
+    }
+
     return vfs.src(`src/${srcConfig.fileName}`)
       .pipe(gulpif(!exitOnError, plumber(handleTaskError)))
       .pipe(srcConfig.compiler.dev())
@@ -77,11 +81,9 @@ module.exports = () => {
       .pipe(rename(config.stylesheetName))
       .pipe(vfs.dest(config.devDir))
       .on('end', () => {
-        if (firstTime) {
-          firstTime = false
-          return
+        if (logOnFinish) {
+          util.logActionEnd('Finishing compiling', coloredStylesheetName)
         }
-        util.log(util.colors.green('Stylesheets re-compiled'))
       })
   }
 
@@ -89,9 +91,11 @@ module.exports = () => {
     watch () {
       util.logSubTask('watching stylesheets')
 
+      util.logActionStart('Compiling', util.colors.magenta(config.stylesheetName))
+
       const srcConfig = getSrcConfig()
-      const watcher = watch(srcConfig.compiler.watch, _.partial(buildStylesheets, false, srcConfig))
-      buildStylesheets(false, srcConfig)
+      const watcher = watch(srcConfig.compiler.watch, _.partial(buildStylesheets, srcConfig, false, true))
+      buildStylesheets(srcConfig, false, true)
 
       closeOnExit(watcher)
 
@@ -102,7 +106,7 @@ module.exports = () => {
       util.logSubTask('building stylesheets (dev)')
 
       const srcConfig = getSrcConfig()
-      return buildStylesheets(true, srcConfig)
+      return buildStylesheets(srcConfig, true, false)
     },
 
     buildProd () {

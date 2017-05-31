@@ -1,4 +1,5 @@
 const colors = require('chalk')
+const fancyLog = require('fancy-log')
 const statSync = require('fs').statSync
 const { linefeed, PluginError, replaceExtension } = require('gulp-util')
 
@@ -11,26 +12,37 @@ function fileExists (filePath) {
   }
 }
 
-function log (...args) {
-  console.log(...args) // eslint-disable-line no-console
-}
-
 function logTask (message) {
-  log(colors.cyan(message))
+  fancyLog(colors.cyan(message))
 }
 
 function logSubTask (message) {
-  log(colors.blue(message))
+  fancyLog(colors.blue(`• ${message}`))
+}
+
+function logAction (...args) {
+  fancyLog(colors.grey('‣'), ...args)
+}
+
+function logActionStart (...args) {
+  fancyLog(colors.grey('○'), ...args)
+}
+
+function logActionEnd (...args) {
+  fancyLog(colors.grey('⦿'), ...args)
 }
 
 function logError (error, ...args) {
-  log(colors.red(error), ...args)
+  fancyLog.error(colors.red(error), ...args)
 }
 
 module.exports = {
   colors,
   fileExists,
-  log,
+  log: fancyLog,
+  logAction,
+  logActionStart,
+  logActionEnd,
   logError,
   logSubTask,
   logTask,

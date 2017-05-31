@@ -107,19 +107,6 @@ module.exports = () => {
     watch () {
       util.logSubTask('watching scripts')
 
-      function bundle (bundler, destination) {
-        return bundler.bundle()
-          .on('error', handleTaskError)
-          .pipe(plumber(handleTaskError))
-          .pipe(source(config.scriptName))
-          .pipe(vfs.dest(destination))
-      }
-
-      function rebundle (bundler, files) {
-        files.forEach((path) => notifyChanged({ path }))
-        return bundle(bundler, config.devDir)
-      }
-
       const { entries, ify } = getSrcConfig()
       const bundler = browserify({
         entries,
@@ -127,6 +114,22 @@ module.exports = () => {
         cache: {},
         packageCache: {},
       })
+      const coloredScriptName = util.colors.magenta(config.scriptName)
+
+      function rebundle (files = []) {
+        files.forEach((path) => {
+          notifyChanged(`Bundling ${coloredScriptName} after`, { path })
+        })
+
+        return bundler.bundle()
+          .on('error', handleTaskError)
+          .pipe(plumber(handleTaskError))
+          .on('end', () => {
+            util.logActionEnd(`Finished bundling ${coloredScriptName}`)
+          })
+          .pipe(source(config.scriptName))
+          .pipe(vfs.dest(config.devDir))
+      }
 
       bundler
         .plugin(watchify, {
@@ -141,7 +144,9 @@ module.exports = () => {
         })
         .plugin(resolutions, config.resolutions)
         .transform(ify.transform, ify.options)
+
       bundler.on("update", rebundle)
+      util.logActionStart(`Bundling ${coloredScriptName}`)
       rebundle()
 
       return Promise.all([rebundle].concat(buildExternalBundles(true)))

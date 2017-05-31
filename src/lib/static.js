@@ -1,25 +1,30 @@
-'use strict';
+'use strict'
 
-const _ = require('lodash');
-const watch = require('gulp-watch');
+const _ = require('lodash')
+const watch = require('gulp-watch')
+const pathUtil = require('path')
 const streamToPromise = require('stream-to-promise')
-const vfs = require('vinyl-fs');
+const vfs = require('vinyl-fs')
 
-const notifyChanged = require('./notify-changed');
-const config = require('./config');
-const util = require('./util');
+const notifyChanged = require('./notify-changed')
+const config = require('./config')
+const util = require('./util')
 const { closeOnExit } = require('./exit')
 
-const copy = (globs, dest) => vfs.src(globs).pipe(vfs.dest(dest))
+const copy = (globs, dest) => {
+  return streamToPromise(vfs.src(globs).pipe(vfs.dest(dest)))
+}
 
 const copyFiles = (dest) => (file) => {
-  if (file) notifyChanged(file);
+  if (file) {
+    notifyChanged(`Copying ${util.colors.magenta(pathUtil.basename(file.path))} after`, file)
+  }
 
   if (_.isArray(config.staticGlobs)) {
     return copy(config.staticGlobs, dest)
   } else {
     return Promise.all(_.map(config.staticGlobs, (dir, glob) => {
-      return streamToPromise(copy(glob, `${dest}${dir}`))
+      return copy(glob, `${dest}${dir}`)
     }))
   }
 }
@@ -27,27 +32,35 @@ const copyFiles = (dest) => (file) => {
 module.exports = () => {
   return {
     watch () {
-      util.logSubTask('watching static files');
+      util.logSubTask('watching static files')
+
+      util.logActionStart('Copying static files')
 
       const watches = _.isArray(config.staticGlobs) ? config.staticGlobs : _.keys(config.staticGlobs)
-      const watcher = watch(watches, copyFiles(config.devDir));
-      copyFiles(config.devDir)();
+      const watcher = watch(watches, (file) => {
+        return copyFiles(config.devDir)(file).then(() => {
+          util.logActionEnd('Finished copying', util.colors.magenta(pathUtil.basename(file.path)))
+        })
+      })
+      copyFiles(config.devDir)().then(() => {
+        util.logActionEnd('Finished copying static files')
+      })
 
-      closeOnExit(watcher);
+      closeOnExit(watcher)
 
-      return watcher;
+      return watcher
     },
 
     buildDev () {
-      util.logSubTask('copying static files (dev)');
+      util.logSubTask('copying static files (dev)')
 
-      return copyFiles(config.devDir)();
+      return copyFiles(config.devDir)()
     },
 
     buildProd () {
-      util.logSubTask('copying static files');
+      util.logSubTask('copying static files')
 
-      return copyFiles(config.prodDir)();
+      return copyFiles(config.prodDir)()
     },
-  };
-};
+  }
+}

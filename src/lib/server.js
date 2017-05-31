@@ -49,7 +49,7 @@ function runServer (dir, port) {
 
   return app.listen(port, () => {
     const url = `http://localhost:${port}`
-    util.log(`listening on ${util.colors.yellow(url)}...`)
+    util.logAction(`Listening on ${util.colors.yellow(url)}...`)
   })
 }
 

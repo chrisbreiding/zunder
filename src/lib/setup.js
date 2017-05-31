@@ -35,17 +35,17 @@ module.exports = () => {
 
       return Promise.resolve()
         .then(() => {
-          util.log(util.colors.underline('installing dev dependencies'));
-          devDeps.forEach((dep) => util.log(`- ${dep}`));
+          util.logSubTask('installing dev dependencies')
+          devDeps.forEach((dep) => util.logAction(dep))
           exec(`npm install --save-dev ${devDeps.join(' ')} --progress=false`)
         })
         .then(() => {
-          util.log(util.colors.underline('installing dependencies'));
-          deps.forEach((dep) => util.log(`- ${dep}`));
+          util.logSubTask('installing dependencies')
+          deps.forEach((dep) => util.logAction(dep))
           return exec(`npm install --save ${deps.join(' ')} --progress=false`)
         })
         .then(() => {
-          util.log(util.colors.underline('scaffolding files'));
+          util.logSubTask('scaffolding files')
           return Promise.all(directories.map((directory) => mkdirp(directory)));
         })
         .then(() => {
@@ -53,7 +53,7 @@ module.exports = () => {
             return readFile(file).catch(() => {
                // erroring indicates the file doesn't exist
                // which is the only case where the scaffold should go in place
-              util.log(`- ${file}`);
+              util.logAction(file)
               return fs.createReadStream(`${__dirname}/../scaffold/${file}`)
                 .pipe(fs.createWriteStream(file));
             });
