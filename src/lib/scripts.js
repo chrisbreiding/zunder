@@ -129,10 +129,20 @@ module.exports = () => {
       })
 
       bundler
+        .plugin(watchify, {
+          ignoreWatch: [
+            '**/package.json',
+            '**/.git/**',
+            '**/.nyc_output/**',
+            '**/.sass-cache/**',
+            '**/coverage/**',
+            '**/node_modules/**',
+          ],
+        })
         .plugin(resolutions, config.resolutions)
         .transform(ify.transform, ify.options)
-      watchify(bundler).on('update', (files) => rebundle(bundler, files))
-      rebundle(bundler, [])
+      bundler.on("update", rebundle)
+      rebundle()
 
       return Promise.all([rebundle].concat(buildExternalBundles(true)))
     },
