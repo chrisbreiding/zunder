@@ -22,6 +22,8 @@ const { closeOnExit } = require('./exit')
 const handleTaskError = errors.createTaskErrorHandler('Stylesheets')
 const handleFatalError = errors.createFatalErrorHandler('Stylesheets')
 
+const logColor = 'blue'
+
 function noop () {}
 
 const files = {
@@ -70,7 +72,7 @@ module.exports = () => {
     const coloredStylesheetName = util.colors.magenta(config.stylesheetName)
 
     if (file) {
-      notifyChanged(`Compiling ${coloredStylesheetName} after`, file)
+      notifyChanged(logColor, `Compiling ${coloredStylesheetName} after`, file)
     }
 
     return vfs.src(`src/${srcConfig.fileName}`)
@@ -82,7 +84,7 @@ module.exports = () => {
       .pipe(vfs.dest(config.devDir))
       .on('end', () => {
         if (logOnFinish) {
-          util.logActionEnd('Finishing compiling', coloredStylesheetName)
+          util.logActionEnd(logColor, 'Finishing compiling', coloredStylesheetName)
         }
       })
   }
@@ -91,7 +93,7 @@ module.exports = () => {
     watch () {
       util.logSubTask('watching stylesheets')
 
-      util.logActionStart('Compiling', util.colors.magenta(config.stylesheetName))
+      util.logActionStart(logColor, 'Compiling', util.colors.magenta(config.stylesheetName))
 
       const srcConfig = getSrcConfig()
       const watcher = watch(srcConfig.compiler.watch, _.partial(buildStylesheets, srcConfig, false, true))

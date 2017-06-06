@@ -24,12 +24,12 @@ function logAction (...args) {
   fancyLog(colors.grey('‣'), ...args)
 }
 
-function logActionStart (...args) {
-  fancyLog(colors.grey('○'), ...args)
+function logActionStart (color, ...args) {
+  fancyLog(colors[color]('○'), ...args)
 }
 
-function logActionEnd (...args) {
-  fancyLog(colors.grey('⦿'), ...args)
+function logActionEnd (color, ...args) {
+  fancyLog(colors[color]('⦿'), ...args)
 }
 
 function logError (error, ...args) {

@@ -13,11 +13,13 @@ const config = require('./config')
 const util = require('./util')
 const { closeOnExit } = require('./exit')
 
+const logColor = 'red'
+
 const buildHtml = (dest) => (file) => {
   let destFile
   if (file) {
     destFile = util.colors.magenta(pathUtil.basename(file.path).replace('.hbs', '.html'))
-    notifyChanged(`Building ${destFile} after`, file)
+    notifyChanged(logColor, `Building ${destFile} after`, file)
   }
 
   const scripts = _.flatMap(config.externalBundles, 'scriptName').concat([config.scriptName])
@@ -33,7 +35,7 @@ const buildHtml = (dest) => (file) => {
     }))
     .on('end', () => {
       if (file) {
-        util.logActionEnd('Finished building', destFile)
+        util.logActionEnd(logColor, 'Finished building', destFile)
       }
     })
     .pipe(rename({
@@ -47,11 +49,11 @@ module.exports = () => {
     watch () {
       util.logSubTask('watching hbs files')
 
-      util.logActionStart('Building html files')
+      util.logActionStart(logColor, 'Building html files')
 
       const watcher = watch('src/*.hbs', buildHtml(config.devDir))
       streamToPromise(buildHtml(config.devDir)()).then(() => {
-        util.logActionEnd('Finished building html files')
+        util.logActionEnd(logColor, 'Finished building html files')
       })
 
       closeOnExit(watcher)

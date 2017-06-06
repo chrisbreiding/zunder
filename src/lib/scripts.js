@@ -26,6 +26,8 @@ const util = require('./util')
 const handleTaskError = errors.createTaskErrorHandler('Scripts')
 const handleFatalError = errors.createFatalErrorHandler('Scripts')
 
+const logColor = 'cyan'
+
 const scriptsGlob = 'src/**/*.+(js|jsx|coffee|cjsx)'
 const noSpecsGlob = '!src/**/*.spec.+(js|jsx)'
 
@@ -118,14 +120,14 @@ module.exports = () => {
 
       function rebundle (files = []) {
         files.forEach((path) => {
-          notifyChanged(`Bundling ${coloredScriptName} after`, { path })
+          notifyChanged(logColor, `Bundling ${coloredScriptName} after`, { path })
         })
 
         return bundler.bundle()
           .on('error', handleTaskError)
           .pipe(plumber(handleTaskError))
           .on('end', () => {
-            util.logActionEnd(`Finished bundling ${coloredScriptName}`)
+            util.logActionEnd(logColor, `Finished bundling ${coloredScriptName}`)
           })
           .pipe(source(config.scriptName))
           .pipe(vfs.dest(config.devDir))
@@ -146,7 +148,7 @@ module.exports = () => {
         .transform(ify.transform, ify.options)
 
       bundler.on("update", rebundle)
-      util.logActionStart(`Bundling ${coloredScriptName}`)
+      util.logActionStart(logColor, `Bundling ${coloredScriptName}`)
       rebundle()
 
       return Promise.all([rebundle].concat(buildExternalBundles(true)))

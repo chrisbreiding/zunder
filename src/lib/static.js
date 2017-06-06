@@ -11,13 +11,15 @@ const config = require('./config')
 const util = require('./util')
 const { closeOnExit } = require('./exit')
 
+const logColor = 'green'
+
 const copy = (globs, dest) => {
   return streamToPromise(vfs.src(globs).pipe(vfs.dest(dest)))
 }
 
 const copyFiles = (dest) => (file) => {
   if (file) {
-    notifyChanged(`Copying ${util.colors.magenta(pathUtil.basename(file.path))} after`, file)
+    notifyChanged(logColor, `Copying ${util.colors.magenta(pathUtil.basename(file.path))} after`, file)
   }
 
   if (_.isArray(config.staticGlobs)) {
@@ -34,16 +36,16 @@ module.exports = () => {
     watch () {
       util.logSubTask('watching static files')
 
-      util.logActionStart('Copying static files')
+      util.logActionStart(logColor, 'Copying static files')
 
       const watches = _.isArray(config.staticGlobs) ? config.staticGlobs : _.keys(config.staticGlobs)
       const watcher = watch(watches, (file) => {
         return copyFiles(config.devDir)(file).then(() => {
-          util.logActionEnd('Finished copying', util.colors.magenta(pathUtil.basename(file.path)))
+          util.logActionEnd(logColor, 'Finished copying', util.colors.magenta(pathUtil.basename(file.path)))
         })
       })
       copyFiles(config.devDir)().then(() => {
-        util.logActionEnd('Finished copying static files')
+        util.logActionEnd(logColor, 'Finished copying static files')
       })
 
       closeOnExit(watcher)
