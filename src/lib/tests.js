@@ -85,6 +85,8 @@ module.exports = () => {
 
       util.logSubTask('watching tests')
       const watcher =  watch(scriptsGlob, (file) => {
+        if (!file || file.event === 'unlink') return
+
         const specFile = getSpecFile(file)
         return scripts().copy(file, errorHandler)
           .pipe(passSpecFile(specFile))
