@@ -5,7 +5,7 @@ const babel = require('gulp-babel')
 const babelify = require('babelify')
 const browserify = require('browserify')
 const buffer = require('vinyl-buffer')
-const cjsxify = require('cjsxify')
+const coffeeify = require('@cypress/coffeeify')
 const gulpif = require('gulp-if')
 const fs = require('fs')
 const pathUtil = require('path')
@@ -28,7 +28,7 @@ const handleFatalError = errors.createFatalErrorHandler('Scripts')
 
 const logColor = 'cyan'
 
-const scriptsGlob = 'src/**/*.+(js|jsx|coffee|cjsx)'
+const scriptsGlob = 'src/**/*.+(js|jsx|coffee)'
 const noSpecsGlob = '!src/**/*.spec.+(js|jsx)'
 
 const babelFileConfig = {
@@ -37,14 +37,13 @@ const babelFileConfig = {
 }
 
 const coffeeFileConfig = {
-  transform: cjsxify,
+  transform: coffeeify,
   options: {},
 }
 
 const files = {
   'main.jsx': babelFileConfig,
   'main.js': babelFileConfig,
-  'main.cjsx': coffeeFileConfig,
   'main.coffee': coffeeFileConfig,
 }
 
@@ -70,7 +69,7 @@ function getSrcConfig () {
   }
 }
 
-const extensions = ['.js', '.jsx', '.coffee', '.cjsx']
+const extensions = ['.js', '.jsx', '.coffee']
 
 function copy (globOrFile, customErrorHandler = () => null) {
   let file = globOrFile

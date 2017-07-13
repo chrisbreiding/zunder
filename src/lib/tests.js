@@ -14,7 +14,7 @@ const errors = require('./errors');
 const scripts = require('./scripts')
 const util = require('./util')
 
-const scriptsGlob = 'src/**/*.+(js|jsx|coffee|cjsx)'
+const scriptsGlob = 'src/**/*.+(js|jsx|coffee)'
 const undertakerNoop = () => Promise.resolve()
 const testSetupFile = () => config.testSetup
 
@@ -23,7 +23,7 @@ function hasSpecs (dir) {
 }
 
 function getSpecFile (file) {
-  let fileName = file.basename.replace('.jsx', '.js').replace('.cjsx', '.coffee')
+  let fileName = file.basename.replace('.jsx', '.js')
   if (!/\.spec\./.test(fileName)) {
     fileName = fileName.replace('.js', '.spec.js').replace('.coffee', '.spec.coffee')
   }
