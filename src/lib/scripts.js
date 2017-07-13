@@ -7,7 +7,7 @@ const browserify = require('browserify')
 const buffer = require('vinyl-buffer')
 const coffeeify = require('@cypress/coffeeify')
 const gulpif = require('gulp-if')
-const fs = require('fs')
+const glob = require('glob')
 const pathUtil = require('path')
 const plumber = require('gulp-plumber')
 const resolutions = require('browserify-resolutions')
@@ -31,45 +31,26 @@ const logColor = 'cyan'
 const scriptsGlob = 'src/**/*.+(js|jsx|coffee)'
 const noSpecsGlob = '!src/**/*.spec.+(js|jsx)'
 
-const babelFileConfig = {
-  transform: babelify,
-  options: babelConfig(),
-}
-
-const coffeeFileConfig = {
-  transform: coffeeify,
-  options: {},
-}
-
-const files = {
-  'main.jsx': babelFileConfig,
-  'main.js': babelFileConfig,
-  'main.coffee': coffeeFileConfig,
-}
-
-function getSrcConfig () {
-  const config = _.reduce(files, (config, ify, fileName) => {
-    if (config) return config
-    try {
-      fs.readFileSync(`${process.cwd()}/src/${fileName}`)
-    } catch (e) {
-      return null
-    }
-    return { fileName, ify }
-  }, null)
-
-  if (!config) {
-    util.logError(`One of the following files must exist under src:\n- ${_.keys(files).join('\n- ')}\n`)
-    return
-  }
-
+const coffeeConfig = () => {
   return {
-    entries: [`./src/${config.fileName}`],
-    ify: config.ify,
+    compiler: config.coffeeCompiler,
   }
 }
 
 const extensions = ['.js', '.jsx', '.coffee']
+
+function getSrcFile () {
+  const globExts = extensions.map((ext) => ext.replace('.', '')).join('|')
+  const mainFiles = glob.sync(`${process.cwd()}/src/main.+(${globExts})`, { nodir: true })
+
+  if (mainFiles.length) {
+    return mainFiles[0]
+  } else {
+    const mains = _.map(extensions, (ext) => `main${ext}`).join('\n- ')
+    util.fail(`One of the following files must exist under src:\n- ${mains}\n`)
+    return
+  }
+}
 
 function copy (globOrFile, customErrorHandler = () => null) {
   let file = globOrFile
@@ -108,9 +89,8 @@ module.exports = () => {
     watch () {
       util.logSubTask('watching scripts')
 
-      const { entries, ify } = getSrcConfig()
       const bundler = browserify({
-        entries,
+        entries: [getSrcFile()],
         extensions,
         cache: {},
         packageCache: {},
@@ -144,7 +124,8 @@ module.exports = () => {
           ],
         })
         .plugin(resolutions, config.resolutions)
-        .transform(ify.transform, ify.options)
+        .transform(babelify, babelConfig())
+        .transform(coffeeify, coffeeConfig())
 
       bundler.on("update", rebundle)
       util.logActionStart(logColor, `Bundling ${coloredScriptName}`)
@@ -164,14 +145,15 @@ module.exports = () => {
     buildDev () {
       util.logSubTask('building scripts (dev)')
 
-      const { entries, ify } = getSrcConfig()
+      const entries = [getSrcFile()]
       const externalLibs = _.map(_.flatMap(config.externalBundles, 'libs'), 'file')
 
       const mainBundle = streamToPromise(
         browserify({ entries, extensions })
           .plugin(resolutions, config.resolutions)
           .external(externalLibs)
-          .transform(ify.transform, ify.options)
+          .transform(babelify, babelConfig())
+          .transform(coffeeify, coffeeConfig())
           .bundle()
           .on('error', handleFatalError)
           .pipe(source(config.scriptName))
@@ -192,12 +174,13 @@ module.exports = () => {
 
       const externalLibs = _.map(_.flatMap(config.externalBundles, 'libs'), 'file')
 
-      const { entries, ify } = getSrcConfig()
+      const entries = [getSrcFile()]
       const mainBundle = streamToPromise(
         browserify({ entries, extensions })
           .plugin(resolutions, config.resolutions)
           .external(externalLibs)
-          .transform(ify.transform, ify.options)
+          .transform(babelify, babelConfig())
+          .transform(coffeeify, coffeeConfig())
           .bundle()
           .on('error', handleFatalError)
           .pipe(source(config.scriptName))

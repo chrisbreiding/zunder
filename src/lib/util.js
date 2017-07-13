@@ -36,6 +36,11 @@ function logError (error, ...args) {
   fancyLog.error(colors.red(error), ...args)
 }
 
+function fail (error, ...args) {
+  logError(error, ...args)
+  process.exit(1)
+}
+
 module.exports = {
   colors,
   fileExists,
@@ -46,6 +51,7 @@ module.exports = {
   logError,
   logSubTask,
   logTask,
+  fail,
   linefeed,
   PluginError,
   replaceExtension,
