@@ -11,6 +11,7 @@ module.exports = {
   externalBundles: [],
   prodDir: 'dist-prod',
   scriptName: 'app.js',
+  stylesheetGlobs: null,
   stylesheetName: 'app.css',
   resolutions: [],
   staticGlobs: ['static/**'],

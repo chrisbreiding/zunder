@@ -96,7 +96,7 @@ module.exports = () => {
       util.logActionStart(logColor, 'Compiling', util.colors.magenta(config.stylesheetName))
 
       const srcConfig = getSrcConfig()
-      const watcher = watch(srcConfig.compiler.watch, _.partial(buildStylesheets, srcConfig, false, true))
+      const watcher = watch(config.stylesheetGlobs || srcConfig.compiler.watch, _.partial(buildStylesheets, srcConfig, false, true))
       buildStylesheets(srcConfig, false, true)
 
       closeOnExit(watcher)
