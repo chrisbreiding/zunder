@@ -6,8 +6,11 @@ const babelify = require('babelify')
 const browserify = require('browserify')
 const buffer = require('vinyl-buffer')
 const coffeeify = require('@cypress/coffeeify')
+const envify = require('envify')
+const envifyCustom = require('envify/custom')
 const gulpif = require('gulp-if')
 const glob = require('glob')
+const fs = require('fs-extra')
 const pathUtil = require('path')
 const plumber = require('gulp-plumber')
 const resolutions = require('browserify-resolutions')
@@ -126,6 +129,12 @@ module.exports = () => {
         .plugin(resolutions, config.resolutions)
         .transform(babelify, babelConfig())
         .transform(coffeeify, coffeeConfig())
+        .transform(envify)
+
+      const env = fs.readJsonSync(pathUtil.join(process.cwd(), '.env'), { throws: false })
+      if (env) {
+        bundler.transform(envifyCustom(_.extend(env, { _: 'purge' })))
+      }
 
       bundler.on("update", rebundle)
       util.logActionStart(logColor, `Bundling ${coloredScriptName}`)
