@@ -22,8 +22,10 @@ const buildHtml = (dest) => (file) => {
     notifyChanged(logColor, `Building ${destFile} after`, file)
   }
 
-  const scripts = _.flatMap(config.externalBundles, 'scriptName').concat([config.scriptName])
-  const stylesheets = [config.stylesheetName]
+  const scripts = _.flatMap(config.externalBundles, 'scriptName')
+    .concat([config.scriptName])
+    .map((fileName) => pathUtil.join('/', fileName))
+  const stylesheets = [pathUtil.join('/', config.stylesheetName)]
 
   return vfs.src('src/*.hbs')
     .pipe(handlebars({

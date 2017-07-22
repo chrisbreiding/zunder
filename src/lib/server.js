@@ -6,6 +6,7 @@ const globSync = require('glob').sync
 const nodemon = require('gulp-nodemon')
 const _ = require('lodash')
 const morgan = require('morgan')
+const path = require('path')
 const portfinder = require('portfinder')
 const argv = require('yargs').argv
 
@@ -32,6 +33,8 @@ function setupMockServer (app) {
 function runServer (dir, port) {
   const app = express()
 
+  app.use(morgan('dev'))
+  app.use(bodyParser.json())
   app.use((req, res, next) => {
     // ensure no caching
     res.set({
@@ -42,8 +45,9 @@ function runServer (dir, port) {
     next()
   })
   app.use(express.static(dir))
-  app.use(morgan('dev'))
-  app.use(bodyParser.json())
+  app.use((req, res) => {
+    res.sendFile(path.join(process.cwd(), 'dist', 'index.html'))
+  })
 
   setupMockServer(app)
 
