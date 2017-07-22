@@ -6,6 +6,7 @@ module.exports = {
   appCache: false,
   appCacheTransform: null,
   cacheBust: true,
+  cacheFilter: () => true,
   deployBranch: 'gh-pages',
   devDir: 'dist',
   externalBundles: [],

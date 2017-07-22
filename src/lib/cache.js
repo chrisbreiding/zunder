@@ -2,6 +2,7 @@
 
 const _ = require('lodash')
 const del = require('del')
+const filter = require('gulp-custom-filter')
 const glob = require('glob')
 const handlebars = require('gulp-compile-handlebars')
 const rename = require('gulp-rename')
@@ -23,6 +24,7 @@ module.exports = () => {
       util.logSubTask('cache busting files')
 
       return vfs.src(`${config.prodDir}/**/*.!(html)`)
+        .pipe(filter(config.cacheFilter))
         .pipe(rev())
         .pipe(revDel())
         .pipe(vfs.dest(config.prodDir))
