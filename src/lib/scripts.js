@@ -42,17 +42,24 @@ const coffeeConfig = () => {
 
 const extensions = ['.js', '.jsx', '.coffee']
 
-function getSrcFile () {
-  const globExts = extensions.map((ext) => ext.replace('.', '')).join('|')
-  const mainFiles = glob.sync(`${process.cwd()}/src/main.+(${globExts})`, { nodir: true })
+function getSrcFiles () {
+  let allFound = true
 
-  if (mainFiles.length) {
-    return mainFiles[0]
-  } else {
-    const mains = _.map(extensions, (ext) => `main${ext}`).join('\n- ')
-    util.fail(`One of the following files must exist under src:\n- ${mains}\n`)
+  const srcFiles = _.map(config.getScripts(), (outputName, scriptSourceGlob) => {
+    const found = glob.sync(pathUtil.join(process.cwd(), scriptSourceGlob), { nodir: true })
+    if (!found || !found.length) {
+      allFound = false
+      return []
+    }
+    return [found[0], outputName]
+  })
+
+  if (!allFound) {
+    util.fail(`Expected files matching the following glob(s) to exist under src:\n- ${config.scriptSources.join('\n')}\n`)
     return
   }
+
+  return srcFiles
 }
 
 function copy (globOrFile, customErrorHandler = () => null) {
@@ -92,55 +99,59 @@ module.exports = () => {
     watch () {
       util.logSubTask('watching scripts')
 
-      const bundler = browserify({
-        entries: [getSrcFile()],
-        extensions,
-        cache: {},
-        packageCache: {},
-      })
-      const coloredScriptName = util.colors.magenta(config.scriptName)
+      const srcFiles = getSrcFiles()
 
-      function rebundle (files = []) {
-        files.forEach((path) => {
-          notifyChanged(logColor, `Bundling ${coloredScriptName} after`, { path })
+      return Promise.all(_.map(srcFiles, ([srcFile, outputName]) => {
+        const bundler = browserify({
+          entries: [srcFile],
+          extensions,
+          cache: {},
+          packageCache: {},
         })
+        const coloredScriptName = util.colors.magenta(outputName)
 
-        return bundler.bundle()
-          .on('error', handleTaskError)
-          .pipe(plumber(handleTaskError))
-          .on('end', () => {
-            util.logActionEnd(logColor, `Finished bundling ${coloredScriptName}`)
+        function rebundle (files = []) {
+          files.forEach((path) => {
+            notifyChanged(logColor, `Bundling ${coloredScriptName} after`, { path })
           })
-          .pipe(source(config.scriptName))
-          .pipe(vfs.dest(config.devDir))
-      }
 
-      bundler
-        .plugin(watchify, {
-          ignoreWatch: [
-            '**/package.json',
-            '**/.git/**',
-            '**/.nyc_output/**',
-            '**/.sass-cache/**',
-            '**/coverage/**',
-            '**/node_modules/**',
-          ],
-        })
-        .plugin(resolutions, config.resolutions)
-        .transform(babelify, babelConfig())
-        .transform(coffeeify, coffeeConfig())
-        .transform(envify)
+          return bundler.bundle()
+            .on('error', handleTaskError)
+            .pipe(plumber(handleTaskError))
+            .on('finish', () => {
+              util.logActionEnd(logColor, `Finished bundling ${coloredScriptName}`)
+            })
+            .pipe(source(outputName))
+            .pipe(vfs.dest(config.devDir))
+        }
 
-      const env = fs.readJsonSync(pathUtil.join(process.cwd(), '.env'), { throws: false })
-      if (env) {
-        bundler.transform(envifyCustom(_.extend(env, { _: 'purge' })))
-      }
+        bundler
+          .plugin(watchify, {
+            ignoreWatch: [
+              '**/package.json',
+              '**/.git/**',
+              '**/.nyc_output/**',
+              '**/.sass-cache/**',
+              '**/coverage/**',
+              '**/node_modules/**',
+            ],
+          })
+          .plugin(resolutions, config.resolutions)
+          .transform(babelify, babelConfig())
+          .transform(coffeeify, coffeeConfig())
+          .transform(envify)
 
-      bundler.on("update", rebundle)
-      util.logActionStart(logColor, `Bundling ${coloredScriptName}`)
-      rebundle()
+        const env = fs.readJsonSync(pathUtil.join(process.cwd(), '.env'), { throws: false })
+        if (env) {
+          bundler.transform(envifyCustom(_.extend(env, { _: 'purge' })))
+        }
 
-      return Promise.all([rebundle].concat(buildExternalBundles(true)))
+        bundler.on("update", rebundle)
+        util.logActionStart(logColor, `Bundling ${coloredScriptName}`)
+        rebundle()
+
+        return Promise.all([rebundle].concat(buildExternalBundles(true)))
+      }))
     },
 
     copy,
@@ -154,22 +165,26 @@ module.exports = () => {
     buildDev () {
       util.logSubTask('building scripts (dev)')
 
-      const entries = [getSrcFile()]
-      const externalLibs = _.map(_.flatMap(config.externalBundles, 'libs'), 'file')
+      const srcFiles = getSrcFiles()
 
-      const mainBundle = streamToPromise(
-        browserify({ entries, extensions })
-          .plugin(resolutions, config.resolutions)
-          .external(externalLibs)
-          .transform(babelify, babelConfig())
-          .transform(coffeeify, coffeeConfig())
-          .bundle()
-          .on('error', handleFatalError)
-          .pipe(source(config.scriptName))
-          .pipe(vfs.dest(config.devDir))
-      )
+      return Promise.all(_.map(srcFiles, ([srcFile, outputName]) => {
+        const entries = [srcFile]
+        const externalLibs = _.map(_.flatMap(config.externalBundles, 'libs'), 'file')
 
-      return Promise.all([mainBundle].concat(buildExternalBundles(false)))
+        const mainBundle = streamToPromise(
+          browserify({ entries, extensions })
+            .plugin(resolutions, config.resolutions)
+            .external(externalLibs)
+            .transform(babelify, babelConfig())
+            .transform(coffeeify, coffeeConfig())
+            .bundle()
+            .on('error', handleFatalError)
+            .pipe(source(outputName))
+            .pipe(vfs.dest(config.devDir))
+        )
+
+        return Promise.all([mainBundle].concat(buildExternalBundles(false)))
+      }))
     },
 
     copyProd () {
@@ -182,37 +197,40 @@ module.exports = () => {
       util.logSubTask('building scripts')
 
       const externalLibs = _.map(_.flatMap(config.externalBundles, 'libs'), 'file')
+      const srcFiles = getSrcFiles()
 
-      const entries = [getSrcFile()]
-      const mainBundle = streamToPromise(
-        browserify({ entries, extensions })
-          .plugin(resolutions, config.resolutions)
-          .external(externalLibs)
-          .transform(babelify, babelConfig())
-          .transform(coffeeify, coffeeConfig())
-          .bundle()
-          .on('error', handleFatalError)
-          .pipe(source(config.scriptName))
-          .pipe(buffer())
-          .pipe(uglify())
-          .pipe(vfs.dest(config.prodDir))
-      )
-
-      const externalBundles = _.map(config.externalBundles, (external) => {
-        return streamToPromise(
-          browserify()
+      return Promise.all(_.map(srcFiles, ([srcFile, outputName]) => {
+        const entries = [srcFile]
+        const mainBundle = streamToPromise(
+          browserify({ entries, extensions })
             .plugin(resolutions, config.resolutions)
-            .require(external.libs)
+            .external(externalLibs)
+            .transform(babelify, babelConfig())
+            .transform(coffeeify, coffeeConfig())
             .bundle()
             .on('error', handleFatalError)
-            .pipe(source(external.scriptName))
+            .pipe(source(outputName))
             .pipe(buffer())
             .pipe(uglify())
             .pipe(vfs.dest(config.prodDir))
         )
-      })
 
-      return Promise.all([mainBundle].concat(externalBundles))
+        const externalBundles = _.map(config.externalBundles, (external) => {
+          return streamToPromise(
+            browserify()
+              .plugin(resolutions, config.resolutions)
+              .require(external.libs)
+              .bundle()
+              .on('error', handleFatalError)
+              .pipe(source(external.scriptName))
+              .pipe(buffer())
+              .pipe(uglify())
+              .pipe(vfs.dest(config.prodDir))
+          )
+        })
+
+        return Promise.all([mainBundle].concat(externalBundles))
+      }))
     },
   }
 }

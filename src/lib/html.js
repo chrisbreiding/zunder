@@ -22,19 +22,35 @@ const buildHtml = (dest) => (file) => {
     notifyChanged(logColor, `Building ${destFile} after`, file)
   }
 
-  const scripts = _.flatMap(config.externalBundles, 'scriptName')
-    .concat([config.scriptName])
-    .map((fileName) => pathUtil.join('/', fileName))
+  const externalBundles = _.flatMap(config.externalBundles, 'scriptName')
+  const getScripts = (scripts) => (
+    externalBundles
+      .concat(scripts)
+      .map((fileName) => pathUtil.join('/', fileName))
+  )
+  const scripts = getScripts(_.values(config.getScripts()))
   const stylesheets = [pathUtil.join('/', config.stylesheetName)]
 
+  let handlebarsVariables = {
+    scripts,
+    stylesheets,
+    env: process.env,
+    isDev: process.env.NODE_ENV === 'development',
+    isProd: process.env.NODE_ENV === 'production',
+  }
+
+  _.each(config.getScripts(), (outputName) => {
+    // turn 'foo-Bar_baz.js' into 'foobarbaz' so it ends up 'foobarbazScripts'
+    const simplifiedName = outputName.replace(/\.\w+$/, '').replace(/[-_]/g, '').toLowerCase()
+    handlebarsVariables[`${simplifiedName}Scripts`] = getScripts([outputName])
+  })
+
+  if (_.isFunction(config.editHandlebarsVariables)) {
+    handlebarsVariables = config.editHandlebarsVariables(handlebarsVariables)
+  }
+
   return vfs.src('src/*.hbs')
-    .pipe(handlebars({
-      scripts,
-      stylesheets,
-      env: process.env,
-      isDev: process.env.NODE_ENV === 'development',
-      isProd: process.env.NODE_ENV === 'production',
-    }))
+    .pipe(handlebars(handlebarsVariables))
     .on('end', () => {
       if (file) {
         util.logActionEnd(logColor, 'Finished building', destFile)
