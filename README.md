@@ -163,7 +163,7 @@ The zunder instance (returned from `require('zunder')`) has a config object with
 You can update the config in your `zunderfile.js` like so:
 
 ```javascript
-const zunder = require('zunder)
+const zunder = require('zunder')
 
 zunder.setConfig({
   prodDir: 'build', // overrides the 'prodDir' setting
