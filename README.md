@@ -1,18 +1,20 @@
 # Zunder
 
-An opinionated front-end build tool for developing apps with React, ES2015, and SCSS.
+An opinionated front-end build tool for developing apps with React and SCSS.
 
-Zunder provides gulp tasks to do the following:
+Zunder provides tasks to do the following:
 
 * install react and eslint dependencies
 * create boilerplate files to get you up and running quickly
 * watch your files for changes and update them
-* compile your ES2015 JavaScript, CoffeeScript and SCSS
+* compile your JavaScript, CoffeeScript and SCSS
 * run a server to serve your assets
 * build your assets for production with minification and cache-busting
+* create an [app cache manifest](https://developer.mozilla.org/en-US/docs/Web/HTML/Using_the_application_cache)
+* run unit tests via mocha, with watch mode that auto-runs tests when associated app file changes
 * deploy your app to github pages
 
-Zunder uses babel with ES2015 and React presets, so you can use all ES2015 features supported by babel as well as JSX.
+Zunder uses babel with [env](https://www.npmjs.com/package/babel-preset-env), [stage-1](https://www.npmjs.com/package/babel-preset-stage-1), and [react](https://www.npmjs.com/package/babel-preset-react) presets, so you can use the latest ES features as well as JSX.
 
 ## Installation & Setup
 
@@ -25,51 +27,65 @@ $ npm install zunder --save-dev
 Run the setup task. Read more about it under the Tasks section below.
 
 ```sh
-$ ./node_modules/.bin/zunder setup
+$ $(npm bin)/zunder setup
 ```
 
 ## Tasks
 
-Note: To avoid having to type `./node_modules/.bin/` before commands, add the following to your shell profile (e.g. .bash_profile, .bashrc, .zshrc):
-
-```sh
-export PATH=./node_modules/.bin/:$PATH
-```
-
-Then you can run `zunder watch` instead of `./node_modules/.bin/zunder watch`.
-
 ### watch
 
 ```sh
-$ ./node_modules/.bin/zunder watch
+$ $(npm bin)/zunder watch
 ```
 
 Use while developing your app.
 
-* watches and compiles JavaScript (ES2015 and JSX), CoffeeScript and SCSS files
+* watches and compiles JavaScript (including JSX), CoffeeScript and SCSS files
 * copies assets from the `static` directory
 * builds src/index.hbs
 * serves the app on an available port
 
-### build
+### build-dev / build-prod
 
 ```sh
-$ ./node_modules/.bin/zunder build
+$ $(npm bin)/zunder build-dev
+or
+$ $(npm bin)/zunder build-prod
 ```
 
-Use to test out the production version of your app before deploying.
+Build your app for the given environment.
 
-* compiles JavaScript (ES2015 and JSX), CoffeeScript and SCSS files
-* minifies the generated JS and CSS
-* adds a cache-buster to the generated JS and CSS files based on their contents
+Both do:
+
+* compiles JavaScript (including JSX), CoffeeScript and SCSS files
 * copies assets from the `static` directory
 * builds src/index.hbs
-* serves the app on an available port
+
+Only `build-prod` does:
+
+* minifies the generated JS and CSS
+* adds a cache-buster to the generated JS and CSS files based on their contents
+
+### serve-dev / serve-prod
+
+```sh
+$ $(npm bin)/zunder serve-dev
+or
+$ $(npm bin)/zunder serve-prod
+```
+
+Serves the app on an available port. `serve-dev` serves the `devDir` and `serve-prod` serves the `prodDir`. See [zunder config](#zunder-config).
+
+### test
+
+Runs all mocha tests. 
+
+By convention, tests should live next to their source files, suffixed with `.spec`. So if the source file is `app.js`, its spec is `app.spec.js`.
 
 ### deploy
 
 ```sh
-$ ./node_modules/.bin/zunder deploy
+$ $(npm bin)/zunder deploy
 ```
 
 Builds your app (same as the build task, without running a server), creates a branch called gh-pages, and pushes the branch to the origin remote. _Note_: the branch will be force pushed, so any history for the gh-pages branch on the remote will be wiped out.
@@ -77,20 +93,10 @@ Builds your app (same as the build task, without running a server), creates a br
 ### clean
 
 ```sh
-$ ./node_modules/.bin/zunder clean
+$ $(npm bin)/zunder clean
 ```
 
 Remove all built directories and files.
-
-### setup
-
-```sh
-$ ./node_modules/.bin/zunder setup
-```
-
-Installs dependencies and runs scaffolding to get you started. Adds boilerplate files, including an .eslintrc, some SCSS files, a basic React 'app', an example dev server API, and Font Awesome for your icon needs.
-
-It will *not* override files that already exist. You can run it multiple times if necessary without worrying.
 
 ## zunderfile / Task hooks
 
@@ -130,16 +136,45 @@ The following hooks are available:
 
 ### zunder config
 
-The zunder instance (returned from `require('zunder')`) has a config object with the following properties:
+The zunder instance (returned from `require('zunder')`) has a config object with the following properties (default values shown):
 
-* `devDir`: the build directory for the `watch` task
-* `prodDir`: the build directory for the `build-prod`, `serve-prod`, and `deploy` tasks
+```javascript
+{
+  appCache: false, // create app cache manifest?
+  appCacheTransform: null, // function that receives list of files to include in manifest. return filtered/augmented list
+  cacheBust: true, // cache bust assets? only affects prod task. is always false for dev/test tasks
+  cacheFilter: () => true, // receives file name, return true to cache bust, false not to cache bust
+  deployBranch: 'gh-pages', // branch to deploy to
+  devDir: 'dist', // output directory for dev tasks (e.g. build-dev, watch)
+  externalBundles: [], // array of objects with shape { scriptName, libs } for outputting separate bundles. useful for separating vendor scripts from app script
+  prodDir: 'dist-prod', // output directory for prod tasks (e.g. build-prod, deploy)
+  scripts: {
+    'src/main.+(js|jsx|coffee)': 'app.js', // object of source file to output name
+  },
+  stylesheetGlobs: null, // glob or array of globs for source stylesheets to watch
+  stylesheetName: 'app.css', // output name for stylesheet
+  resolutions: [], // see https://www.npmjs.com/package/browserify-resolutions
+  staticGlobs: ['static/**'], // globs of static files to copy into output directory
+  testDir: 'dist-test', // output directory for test task
+  testSetup: 'lib/test-setup.js', // location of mocha test setup file
+}
+```
+
+You can update the config in your `zunderfile.js` like so:
+
+```javascript
+const zunder = require('zunder)
+
+zunder.setConfig({
+  prodDir: 'build', // overrides the 'prodDir' setting
+})
+```
 
 ## License
 
 The MIT License (MIT)
 
-Copyright (c) 2016 Chris Breiding
+Copyright (c) 2017 Chris Breiding
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
