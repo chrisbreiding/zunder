@@ -16,6 +16,12 @@ const config = {
   scripts: {
     'src/main.+(js|jsx|coffee)': 'app.js',
   },
+  stylesheets: {
+    'main.scss': {
+      watch: ['src/**/*.scss'],
+      output: 'app.css',
+    },
+  },
   stylesheetGlobs: null,
   stylesheetName: 'app.css',
   resolutions: [],
@@ -35,6 +41,18 @@ config.getScripts = () => {
 
   return {
     'src/main.+(js|jsx|coffee)': config.scriptName,
+  }
+}
+
+// makes stylesheets backwards-compatible with old way of configuring
+config.getStylesheets = () => {
+  if (!isDefault('stylesheets') || !config.stylesheetGlobs || !config.stylesheetName) return config.stylesheets
+
+  return {
+    'main.scss': {
+      watch: [config.stylesheetGlobs || 'src/**/*.scss'],
+      ouptut: config.stylesheetName || 'app.css',
+    },
   }
 }
 

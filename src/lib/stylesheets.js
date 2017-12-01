@@ -1,6 +1,7 @@
 'use strict'
 
 const fs = require('fs')
+const pathUtil = require('path')
 const autoprefixer = require('gulp-autoprefixer')
 const gulpif = require('gulp-if')
 const minify = require('gulp-clean-css')
@@ -12,6 +13,7 @@ const watch = require('gulp-watch')
 const _ = require('lodash')
 const globber = require('node-sass-globbing')
 const vfs = require('vinyl-fs')
+const streamToPromise = require('stream-to-promise')
 
 const errors = require('./errors')
 const notifyChanged = require('./notify-changed')
@@ -27,13 +29,11 @@ const logColor = 'blue'
 function noop () {}
 
 const files = {
-  'main.styl': {
-    watch: 'src/**/*.styl',
+  'styl': {
     dev: () => stylus({ linenos: true, 'include css': true }),
     prod: () => stylus({ 'include css': true }),
   },
-  'main.scss': {
-    watch: 'src/**/*.scss',
+  'scss': {
     dev: () => sass({
       importer: globber,
       sourceComments: true,
@@ -46,82 +46,98 @@ const files = {
   },
 }
 
-function getSrcConfig () {
-  const srcConfig = _.reduce(files, (srcConfig, compiler, fileName) => {
-    if (srcConfig) return srcConfig
-    try {
-      fs.readFileSync(`${process.cwd()}/src/${fileName}`)
-    } catch (e) {
-      return null
-    }
-    return { fileName, compiler }
-  }, null)
+function getSrcFiles () {
+  let allFound = true
 
-  if (!srcConfig) {
-    util.logError(`One of the following files must exist under src:\n- ${_.keys(files).join('\n- ')}\n`)
+  const stylesheets = config.getStylesheets()
+
+  const srcFiles = _.map(stylesheets, ({ watch, output }, srcFile) => {
+    try {
+      fs.statSync(pathUtil.join(process.cwd(), 'src', srcFile))
+    } catch (e) {
+      allFound = false
+      return []
+    }
+
+    const compiler = files[_.last(srcFile.split('.'))]
+    if (!compiler) {
+      util.logError(`Source stylesheet must be .scss or .styl. You tried: ${srcFile}`)
+    }
+
+    return { srcFile, watch, compiler, output }
+  })
+
+  if (!allFound) {
+    util.logError(`The following files must all exist under src:\n- ${_.keys(stylesheets).join('\n- ')}\n`)
     return
   }
 
-  return srcConfig
+  return srcFiles
 }
 
 module.exports = () => {
   const autoprefixOptions = { browsers: ['last 2 versions'], cascade: false }
 
-  function buildStylesheets (srcConfig, exitOnError, logOnFinish, file) {
-    const coloredStylesheetName = util.colors.magenta(config.stylesheetName)
+  function buildStylesheets ({ srcFile, compiler, output }, exitOnError, logOnFinish, file) {
+    const coloredStylesheetName = util.colors.magenta(output)
 
     if (file) {
       notifyChanged(logColor, `Compiling ${coloredStylesheetName} after`, file)
     }
 
-    return vfs.src(`src/${srcConfig.fileName}`)
+    return streamToPromise(
+      vfs
+      .src(`src/${srcFile}`)
       .pipe(gulpif(!exitOnError, plumber(handleTaskError)))
-      .pipe(srcConfig.compiler.dev())
+      .pipe(compiler.dev())
       .on('error', exitOnError ? handleFatalError : noop)
       .pipe(autoprefixer(autoprefixOptions))
-      .pipe(rename(config.stylesheetName))
+      .pipe(rename(output))
       .pipe(vfs.dest(config.devDir))
       .on('end', () => {
         if (logOnFinish) {
           util.logActionEnd(logColor, 'Finishing compiling', coloredStylesheetName)
         }
       })
+    )
   }
 
   return {
     watch () {
       util.logSubTask('watching stylesheets')
 
-      util.logActionStart(logColor, 'Compiling', util.colors.magenta(config.stylesheetName))
-
-      const srcConfig = getSrcConfig()
-      const watcher = watch(config.stylesheetGlobs || srcConfig.compiler.watch, _.partial(buildStylesheets, srcConfig, false, true))
-      buildStylesheets(srcConfig, false, true)
-
-      closeOnExit(watcher)
-
-      return watcher
+      return Promise.all(_.map(getSrcFiles(), (stylesheetConfig) => {
+        util.logActionStart(logColor, 'Compiling', util.colors.magenta(stylesheetConfig.output))
+        const watcher = watch(stylesheetConfig.watch, _.partial(buildStylesheets, stylesheetConfig, false, true))
+        closeOnExit(watcher)
+        buildStylesheets(stylesheetConfig, false, true)
+        return streamToPromise(watcher)
+      }))
     },
 
     buildDev () {
       util.logSubTask('building stylesheets (dev)')
 
-      const srcConfig = getSrcConfig()
-      return buildStylesheets(srcConfig, true, false)
+      return Promise.all(_.map(getSrcFiles(), (stylesheetConfig) => {
+        return buildStylesheets(stylesheetConfig, false, true)
+      }))
     },
 
     buildProd () {
       util.logSubTask('building stylesheets')
 
-      const srcConfig = getSrcConfig()
-      return vfs.src(`src/${srcConfig.fileName}`)
-        .pipe(srcConfig.compiler.prod())
-        .on('error', handleFatalError)
-        .pipe(autoprefixer(autoprefixOptions))
-        .pipe(minify())
-        .pipe(rename(config.stylesheetName))
-        .pipe(vfs.dest(config.prodDir))
+      return Promise.all(_.map(getSrcFiles(), ({ srcFile, compiler, output }) => {
+        return streamToPromise(
+          vfs
+          .src(`src/${srcFile}`)
+          .pipe(compiler.prod())
+          .on('error', handleFatalError)
+          .pipe(autoprefixer(autoprefixOptions))
+          .pipe(minify())
+          .pipe(rename(output))
+          .pipe(vfs.dest(config.prodDir))
+        )
+      }))
     },
   }
 }
