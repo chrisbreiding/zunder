@@ -53,7 +53,7 @@ function getSrcFiles () {
 
   const srcFiles = _.map(stylesheets, ({ watch, output }, srcFile) => {
     try {
-      fs.statSync(pathUtil.join(process.cwd(), 'src', srcFile))
+      fs.statSync(pathUtil.join(process.cwd(), srcFile))
     } catch (e) {
       allFound = false
       return []
@@ -68,7 +68,7 @@ function getSrcFiles () {
   })
 
   if (!allFound) {
-    util.logError(`The following files must all exist under src:\n- ${_.keys(stylesheets).join('\n- ')}\n`)
+    util.logError(`The following files must all exist:\n- ${_.keys(stylesheets).join('\n- ')}\n`)
     return
   }
 
@@ -87,7 +87,7 @@ module.exports = () => {
 
     return streamToPromise(
       vfs
-      .src(`src/${srcFile}`)
+      .src(srcFile)
       .pipe(gulpif(!exitOnError, plumber(handleTaskError)))
       .pipe(compiler.dev())
       .on('error', exitOnError ? handleFatalError : noop)
@@ -129,7 +129,7 @@ module.exports = () => {
       return Promise.all(_.map(getSrcFiles(), ({ srcFile, compiler, output }) => {
         return streamToPromise(
           vfs
-          .src(`src/${srcFile}`)
+          .src(srcFile)
           .pipe(compiler.prod())
           .on('error', handleFatalError)
           .pipe(autoprefixer(autoprefixOptions))

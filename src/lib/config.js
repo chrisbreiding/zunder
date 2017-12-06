@@ -17,7 +17,7 @@ const config = {
     'src/main.+(js|jsx|coffee)': 'app.js',
   },
   stylesheets: {
-    'main.scss': {
+    'src/main.scss': {
       watch: ['src/**/*.scss'],
       output: 'app.css',
     },
@@ -49,9 +49,9 @@ config.getStylesheets = () => {
   if (!isDefault('stylesheets') || !config.stylesheetGlobs || !config.stylesheetName) return config.stylesheets
 
   return {
-    'main.scss': {
+    'src/main.scss': {
       watch: [config.stylesheetGlobs || 'src/**/*.scss'],
-      ouptut: config.stylesheetName || 'app.css',
+      output: config.stylesheetName || 'app.css',
     },
   }
 }
