@@ -119,7 +119,7 @@ module.exports = () => {
       util.logSubTask('building stylesheets (dev)')
 
       return Promise.all(_.map(getSrcFiles(), (stylesheetConfig) => {
-        return buildStylesheets(stylesheetConfig, false, true)
+        return buildStylesheets(stylesheetConfig, false, false)
       }))
     },
 
