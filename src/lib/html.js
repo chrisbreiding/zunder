@@ -30,17 +30,10 @@ const buildHtml = (dest) => (file) => {
   }
 
   const externalBundles = _.flatMap(config.externalBundles, 'scriptName')
-  const getScripts = (scripts) => (
-    externalBundles
-      .concat(scripts)
-      .map((fileName) => pathUtil.join('/', fileName))
-  )
+  const getScripts = (scripts) => externalBundles.concat(scripts)
   const scripts = getScripts(_.values(config.getScripts()))
 
-  const getStylesheets = (stylesheets) => {
-    return _.map(stylesheets, (fileName) => pathUtil.join('/', fileName))
-  }
-  const stylesheets = getStylesheets(_.map(config.getStylesheets(), 'output'))
+  const stylesheets = _.map(config.getStylesheets(), 'output')
 
   let handlebarsVariables = {
     scripts,
@@ -55,7 +48,7 @@ const buildHtml = (dest) => (file) => {
   })
 
   _.each(config.getStylesheets(), ({ output }) => {
-    handlebarsVariables[`${simpleFileName(output)}Stylesheets`] = getStylesheets([output])
+    handlebarsVariables[`${simpleFileName(output)}Stylesheets`] = [output]
   })
 
   if (_.isFunction(config.editHandlebarsVariables)) {
