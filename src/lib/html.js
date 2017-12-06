@@ -15,6 +15,13 @@ const { closeOnExit } = require('./exit')
 
 const logColor = 'red'
 
+const extensionRe = /\.\w+$/
+const dashUnderscoreRe = /[-_]/g
+
+const simpleFileName = (fileName) => {
+  return fileName.replace(extensionRe, '').replace(dashUnderscoreRe, '').toLowerCase()
+}
+
 const buildHtml = (dest) => (file) => {
   let destFile
   if (file) {
@@ -29,7 +36,11 @@ const buildHtml = (dest) => (file) => {
       .map((fileName) => pathUtil.join('/', fileName))
   )
   const scripts = getScripts(_.values(config.getScripts()))
-  const stylesheets = [pathUtil.join('/', config.stylesheetName)]
+
+  const getStylesheets = (stylesheets) => {
+    return _.map(stylesheets, (fileName) => pathUtil.join('/', fileName))
+  }
+  const stylesheets = getStylesheets(_.map(config.getStylesheets(), 'output'))
 
   let handlebarsVariables = {
     scripts,
@@ -40,9 +51,11 @@ const buildHtml = (dest) => (file) => {
   }
 
   _.each(config.getScripts(), (outputName) => {
-    // turn 'foo-Bar_baz.js' into 'foobarbaz' so it ends up 'foobarbazScripts'
-    const simplifiedName = outputName.replace(/\.\w+$/, '').replace(/[-_]/g, '').toLowerCase()
-    handlebarsVariables[`${simplifiedName}Scripts`] = getScripts([outputName])
+    handlebarsVariables[`${simpleFileName(outputName)}Scripts`] = getScripts([outputName])
+  })
+
+  _.each(config.getStylesheets(), ({ output }) => {
+    handlebarsVariables[`${simpleFileName(output)}Stylesheets`] = getStylesheets([output])
   })
 
   if (_.isFunction(config.editHandlebarsVariables)) {
