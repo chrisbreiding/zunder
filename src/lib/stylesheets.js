@@ -96,7 +96,7 @@ module.exports = () => {
       .pipe(vfs.dest(config.devDir))
       .on('end', () => {
         if (logOnFinish) {
-          util.logActionEnd(logColor, 'Finishing compiling', coloredStylesheetName)
+          util.logActionEnd(logColor, 'Finished compiling', coloredStylesheetName)
         }
       })
     )
