@@ -78,7 +78,7 @@ Serves the app on an available port. `serve-dev` serves the `devDir` and `serve-
 
 ### test
 
-Runs all mocha tests. 
+Runs all mocha tests.
 
 By convention, tests should live next to their source files, suffixed with `.spec`. So if the source file is `app.js`, its spec is `app.spec.js`.
 
@@ -151,8 +151,12 @@ The zunder instance (returned from `require('zunder')`) has a config object with
   scripts: {
     'src/main.+(js|jsx|coffee)': 'app.js', // object of source file to output name
   },
-  stylesheetGlobs: null, // glob or array of globs for source stylesheets to watch
-  stylesheetName: 'app.css', // output name for stylesheet
+  stylesheets: { // stylus is also supported, but must be configured
+    'src/main.scss': {
+      watch: ['src/**/*.scss'],
+      output: 'app.css',
+    },
+  },
   resolutions: [], // see https://www.npmjs.com/package/browserify-resolutions
   staticGlobs: ['static/**'], // globs of static files to copy into output directory
   testDir: 'dist-test', // output directory for test task
