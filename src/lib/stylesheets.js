@@ -8,7 +8,6 @@ const minify = require('gulp-clean-css')
 const plumber = require('gulp-plumber')
 const rename = require('gulp-rename')
 const sass = require('gulp-sass')
-const nodeSass = require('node-sass')
 const stylus = require('gulp-stylus')
 const watch = require('gulp-watch')
 const _ = require('lodash')
@@ -28,7 +27,7 @@ const handleFatalError = errors.createFatalErrorHandler('Stylesheets')
 const logColor = 'blue'
 
 // This is so we can use our desired version of node-sass
-sass.compiler = require('nodeSass')
+sass.compiler = require('node-sass')
 
 function noop () {}
 
