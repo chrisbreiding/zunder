@@ -17,6 +17,7 @@ const resolutions = require('browserify-resolutions')
 const source = require('vinyl-source-stream')
 const streamToPromise = require('stream-to-promise')
 const minify = require('gulp-babel-minify')
+const tsify = require('tsify')
 const vfs = require('vinyl-fs')
 const watchify = require('watchify')
 
@@ -40,7 +41,7 @@ const coffeeConfig = () => {
   }
 }
 
-const extensions = ['.js', '.jsx', '.coffee']
+const extensions = ['.js', '.jsx', '.coffee', '.ts', '.tsx']
 
 function getSrcFiles () {
   let allFound = true
@@ -137,6 +138,7 @@ module.exports = () => {
             ],
           })
           .plugin(resolutions, config.resolutions)
+          .plugin(tsify)
           .transform(babelify, babelConfig())
           .transform(coffeeify, coffeeConfig())
           .transform(envify)
@@ -174,6 +176,7 @@ module.exports = () => {
         const mainBundle = streamToPromise(
           browserify({ entries, extensions })
             .plugin(resolutions, config.resolutions)
+            .plugin(tsify)
             .external(externalLibs)
             .transform(babelify, babelConfig())
             .transform(coffeeify, coffeeConfig())
@@ -204,6 +207,7 @@ module.exports = () => {
         const mainBundle = streamToPromise(
           browserify({ entries, extensions })
             .plugin(resolutions, config.resolutions)
+            .plugin(tsify)
             .external(externalLibs)
             .transform(babelify, babelConfig())
             .transform(coffeeify, coffeeConfig())
