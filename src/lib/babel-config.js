@@ -1,11 +1,14 @@
-const presetEnv = require('babel-preset-env')
-const presetReact = require('babel-preset-react')
-const presetStage1 = require('babel-preset-stage-1')
-
-const pluginAddModuleExports = require('babel-plugin-add-module-exports')
-const pluginDecorators = require('babel-plugin-transform-decorators-legacy').default
-
 module.exports = () => ({
-  plugins: [pluginDecorators, pluginAddModuleExports],
-  presets: [presetEnv, presetReact, presetStage1],
+  plugins: [
+    require.resolve('babel-plugin-add-module-exports'),
+    require.resolve('@babel/plugin-proposal-class-properties'),
+    require.resolve('@babel/plugin-proposal-object-rest-spread'),
+    [require.resolve('@babel/plugin-transform-runtime'), {
+      absoluteRuntime: path.dirname(require.resolve('@babel/runtime/package')),
+    }],
+  ],
+  presets: [
+    require.resolve('@babel/preset-env'),
+    require.resolve('@babel/preset-react'),
+  ],
 })
