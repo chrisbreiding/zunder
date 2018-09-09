@@ -1,7 +1,7 @@
 const instance = require('./instance')
 
 const emit = (event) => (cb) => {
-  instance.emit(event);
+  instance.emit(event)
   cb()
 }
 

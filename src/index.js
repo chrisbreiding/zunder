@@ -1,1 +1,1 @@
-module.exports = require('./lib/instance');
+module.exports = require('./lib/instance')

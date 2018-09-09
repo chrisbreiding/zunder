@@ -10,9 +10,9 @@ function handler (shouldExit, shouldErr = false, err) {
 
   closeables.forEach((closeable) => {
     if (typeof closeable.close === 'function') {
-      closeable.close();
+      closeable.close()
     }
-  });
+  })
 
   if (err) util.logError(err.stack || err)
   if (shouldExit) process.exit(shouldErr ? 1 : 0)
@@ -26,12 +26,12 @@ function bindEvents () {
 
   process.once('exit', handler.bind(null, false, false))
   process.on('SIGINT', handler.bind(null, true, false))
-  process.on('uncaughtException', handler.bind(null, true, true));
+  process.on('uncaughtException', handler.bind(null, true, true))
 }
 
 module.exports = {
   closeOnExit (closeable) {
     bindEvents()
-    closeables.push(closeable);
+    closeables.push(closeable)
   },
 }

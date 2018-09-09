@@ -62,10 +62,10 @@ module.exports = () => {
     watch () {
       // gather command line args to pass them into nodemon
       const args = _(argv)
-        .omit('_', '$0')
-        .map((val, key) => `--${key}=${val}`)
-        .concat([`--devDir=${config.devDir}`])
-        .value()
+      .omit('_', '$0')
+      .map((val, key) => `--${key}=${val}`)
+      .concat([`--devDir=${config.devDir}`])
+      .value()
 
       return nodemon({
         script: `${__dirname}/run-dev-server.js`,

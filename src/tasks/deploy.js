@@ -1,4 +1,4 @@
-const deploy = require('../lib/deploy');
+const deploy = require('../lib/deploy')
 const { emit } = require('../lib/events')
 
 const env = require('./env')

@@ -1,17 +1,17 @@
 'use strict'
 
-const _ = require('lodash');
-const EventEmitter = require('events');
-const api = require('../tasks').api;
+const _ = require('lodash')
+const EventEmitter = require('events')
+const api = require('../tasks').api
 const config = require('./config')
 
 class Zunder extends EventEmitter {
   constructor () {
-    super();
+    super()
 
     // store config on instance so it's available in zunderfile
-    this.config = config;
-    _.extend(this, api);
+    this.config = config
+    _.extend(this, api)
   }
 
   setConfig (props) {
@@ -20,4 +20,4 @@ class Zunder extends EventEmitter {
   }
 }
 
-module.exports = new Zunder();
+module.exports = new Zunder()

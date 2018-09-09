@@ -1,10 +1,10 @@
 const { emit } = require('../lib/events')
-const config = require('../lib/config');
-const html = require('../lib/html');
-const server = require('../lib/server');
-const scripts = require('../lib/scripts');
-const staticAssets = require('../lib/static');
-const stylesheets = require('../lib/stylesheets');
+const config = require('../lib/config')
+const html = require('../lib/html')
+const server = require('../lib/server')
+const scripts = require('../lib/scripts')
+const staticAssets = require('../lib/static')
+const stylesheets = require('../lib/stylesheets')
 
 const env = require('./env')
 const clean = require('./clean')
@@ -13,7 +13,7 @@ const buildDevScripts = scripts().buildDev
 const buildDevStylesheets = stylesheets().buildDev
 const buildDevStaticAssets = staticAssets().buildDev
 const buildDevHtml = html().buildDev
-const copyDevScripts = scripts().copyDev;
+const copyDevScripts = scripts().copyDev
 
 module.exports = (taker) => {
   const { applyDevEnv } = env(taker)

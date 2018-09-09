@@ -1,21 +1,21 @@
 'use strict'
 
 const { emit } = require('../lib/events')
-const html = require('../lib/html');
-const scripts = require('../lib/scripts');
+const html = require('../lib/html')
+const scripts = require('../lib/scripts')
 const server = require('../lib/server')
-const staticAssets = require('../lib/static');
-const stylesheets = require('../lib/stylesheets');
+const staticAssets = require('../lib/static')
+const stylesheets = require('../lib/stylesheets')
 const tests = require('../lib/tests')
 
 const env = require('./env')
 const clean = require('./clean')
 
-const watchScripts = scripts().watch;
-const watchStylesheets = stylesheets().watch;
-const watchStaticAssets = staticAssets().watch;
-const watchHtml = html().watch;
-const watchServer = server().watch;
+const watchScripts = scripts().watch
+const watchStylesheets = stylesheets().watch
+const watchStaticAssets = staticAssets().watch
+const watchHtml = html().watch
+const watchServer = server().watch
 const watchTests = tests().watch
 
 module.exports = (taker) => {
@@ -37,7 +37,7 @@ module.exports = (taker) => {
       watchHtml,
       watchServer
     )
-  );
+  )
 
   return {
     watchScripts,

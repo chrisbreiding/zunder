@@ -10,7 +10,7 @@ const through = require('through')
 const watch = require('gulp-watch')
 
 const { closeOnExit } = require('./exit')
-const errors = require('./errors');
+const errors = require('./errors')
 const scripts = require('./scripts')
 const util = require('./util')
 
@@ -51,7 +51,7 @@ module.exports = () => {
       util.logSubTask('building scripts (test)')
 
       if (!hasSpecs('src')) {
-        util.logError(`No tests found to build in src directory. Tests must be suffixed with .spec.{ext}, like .spec.js or .spec.coffee`)
+        util.logError('No tests found to build in src directory. Tests must be suffixed with .spec.{ext}, like .spec.js or .spec.coffee')
         return undertakerNoop()
       }
 
@@ -84,15 +84,15 @@ module.exports = () => {
       if (!hasSpecs('src')) return undertakerNoop()
 
       util.logSubTask('watching tests')
-      const watcher =  watch(scriptsGlob, (file) => {
+      const watcher = watch(scriptsGlob, (file) => {
         if (!file || file.event === 'unlink') return
 
         const specFile = getSpecFile(file)
         return scripts().copy(file, errorHandler)
-          .pipe(passSpecFile(specFile))
-          .pipe(gulpif(!!specFile, mocha({
-            r: util.fileExists(testSetupFile()) ? testSetupFile() : undefined,
-          })))
+        .pipe(passSpecFile(specFile))
+        .pipe(gulpif(!!specFile, mocha({
+          r: util.fileExists(testSetupFile()) ? testSetupFile() : undefined,
+        })))
       })
       scripts().copy([scriptsGlob], errorHandler)
 

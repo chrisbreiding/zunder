@@ -56,16 +56,16 @@ const buildHtml = (dest) => (file) => {
   }
 
   return vfs.src('src/*.hbs')
-    .pipe(handlebars(handlebarsVariables))
-    .on('end', () => {
-      if (file) {
-        util.logActionEnd(logColor, 'Finished building', destFile)
-      }
-    })
-    .pipe(rename({
-      extname: '.html',
-    }))
-    .pipe(vfs.dest(dest))
+  .pipe(handlebars(handlebarsVariables))
+  .on('end', () => {
+    if (file) {
+      util.logActionEnd(logColor, 'Finished building', destFile)
+    }
+  })
+  .pipe(rename({
+    extname: '.html',
+  }))
+  .pipe(vfs.dest(dest))
 }
 
 module.exports = () => {

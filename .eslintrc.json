@@ -1,0 +1,11 @@
+{
+  "env": {
+    "node": true
+  },
+  "globals": {
+    "Promise": true
+  },
+  "extends": [
+    "plugin:cypress-dev/general"
+  ]
+}

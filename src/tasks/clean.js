@@ -1,6 +1,6 @@
-const del = require('del');
+const del = require('del')
 
-const config = require('../lib/config');
+const config = require('../lib/config')
 const { emit } = require('../lib/events')
 const util = require('../lib/util')
 

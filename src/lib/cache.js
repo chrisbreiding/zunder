@@ -24,12 +24,12 @@ module.exports = () => {
       util.logSubTask('cache busting files')
 
       return vfs.src(`${config.prodDir}/**/*.!(html)`)
-        .pipe(filter(config.cacheFilter))
-        .pipe(rev())
-        .pipe(revDel())
-        .pipe(vfs.dest(config.prodDir))
-        .pipe(rev.manifest())
-        .pipe(vfs.dest(config.prodDir))
+      .pipe(filter(config.cacheFilter))
+      .pipe(rev())
+      .pipe(revDel())
+      .pipe(vfs.dest(config.prodDir))
+      .pipe(rev.manifest())
+      .pipe(vfs.dest(config.prodDir))
     },
 
     replaceCacheNames () {
@@ -38,8 +38,8 @@ module.exports = () => {
       const manifest = vfs.src(`${config.prodDir}/${revManifestName}`)
 
       return vfs.src(`${config.prodDir}/*.+(js|css|html)`)
-        .pipe(revReplace({ manifest }))
-        .pipe(vfs.dest(config.prodDir))
+      .pipe(revReplace({ manifest }))
+      .pipe(vfs.dest(config.prodDir))
     },
 
     removeCacheManifest () {
@@ -59,9 +59,9 @@ module.exports = () => {
         files = _.compact(config.appCacheTransform(files))
       }
       return vfs.src(`${__dirname}/appcache.manifest.hbs`)
-        .pipe(handlebars({ files }))
-        .pipe(rename({ extname: '' }))
-        .pipe(vfs.dest(config.prodDir))
+      .pipe(handlebars({ files }))
+      .pipe(rename({ extname: '' }))
+      .pipe(vfs.dest(config.prodDir))
     },
   }
 }
