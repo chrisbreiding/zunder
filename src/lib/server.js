@@ -57,31 +57,34 @@ function runServer (dir, port) {
   })
 }
 
+const watch = () => {
+  // gather command line args to pass them into nodemon
+  const args = _(argv)
+  .omit('_', '$0')
+  .map((val, key) => `--${key}=${val}`)
+  .concat([`--devDir=${config.devDir}`])
+  .value()
+
+  return nodemon({
+    script: `${__dirname}/run-dev-server.js`,
+    watch: [`${process.cwd()}/server`],
+    args,
+  })
+}
+
+const run = (dir) => {
+  if (argv.port) {
+    runServer(dir, argv.port)
+  } else {
+    portfinder.getPort((err, port) => {
+      runServer(dir, port)
+    })
+  }
+}
+
 module.exports = () => {
   return {
-    watch () {
-      // gather command line args to pass them into nodemon
-      const args = _(argv)
-      .omit('_', '$0')
-      .map((val, key) => `--${key}=${val}`)
-      .concat([`--devDir=${config.devDir}`])
-      .value()
-
-      return nodemon({
-        script: `${__dirname}/run-dev-server.js`,
-        watch: [`${process.cwd()}/server`],
-        args,
-      })
-    },
-
-    run (dir) {
-      if (argv.port) {
-        runServer(dir, argv.port)
-      } else {
-        portfinder.getPort((err, port) => {
-          runServer(dir, port)
-        })
-      }
-    },
+    watch,
+    run,
   }
 }

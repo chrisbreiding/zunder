@@ -7,7 +7,7 @@ const gutil = require('gulp-util')
 const mocha = require('gulp-spawn-mocha')
 const Mocha = require('mocha')
 const through = require('through')
-const watch = require('gulp-watch')
+const gulpWatch = require('gulp-watch')
 
 const { closeOnExit } = require('./exit')
 const errors = require('./errors')
@@ -45,58 +45,62 @@ const errorHandler = (file) => errors.createTaskErrorHandler('Tests', (err) => {
   return !/Mocha exited/.test(err.message) && /\.spec\./.test(file)
 })
 
+const build = () => {
+  if (!hasSpecs('src')) {
+    util.logError('No tests found to build in src directory. Tests must be suffixed with .spec.{ext}, like .spec.js or .spec.coffee')
+    return undertakerNoop()
+  }
+
+  return scripts().copy([scriptsGlob], 'test', errorHandler)
+}
+
+const run = () => {
+  util.logSubTask('Running tests')
+
+  if (!hasSpecs(config.testDir)) {
+    util.logError(`No tests found to run in '${config.testDir}'. Ensure you have tests in your src directory and that you have built them. Tests must be suffixed with .spec.{ext}, like .spec.js or .spec.coffee`)
+    return undertakerNoop()
+  }
+
+  const mocha = new Mocha()
+  if (util.fileExists(testSetupFile())) {
+    mocha.addFile(testSetupFile())
+  }
+  globSync(`${config.testDir}/**/*.spec.*`).forEach((spec) => {
+    mocha.addFile(spec)
+  })
+  mocha.run((failures) => {
+    process.on('exit', () => {
+      process.exit(failures)
+    })
+  })
+}
+
+const watch = () => {
+  if (!hasSpecs('src')) return undertakerNoop()
+
+  util.logSubTask('Watching tests')
+  const watcher = gulpWatch(scriptsGlob, (file) => {
+    if (!file || file.event === 'unlink') return
+
+    const specFile = getSpecFile(file)
+    return scripts().copy(file, 'test', errorHandler)
+    .pipe(passSpecFile(specFile))
+    .pipe(gulpif(!!specFile, mocha({
+      r: util.fileExists(testSetupFile()) ? testSetupFile() : undefined,
+    })))
+  })
+  scripts().copy([scriptsGlob], 'test', errorHandler)
+
+  closeOnExit(watcher)
+
+  return watcher
+}
+
 module.exports = () => {
   return {
-    build () {
-      if (!hasSpecs('src')) {
-        util.logError('No tests found to build in src directory. Tests must be suffixed with .spec.{ext}, like .spec.js or .spec.coffee')
-        return undertakerNoop()
-      }
-
-      return scripts().copy([scriptsGlob], 'test', errorHandler)
-    },
-
-    run () {
-      util.logSubTask('Running tests')
-
-      if (!hasSpecs(config.testDir)) {
-        util.logError(`No tests found to run in '${config.testDir}'. Ensure you have tests in your src directory and that you have built them. Tests must be suffixed with .spec.{ext}, like .spec.js or .spec.coffee`)
-        return undertakerNoop()
-      }
-
-      const mocha = new Mocha()
-      if (util.fileExists(testSetupFile())) {
-        mocha.addFile(testSetupFile())
-      }
-      globSync(`${config.testDir}/**/*.spec.*`).forEach((spec) => {
-        mocha.addFile(spec)
-      })
-      mocha.run((failures) => {
-        process.on('exit', () => {
-          process.exit(failures)
-        })
-      })
-    },
-
-    watch () {
-      if (!hasSpecs('src')) return undertakerNoop()
-
-      util.logSubTask('Watching tests')
-      const watcher = watch(scriptsGlob, (file) => {
-        if (!file || file.event === 'unlink') return
-
-        const specFile = getSpecFile(file)
-        return scripts().copy(file, 'test', errorHandler)
-        .pipe(passSpecFile(specFile))
-        .pipe(gulpif(!!specFile, mocha({
-          r: util.fileExists(testSetupFile()) ? testSetupFile() : undefined,
-        })))
-      })
-      scripts().copy([scriptsGlob], 'test', errorHandler)
-
-      closeOnExit(watcher)
-
-      return watcher
-    },
+    build,
+    run,
+    watch,
   }
 }

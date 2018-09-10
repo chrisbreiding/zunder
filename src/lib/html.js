@@ -2,7 +2,7 @@
 
 const _ = require('lodash')
 const handlebars = require('gulp-compile-handlebars')
-const watch = require('gulp-watch')
+const gulpWatch = require('gulp-watch')
 const pathUtil = require('path')
 const rename = require('gulp-rename')
 const vfs = require('vinyl-fs')
@@ -74,25 +74,29 @@ const buildHtml = (dest, env) => (file) => {
   })
 }
 
+const watch = () => {
+  util.logSubTask('Watching hbs files')
+
+  const watcher = gulpWatch('src/*.hbs', buildHtml(config.devDir, 'dev'))
+  buildHtml(config.devDir, 'dev')()
+
+  closeOnExit(watcher)
+
+  return watcher
+}
+
+const buildDev = () => {
+  return buildHtml(config.devDir, 'dev')()
+}
+
+const buildProd = () => {
+  return buildHtml(config.prodDir, 'prod')()
+}
+
 module.exports = () => {
   return {
-    watch () {
-      util.logSubTask('Watching hbs files')
-
-      const watcher = watch('src/*.hbs', buildHtml(config.devDir, 'dev'))
-      buildHtml(config.devDir, 'dev')()
-
-      closeOnExit(watcher)
-
-      return watcher
-    },
-
-    buildDev () {
-      return buildHtml(config.devDir, 'dev')()
-    },
-
-    buildProd () {
-      return buildHtml(config.prodDir, 'prod')()
-    },
+    watch,
+    buildDev,
+    buildProd,
   }
 }

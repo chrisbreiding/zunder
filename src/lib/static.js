@@ -1,7 +1,7 @@
 'use strict'
 
 const _ = require('lodash')
-const watch = require('gulp-watch')
+const gulpWatch = require('gulp-watch')
 const pathUtil = require('path')
 const streamToPromise = require('stream-to-promise')
 const vfs = require('vinyl-fs')
@@ -43,29 +43,33 @@ const copyFiles = (dest, env) => (file) => {
   })
 }
 
+const watch = () => {
+  util.logSubTask('Watching static files')
+
+  const watches = _.isArray(config.staticGlobs) ? config.staticGlobs : _.keys(config.staticGlobs)
+  const watcher = gulpWatch(watches, (file) => {
+    return copyFiles(config.devDir, 'dev')(file).then(() => {
+    })
+  })
+  copyFiles(config.devDir, 'dev')()
+
+  closeOnExit(watcher)
+
+  return watcher
+}
+
+const buildDev = () => {
+  return copyFiles(config.devDir, 'dev')()
+}
+
+const buildProd = () => {
+  return copyFiles(config.prodDir, 'prod')()
+}
+
 module.exports = () => {
   return {
-    watch () {
-      util.logSubTask('Watching static files')
-
-      const watches = _.isArray(config.staticGlobs) ? config.staticGlobs : _.keys(config.staticGlobs)
-      const watcher = watch(watches, (file) => {
-        return copyFiles(config.devDir, 'dev')(file).then(() => {
-        })
-      })
-      copyFiles(config.devDir, 'dev')()
-
-      closeOnExit(watcher)
-
-      return watcher
-    },
-
-    buildDev () {
-      return copyFiles(config.devDir, 'dev')()
-    },
-
-    buildProd () {
-      return copyFiles(config.prodDir, 'prod')()
-    },
+    watch,
+    buildDev,
+    buildProd,
   }
 }

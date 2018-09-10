@@ -9,7 +9,7 @@ const plumber = require('gulp-plumber')
 const rename = require('gulp-rename')
 const sass = require('gulp-sass')
 const stylus = require('gulp-stylus')
-const watch = require('gulp-watch')
+const gulpWatch = require('gulp-watch')
 const _ = require('lodash')
 const globber = require('node-sass-globbing')
 const vfs = require('vinyl-fs')
@@ -78,75 +78,79 @@ function getSrcFiles () {
   return srcFiles
 }
 
-module.exports = () => {
-  const autoprefixOptions = { browsers: ['last 2 versions'], cascade: false }
+const autoprefixOptions = { browsers: ['last 2 versions'], cascade: false }
 
-  function buildStylesheets ({ srcFile, compiler, output }, exitOnError, logOnFinish, file) {
-    const coloredStylesheetName = util.colors.magenta(output)
+const buildStylesheets = ({ srcFile, compiler, output }, exitOnError, logOnFinish, file) => {
+  const coloredStylesheetName = util.colors.magenta(output)
 
-    if (file) {
-      notifyChanged(logColor, `Compiling ${coloredStylesheetName} after`, file)
-    }
+  if (file) {
+    notifyChanged(logColor, `Compiling ${coloredStylesheetName} after`, file)
+  }
 
+  return streamToPromise(
+    vfs
+    .src(srcFile)
+    .pipe(gulpif(!exitOnError, plumber(handleTaskError)))
+    .pipe(compiler.dev())
+    .on('error', exitOnError ? handleFatalError : noop)
+    .pipe(autoprefixer(autoprefixOptions))
+    .pipe(rename(output))
+    .pipe(vfs.dest(config.devDir))
+    .on('end', () => {
+      if (logOnFinish) {
+        util.logActionEnd(logColor, 'Finished compiling', coloredStylesheetName)
+      }
+    })
+  )
+}
+
+const watch = () => {
+  util.logSubTask('Watching stylesheets')
+
+  return Promise.all(_.map(getSrcFiles(), (stylesheetConfig) => {
+    util.logActionStart(logColor, 'Compiling', util.colors.magenta(stylesheetConfig.output))
+    const watcher = gulpWatch(stylesheetConfig.watch, _.partial(buildStylesheets, stylesheetConfig, false, true))
+    closeOnExit(watcher)
+    buildStylesheets(stylesheetConfig, false, true)
+    return streamToPromise(watcher)
+  }))
+}
+
+const buildDev = () => {
+  util.logActionStart(logColor, 'Building stylesheets (dev)')
+
+  return Promise.all(_.map(getSrcFiles(), (stylesheetConfig) => {
+    return buildStylesheets(stylesheetConfig, false, false)
+  }))
+  .then(() => {
+    util.logActionEnd(logColor, 'Finished building stylesheets (dev)')
+  })
+}
+
+const buildProd = () => {
+  util.logActionStart(logColor, 'Building stylesheets (prod)')
+
+  return Promise.all(_.map(getSrcFiles(), ({ srcFile, compiler, output }) => {
     return streamToPromise(
       vfs
       .src(srcFile)
-      .pipe(gulpif(!exitOnError, plumber(handleTaskError)))
-      .pipe(compiler.dev())
-      .on('error', exitOnError ? handleFatalError : noop)
+      .pipe(compiler.prod())
+      .on('error', handleFatalError)
       .pipe(autoprefixer(autoprefixOptions))
+      .pipe(minify())
       .pipe(rename(output))
-      .pipe(vfs.dest(config.devDir))
-      .on('end', () => {
-        if (logOnFinish) {
-          util.logActionEnd(logColor, 'Finished compiling', coloredStylesheetName)
-        }
-      })
+      .pipe(vfs.dest(config.prodDir))
     )
-  }
+  }))
+  .then(() => {
+    util.logActionEnd(logColor, 'Finished building stylesheets (prod)')
+  })
+}
 
+module.exports = () => {
   return {
-    watch () {
-      util.logSubTask('Watching stylesheets')
-
-      return Promise.all(_.map(getSrcFiles(), (stylesheetConfig) => {
-        util.logActionStart(logColor, 'Compiling', util.colors.magenta(stylesheetConfig.output))
-        const watcher = watch(stylesheetConfig.watch, _.partial(buildStylesheets, stylesheetConfig, false, true))
-        closeOnExit(watcher)
-        buildStylesheets(stylesheetConfig, false, true)
-        return streamToPromise(watcher)
-      }))
-    },
-
-    buildDev () {
-      util.logActionStart(logColor, 'Building stylesheets (dev)')
-
-      return Promise.all(_.map(getSrcFiles(), (stylesheetConfig) => {
-        return buildStylesheets(stylesheetConfig, false, false)
-      }))
-      .then(() => {
-        util.logActionEnd(logColor, 'Finished building stylesheets (dev)')
-      })
-    },
-
-    buildProd () {
-      util.logActionStart(logColor, 'Building stylesheets (prod)')
-
-      return Promise.all(_.map(getSrcFiles(), ({ srcFile, compiler, output }) => {
-        return streamToPromise(
-          vfs
-          .src(srcFile)
-          .pipe(compiler.prod())
-          .on('error', handleFatalError)
-          .pipe(autoprefixer(autoprefixOptions))
-          .pipe(minify())
-          .pipe(rename(output))
-          .pipe(vfs.dest(config.prodDir))
-        )
-      }))
-      .then(() => {
-        util.logActionEnd(logColor, 'Finished building stylesheets (prod)')
-      })
-    },
+    watch,
+    buildDev,
+    buildProd,
   }
 }
