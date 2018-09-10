@@ -3,3 +3,7 @@ node_modules
 *.log
 tmp
 dist
+jsconfig.json
+dist
+dist-prod
+dist-test

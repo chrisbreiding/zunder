@@ -9,6 +9,20 @@
   "bin": {
     "zunder": "dist/lib/zunder.js"
   },
+  "scripts": {
+    "build": "babel src --out-dir dist --ignore scaffold/*",
+    "clean": "rm -rf dist && mkdir dist",
+    "copy-scaffold": "mkdir -p dist/scaffold; cp -R src/scaffold dist/scaffold",
+    "copy-static": "mkdir -p dist/lib; cp -R src/lib/*.hbs dist/lib/",
+    "copy": "npm run copy-scaffold; npm run copy-static",
+    "prepublish": "npm run clean; npm run build; npm run copy",
+    "watch-babel": "babel src --watch --out-dir dist --ignore scaffold/*",
+    "watch-static": "chokidar 'src/lib/*.hbs' -c 'npm run copy-static'",
+    "start": "npm run copy; concurrently --kill-others --names 'babel: ,static:' --prefix '{name}' 'npm run watch-babel' 'npm run watch-static'",
+    "lint": "eslint src/*.js src/**/*.js test/**/*.js",
+    "lint-fix": "eslint --fix  src/*.js src/**/*.js test/**/*.js",
+    "cypress:open": "cypress open"
+  },
   "dependencies": {
     "@babel/core": "7.0.0",
     "@babel/plugin-proposal-class-properties": "7.0.0",
@@ -70,25 +84,16 @@
   },
   "devDependencies": {
     "babel-cli": "6.26.0",
+    "babel-eslint": "9.0.0",
     "chokidar": "2.0.4",
     "chokidar-cli": "1.2.1",
     "concurrently": "4.0.1",
+    "cypress": "3.1.0",
     "eslint": "5.5.0",
-    "eslint-plugin-cypress-dev": "^1.1.2",
-    "eslint-plugin-mocha": "^5.2.0",
-    "eslint-plugin-react": "7.11.1"
-  },
-  "scripts": {
-    "build": "babel src --out-dir dist --ignore scaffold/*",
-    "clean": "rm -rf dist && mkdir dist",
-    "copy-scaffold": "mkdir -p dist/scaffold; cp -R src/scaffold dist/scaffold",
-    "copy-static": "mkdir -p dist/lib; cp -R src/lib/*.hbs dist/lib/",
-    "copy": "npm run copy-scaffold; npm run copy-static",
-    "prepublish": "npm run clean; npm run build; npm run copy",
-    "watch-babel": "babel src --watch --out-dir dist --ignore scaffold/*",
-    "watch-static": "chokidar 'src/lib/*.hbs' -c 'npm run copy-static'",
-    "start": "npm run copy; concurrently --kill-others --names 'babel: ,static:' --prefix '{name}' 'npm run watch-babel' 'npm run watch-static'",
-    "lint": "eslint src/*.js src/**/*.js test/**/*.js",
-    "lint-fix": "eslint --fix  src/*.js src/**/*.js test/**/*.js"
+    "eslint-plugin-cypress": "2.0.1",
+    "eslint-plugin-cypress-dev": "1.1.2",
+    "eslint-plugin-mocha": "5.2.0",
+    "eslint-plugin-react": "7.11.1",
+    "execa": "1.0.0"
   }
 }
