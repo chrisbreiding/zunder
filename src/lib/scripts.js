@@ -2,11 +2,8 @@
 
 const _ = require('lodash')
 const babel = require('gulp-babel')
-const babelify = require('babelify')
 const browserify = require('browserify')
 const buffer = require('vinyl-buffer')
-const coffeeify = require('@cypress/coffeeify')
-const envify = require('envify')
 const envifyCustom = require('envify/custom')
 const gulpif = require('gulp-if')
 const glob = require('glob')
@@ -17,11 +14,9 @@ const resolutions = require('browserify-resolutions')
 const source = require('vinyl-source-stream')
 const streamToPromise = require('stream-to-promise')
 const minify = require('gulp-babel-minify')
-const tsify = require('tsify')
 const vfs = require('vinyl-fs')
 const watchify = require('watchify')
 
-const babelConfig = require('./babel-config')
 const errors = require('./errors')
 const notifyChanged = require('./notify-changed')
 const config = require('./config')
@@ -32,16 +27,9 @@ const handleFatalError = errors.createFatalErrorHandler('Scripts')
 
 const logColor = 'cyan'
 
-const scriptsGlob = 'src/**/*.+(js|jsx|coffee)'
-const noSpecsGlob = '!src/**/*.spec.+(js|jsx)'
-
-const coffeeConfig = () => {
-  return {
-    compiler: config.coffeeCompiler,
-  }
-}
-
-const extensions = ['.js', '.jsx', '.coffee', '.ts', '.tsx']
+const extensionsGlobPart = 'js|jsx|coffee|cjsx|ts|tsx'
+const scriptsGlob = `src/**/*.+(${extensionsGlobPart})`
+const noSpecsGlob = `!src/**/*.spec.+(${extensionsGlobPart})`
 
 function getSrcFiles () {
   let allFound = true
@@ -73,9 +61,9 @@ function copy (globOrFile, customErrorHandler = () => null) {
   }
 
   return vfs.src(file)
-    .pipe(plumber(customErrorHandler(file) || handleTaskError))
-    .pipe(babel(babelConfig()))
-    .pipe(vfs.dest(dest))
+  .pipe(plumber(customErrorHandler(file) || handleTaskError))
+  .pipe(babel(config.babelConfig))
+  .pipe(vfs.dest(dest))
 }
 
 function buildExternalBundles (exitOnError) {
@@ -84,13 +72,13 @@ function buildExternalBundles (exitOnError) {
   return _.map(config.externalBundles, (external) => {
     return streamToPromise(
       browserify()
-        .plugin(resolutions, config.resolutions)
-        .require(external.libs)
-        .bundle()
-        .on('error', errorHandler)
-        .pipe(gulpif(!exitOnError, plumber(errorHandler)))
-        .pipe(source(external.scriptName))
-        .pipe(vfs.dest(config.devDir))
+      .plugin(resolutions, config.resolutions)
+      .require(external.libs)
+      .bundle()
+      .on('error', errorHandler)
+      .pipe(gulpif(!exitOnError, plumber(errorHandler)))
+      .pipe(source(external.scriptName))
+      .pipe(vfs.dest(config.devDir))
     )
   })
 }
@@ -103,12 +91,16 @@ module.exports = () => {
       const srcFiles = getSrcFiles()
 
       return Promise.all(_.map(srcFiles, ([srcFile, outputName]) => {
-        const bundler = browserify({
+        const bundler = browserify(_.extend({
           entries: [srcFile],
-          extensions,
           cache: {},
           packageCache: {},
-        })
+        }, config.browserifyOptions))
+
+        bundler
+        .plugin(watchify, config.watchifyOptions)
+        .plugin(resolutions, config.resolutions)
+
         const coloredScriptName = util.colors.magenta(outputName)
 
         function rebundle (files = []) {
@@ -117,38 +109,21 @@ module.exports = () => {
           })
 
           return bundler.bundle()
-            .on('error', handleTaskError)
-            .pipe(plumber(handleTaskError))
-            .on('finish', () => {
-              util.logActionEnd(logColor, `Finished bundling ${coloredScriptName}`)
-            })
-            .pipe(source(outputName))
-            .pipe(vfs.dest(config.devDir))
-        }
-
-        bundler
-          .plugin(watchify, {
-            ignoreWatch: [
-              '**/package.json',
-              '**/.git/**',
-              '**/.nyc_output/**',
-              '**/.sass-cache/**',
-              '**/coverage/**',
-              '**/node_modules/**',
-            ],
+          .on('error', handleTaskError)
+          .pipe(plumber(handleTaskError))
+          .on('finish', () => {
+            util.logActionEnd(logColor, `Finished bundling ${coloredScriptName}`)
           })
-          .plugin(resolutions, config.resolutions)
-          .plugin(tsify)
-          .transform(babelify, babelConfig())
-          .transform(coffeeify, coffeeConfig())
-          .transform(envify)
+          .pipe(source(outputName))
+          .pipe(vfs.dest(config.devDir))
+        }
 
         const env = fs.readJsonSync(pathUtil.join(process.cwd(), '.env'), { throws: false })
         if (env) {
           bundler.transform(envifyCustom(_.extend(env, { _: 'purge' })))
         }
 
-        bundler.on("update", rebundle)
+        bundler.on('update', rebundle)
         util.logActionStart(logColor, `Bundling ${coloredScriptName}`)
         rebundle()
 
@@ -165,29 +140,35 @@ module.exports = () => {
     },
 
     buildDev () {
-      util.logSubTask('building scripts (dev)')
+      util.logActionStart(logColor, 'Building scripts (dev)')
 
       const srcFiles = getSrcFiles()
 
       return Promise.all(_.map(srcFiles, ([srcFile, outputName]) => {
         const entries = [srcFile]
         const externalLibs = _.map(_.flatMap(config.externalBundles, 'libs'), 'file')
+        const bundler = browserify(_.extend({ entries }, config.browserifyOptions))
+
+        const env = fs.readJsonSync(pathUtil.join(process.cwd(), '.env'), { throws: false })
+        if (env) {
+          bundler.transform(envifyCustom(_.extend(env, { _: 'purge' })))
+        }
 
         const mainBundle = streamToPromise(
-          browserify({ entries, extensions })
-            .plugin(resolutions, config.resolutions)
-            .plugin(tsify)
-            .external(externalLibs)
-            .transform(babelify, babelConfig())
-            .transform(coffeeify, coffeeConfig())
-            .bundle()
-            .on('error', handleFatalError)
-            .pipe(source(outputName))
-            .pipe(vfs.dest(config.devDir))
+          bundler
+          .plugin(resolutions, config.resolutions)
+          .external(externalLibs)
+          .bundle()
+          .on('error', handleFatalError)
+          .pipe(source(outputName))
+          .pipe(vfs.dest(config.devDir))
         )
 
         return Promise.all([mainBundle].concat(buildExternalBundles(false)))
       }))
+      .then(() => {
+        util.logActionEnd(logColor, 'Finished building scripts (dev)')
+      })
     },
 
     copyProd () {
@@ -204,34 +185,38 @@ module.exports = () => {
 
       return Promise.all(_.map(srcFiles, ([srcFile, outputName]) => {
         const entries = [srcFile]
+        const bundler = browserify(_.extend({ entries }, config.browserifyOptions))
+
+        const env = fs.readJsonSync(pathUtil.join(process.cwd(), '.env'), { throws: false })
+        if (env) {
+          bundler.transform(envifyCustom(_.extend(env, { _: 'purge' })))
+        }
+
         const mainBundle = streamToPromise(
-          browserify({ entries, extensions })
-            .plugin(resolutions, config.resolutions)
-            .plugin(tsify)
-            .external(externalLibs)
-            .transform(babelify, babelConfig())
-            .transform(coffeeify, coffeeConfig())
-            .bundle()
-            .on('error', handleFatalError)
-            .pipe(source(outputName))
-            .pipe(buffer())
-            .pipe(minify())
-            .on('error', handleFatalError)
-            .pipe(vfs.dest(config.prodDir))
+          bundler
+          .plugin(resolutions, config.resolutions)
+          .external(externalLibs)
+          .bundle()
+          .on('error', handleFatalError)
+          .pipe(source(outputName))
+          .pipe(buffer())
+          .pipe(minify())
+          .on('error', handleFatalError)
+          .pipe(vfs.dest(config.prodDir))
         )
 
         const externalBundles = _.map(config.externalBundles, (external) => {
           return streamToPromise(
             browserify()
-              .plugin(resolutions, config.resolutions)
-              .require(external.libs)
-              .bundle()
-              .on('error', handleFatalError)
-              .pipe(source(external.scriptName))
-              .pipe(buffer())
-              .pipe(minify())
-              .on('error', handleFatalError)
-              .pipe(vfs.dest(config.prodDir))
+            .plugin(resolutions, config.resolutions)
+            .require(external.libs)
+            .bundle()
+            .on('error', handleFatalError)
+            .pipe(source(external.scriptName))
+            .pipe(buffer())
+            .pipe(minify())
+            .on('error', handleFatalError)
+            .pipe(vfs.dest(config.prodDir))
           )
         })
 
