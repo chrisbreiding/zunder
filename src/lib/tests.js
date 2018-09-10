@@ -48,18 +48,16 @@ const errorHandler = (file) => errors.createTaskErrorHandler('Tests', (err) => {
 module.exports = () => {
   return {
     build () {
-      util.logSubTask('building scripts (test)')
-
       if (!hasSpecs('src')) {
         util.logError('No tests found to build in src directory. Tests must be suffixed with .spec.{ext}, like .spec.js or .spec.coffee')
         return undertakerNoop()
       }
 
-      return scripts().copy([scriptsGlob], errorHandler)
+      return scripts().copy([scriptsGlob], 'test', errorHandler)
     },
 
     run () {
-      util.logSubTask('running tests')
+      util.logSubTask('Running tests')
 
       if (!hasSpecs(config.testDir)) {
         util.logError(`No tests found to run in '${config.testDir}'. Ensure you have tests in your src directory and that you have built them. Tests must be suffixed with .spec.{ext}, like .spec.js or .spec.coffee`)
@@ -83,18 +81,18 @@ module.exports = () => {
     watch () {
       if (!hasSpecs('src')) return undertakerNoop()
 
-      util.logSubTask('watching tests')
+      util.logSubTask('Watching tests')
       const watcher = watch(scriptsGlob, (file) => {
         if (!file || file.event === 'unlink') return
 
         const specFile = getSpecFile(file)
-        return scripts().copy(file, errorHandler)
+        return scripts().copy(file, 'test', errorHandler)
         .pipe(passSpecFile(specFile))
         .pipe(gulpif(!!specFile, mocha({
           r: util.fileExists(testSetupFile()) ? testSetupFile() : undefined,
         })))
       })
-      scripts().copy([scriptsGlob], errorHandler)
+      scripts().copy([scriptsGlob], 'test', errorHandler)
 
       closeOnExit(watcher)
 

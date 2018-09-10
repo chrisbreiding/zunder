@@ -35,17 +35,17 @@ module.exports = () => {
 
       return Promise.resolve()
       .then(() => {
-        util.logSubTask('installing dev dependencies')
+        util.logSubTask('Installing dev dependencies')
         devDeps.forEach((dep) => util.logAction(dep))
         exec(`npm install --save-dev ${devDeps.join(' ')} --progress=false`)
       })
       .then(() => {
-        util.logSubTask('installing dependencies')
+        util.logSubTask('Installing dependencies')
         deps.forEach((dep) => util.logAction(dep))
         return exec(`npm install --save ${deps.join(' ')} --progress=false`)
       })
       .then(() => {
-        util.logSubTask('scaffolding files')
+        util.logSubTask('Scaffolding files')
         return Promise.all(directories.map((directory) => mkdirp(directory)))
       })
       .then(() => {

@@ -17,36 +17,43 @@ const copy = (globs, dest) => {
   return streamToPromise(vfs.src(globs).pipe(vfs.dest(dest)))
 }
 
-const copyFiles = (dest) => (file) => {
+const copyFiles = (dest, env) => (file) => {
   if (file) {
     notifyChanged(logColor, `Copying ${util.colors.magenta(pathUtil.basename(file.path))} after`, file)
+  } else {
+    util.logActionStart(logColor, `Copying static files (${env})`)
   }
 
-  if (_.isArray(config.staticGlobs)) {
-    return copy(config.staticGlobs, dest)
-  } else {
-    return Promise.all(_.map(config.staticGlobs, (dir, glob) => {
-      return copy(glob, `${dest}${dir}`)
-    }))
-  }
+  return Promise.resolve()
+  .then(() => {
+    if (_.isArray(config.staticGlobs)) {
+      return copy(config.staticGlobs, dest)
+    } else {
+      return Promise.all(_.map(config.staticGlobs, (dir, glob) => {
+        return copy(glob, `${dest}${dir}`)
+      }))
+    }
+  })
+  .then(() => {
+    const message = file ?
+      `Finished copying ${util.colors.magenta(pathUtil.basename(file.path))}` :
+      `Finished copying static files (${env})`
+
+    util.logActionEnd(logColor, message)
+  })
 }
 
 module.exports = () => {
   return {
     watch () {
-      util.logSubTask('watching static files')
-
-      util.logActionStart(logColor, 'Copying static files')
+      util.logSubTask('Watching static files')
 
       const watches = _.isArray(config.staticGlobs) ? config.staticGlobs : _.keys(config.staticGlobs)
       const watcher = watch(watches, (file) => {
-        return copyFiles(config.devDir)(file).then(() => {
-          util.logActionEnd(logColor, 'Finished copying', util.colors.magenta(pathUtil.basename(file.path)))
+        return copyFiles(config.devDir, 'dev')(file).then(() => {
         })
       })
-      copyFiles(config.devDir)().then(() => {
-        util.logActionEnd(logColor, 'Finished copying static files')
-      })
+      copyFiles(config.devDir, 'dev')()
 
       closeOnExit(watcher)
 
@@ -54,15 +61,11 @@ module.exports = () => {
     },
 
     buildDev () {
-      util.logSubTask('copying static files (dev)')
-
-      return copyFiles(config.devDir)()
+      return copyFiles(config.devDir, 'dev')()
     },
 
     buildProd () {
-      util.logSubTask('copying static files')
-
-      return copyFiles(config.prodDir)()
+      return copyFiles(config.prodDir, 'prod')()
     },
   }
 }

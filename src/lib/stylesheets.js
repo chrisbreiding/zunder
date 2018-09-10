@@ -107,7 +107,7 @@ module.exports = () => {
 
   return {
     watch () {
-      util.logSubTask('watching stylesheets')
+      util.logSubTask('Watching stylesheets')
 
       return Promise.all(_.map(getSrcFiles(), (stylesheetConfig) => {
         util.logActionStart(logColor, 'Compiling', util.colors.magenta(stylesheetConfig.output))
@@ -119,15 +119,18 @@ module.exports = () => {
     },
 
     buildDev () {
-      util.logSubTask('building stylesheets (dev)')
+      util.logActionStart(logColor, 'Building stylesheets (dev)')
 
       return Promise.all(_.map(getSrcFiles(), (stylesheetConfig) => {
         return buildStylesheets(stylesheetConfig, false, false)
       }))
+      .then(() => {
+        util.logActionEnd(logColor, 'Finished building stylesheets (dev)')
+      })
     },
 
     buildProd () {
-      util.logSubTask('building stylesheets')
+      util.logActionStart(logColor, 'Building stylesheets (prod)')
 
       return Promise.all(_.map(getSrcFiles(), ({ srcFile, compiler, output }) => {
         return streamToPromise(
@@ -141,6 +144,9 @@ module.exports = () => {
           .pipe(vfs.dest(config.prodDir))
         )
       }))
+      .then(() => {
+        util.logActionEnd(logColor, 'Finished building stylesheets (prod)')
+      })
     },
   }
 }

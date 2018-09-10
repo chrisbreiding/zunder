@@ -22,11 +22,13 @@ const simpleFileName = (fileName) => {
   return fileName.replace(extensionRe, '').replace(dashUnderscoreRe, '').toLowerCase()
 }
 
-const buildHtml = (dest) => (file) => {
+const buildHtml = (dest, env) => (file) => {
   let destFile
   if (file) {
     destFile = util.colors.magenta(pathUtil.basename(file.path).replace('.hbs', '.html'))
     notifyChanged(logColor, `Building ${destFile} after`, file)
+  } else {
+    util.logActionStart(logColor, `Building html files (${env})`)
   }
 
   const externalBundles = _.flatMap(config.externalBundles, 'scriptName')
@@ -55,30 +57,30 @@ const buildHtml = (dest) => (file) => {
     handlebarsVariables = config.editHandlebarsVariables(handlebarsVariables)
   }
 
-  return vfs.src('src/*.hbs')
-  .pipe(handlebars(handlebarsVariables))
-  .on('end', () => {
-    if (file) {
-      util.logActionEnd(logColor, 'Finished building', destFile)
-    }
+  return streamToPromise(
+    vfs.src('src/*.hbs')
+    .pipe(handlebars(handlebarsVariables))
+    .pipe(rename({
+      extname: '.html',
+    }))
+    .pipe(vfs.dest(dest))
+  )
+  .then(() => {
+    const message = file ?
+      `Finished building ${destFile}` :
+      `Finished building html files (${env})`
+
+    util.logActionEnd(logColor, message)
   })
-  .pipe(rename({
-    extname: '.html',
-  }))
-  .pipe(vfs.dest(dest))
 }
 
 module.exports = () => {
   return {
     watch () {
-      util.logSubTask('watching hbs files')
+      util.logSubTask('Watching hbs files')
 
-      util.logActionStart(logColor, 'Building html files')
-
-      const watcher = watch('src/*.hbs', buildHtml(config.devDir))
-      streamToPromise(buildHtml(config.devDir)()).then(() => {
-        util.logActionEnd(logColor, 'Finished building html files')
-      })
+      const watcher = watch('src/*.hbs', buildHtml(config.devDir, 'dev'))
+      buildHtml(config.devDir, 'dev')()
 
       closeOnExit(watcher)
 
@@ -86,15 +88,11 @@ module.exports = () => {
     },
 
     buildDev () {
-      util.logSubTask('building hbs files (dev)')
-
-      return buildHtml(config.devDir)()
+      return buildHtml(config.devDir, 'dev')()
     },
 
     buildProd () {
-      util.logSubTask('building hbs files')
-
-      return buildHtml(config.prodDir)()
+      return buildHtml(config.prodDir, 'prod')()
     },
   }
 }

@@ -4,20 +4,20 @@ const config = require('../lib/config')
 const { emit } = require('../lib/events')
 const util = require('../lib/util')
 
-const cleanDev = () => {
-  util.logSubTask('cleaning dev directory')
-  return del(config.devDir)
+const logColor = 'yellow'
+
+const clean = (dir, env) => {
+  util.logActionStart(logColor, `Cleaning ${env} directory`)
+  return del(dir).then(() => {
+    util.logActionEnd(logColor, `Finished cleaning ${env} directory`)
+  })
 }
 
-const cleanProd = () => {
-  util.logSubTask('cleaning prod directory')
-  return del(config.prodDir)
-}
+const cleanDev = () => clean(config.devDir, 'dev')
 
-const cleanTests = () => {
-  util.logSubTask('cleaning test directory')
-  return del(config.testDir)
-}
+const cleanProd = () => clean(config.prodDir, 'prod')
+
+const cleanTests = () => clean(config.testDir, 'test')
 
 module.exports = (taker) => {
   return {

@@ -7,6 +7,8 @@ const exec = require('./exec-promise')
 const config = require('./config')
 const util = require('./util')
 
+const logColor = 'gray'
+
 module.exports = () => {
   const dir = config.prodDir
   const branch = config.deployBranch
@@ -15,17 +17,13 @@ module.exports = () => {
     return exec(command, { cwd: dir })
   }
 
-  function log (message) {
-    util.logSubTask(`. ${message}`)
-  }
-
   function initRepo () {
     if (fs.existsSync(`${dir}/.git`)) return Promise.resolve()
 
     return exec('git config --get remote.origin.url').then((result) => {
       const url = result.stdout.replace(util.linefeed, '')
       return execInBuild('git init').then(() => {
-        log('create repo')
+        util.logAction('create repo')
         return execInBuild(`git remote add origin ${url}`)
       })
     })
@@ -37,32 +35,36 @@ module.exports = () => {
         return new RegExp(branch).test(existingBranch)
       })
       const flag = branchExists ? '' : '-b'
-      log(`checkout ${branch} branch`)
+      util.logAction(`checkout ${branch} branch`)
       return execInBuild(`git checkout ${flag} ${branch}`)
     })
   }
 
   function addAll () {
-    log('add all files')
+    util.logAction('add all files')
     return execInBuild('git add -A')
   }
 
   function commit () {
-    log('commit')
+    util.logAction('commit')
     const commitMessage = `automated commit by deployment at ${new Date().toUTCString()}`
     return execInBuild(`git commit --allow-empty -am '${commitMessage}'`)
   }
 
   function push () {
-    log(`push to ${branch} branch`)
+    util.logAction(`push to ${branch} branch`)
     return execInBuild(`git push -f origin ${branch}`)
   }
 
-  util.logSubTask('deploying')
+  util.logActionStart(logColor, 'Deploying')
+
   return initRepo()
   .then(checkoutBranch)
   .then(addAll)
   .then(commit)
   .then(push)
+  .then(() => {
+    util.logActionEnd(logColor, 'Successfully deployed')
+  })
   .catch((error) => util.logError(error))
 }

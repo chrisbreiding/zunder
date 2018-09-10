@@ -51,7 +51,7 @@ function getSrcFiles () {
   return srcFiles
 }
 
-function copy (globOrFile, customErrorHandler = () => null) {
+function copy (globOrFile, env, customErrorHandler = () => null) {
   let file = globOrFile
   let dest = config.testDir
 
@@ -60,10 +60,15 @@ function copy (globOrFile, customErrorHandler = () => null) {
     dest = pathUtil.dirname(file).replace('src', config.testDir).replace(`${__dirname}/`, '')
   }
 
+  util.logActionStart(logColor, `Copying scripts (${env})`)
+
   return vfs.src(file)
   .pipe(plumber(customErrorHandler(file) || handleTaskError))
   .pipe(babel(config.babelConfig))
   .pipe(vfs.dest(dest))
+  .on('finish', () => {
+    util.logActionEnd(logColor, `Finished copying scripts (${env})`)
+  })
 }
 
 function buildExternalBundles (exitOnError) {
@@ -86,7 +91,7 @@ function buildExternalBundles (exitOnError) {
 module.exports = () => {
   return {
     watch () {
-      util.logSubTask('watching scripts')
+      util.logSubTask('Watching scripts')
 
       const srcFiles = getSrcFiles()
 
@@ -134,9 +139,11 @@ module.exports = () => {
     copy,
 
     copyDev () {
-      util.logSubTask('copying scripts (dev)')
+      return copy([scriptsGlob], 'dev')
+    },
 
-      return copy([scriptsGlob])
+    copyProd () {
+      return copy([scriptsGlob, noSpecsGlob], 'prod')
     },
 
     buildDev () {
@@ -171,14 +178,8 @@ module.exports = () => {
       })
     },
 
-    copyProd () {
-      util.logSubTask('copying scripts (prod)')
-
-      return copy([scriptsGlob, noSpecsGlob])
-    },
-
     buildProd () {
-      util.logSubTask('building scripts')
+      util.logActionStart(logColor, 'Building scripts (dev)')
 
       const externalLibs = _.map(_.flatMap(config.externalBundles, 'libs'), 'file')
       const srcFiles = getSrcFiles()
@@ -221,6 +222,9 @@ module.exports = () => {
         })
 
         return Promise.all([mainBundle].concat(externalBundles))
+        .then(() => {
+          util.logActionEnd(logColor, 'Finished building scripts (prod)')
+        })
       }))
     },
   }
