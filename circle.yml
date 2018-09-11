@@ -14,16 +14,16 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: zunder-{{ checksum circle.yml }}-{{ .Branch }}-{{ checksum "package-lock.json" }}
-          key: zunder-{{ checksum circle.yml }}-{{ .Branch }}
-          key: zunder-{{ checksum circle.yml }}-
+          key: zunder-{{ checksum "circle.yml" }}-{{ .Branch }}-{{ checksum "package-lock.json" }}
+          key: zunder-{{ checksum "circle.yml" }}-{{ .Branch }}
+          key: zunder-{{ checksum "circle.yml" }}-
           key: zunder-
       - run: npm ci
       - run: cd test/projects && npm ci
       # run verify and then save cache. Then verified status is cached
       - run: npm run cypress:verify
       - save_cache:
-          key: zunder-{{ checksum circle.yml }}-{{ .Branch }}-{{ checksum "package-lock.json" }}
+          key: zunder-{{ checksum "circle.yml" }}-{{ .Branch }}-{{ checksum "package-lock.json" }}
           paths:
             - ~/.npm
             - ~/.cache
@@ -37,6 +37,8 @@ jobs:
     <<: *defaults
     steps:
       - checkout
+      - attach_workspace:
+          at: ~/
       - run: npm run lint
 
   build:
@@ -63,7 +65,7 @@ jobs:
 
 workflows:
   version: 2
-  "lint & test":
+  "lint, build, & test":
     jobs:
       - install-and-cache-deps
       - lint:
