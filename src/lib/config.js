@@ -19,7 +19,7 @@ const config = {
   prodDir: 'dist-prod',
   resolutions: [],
   scripts: {
-    'src/main.+(js|jsx|coffee)': 'app.js',
+    'src/main.+(js|jsx)': 'app.js',
   },
   stylesheets: {
     'src/main.scss': {

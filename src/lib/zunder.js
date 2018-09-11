@@ -2,6 +2,7 @@
 'use strict'
 
 const args = require('yargs').argv
+const path = require('path')
 
 const tasks = require('../tasks').cli
 const util = require('./util')
@@ -9,7 +10,7 @@ const util = require('./util')
 const task = args._[0] || 'watch'
 
 try {
-  require(`${process.cwd()}/zunderfile`)
+  require(path.join(process.cwd(), 'zunderfile.js'))
   util.log(util.colors.green('using zunderfile'))
 } catch (err) {
   // ignore if it's just that no zunderfile is present

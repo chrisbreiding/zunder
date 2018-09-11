@@ -79,6 +79,7 @@ const browserify = {
   pluginTsify,
   transformBabelify,
   transformCoffeeify,
+  transformEnvify,
 
   extensions: ['.js', '.jsx'],
   plugin: [],
