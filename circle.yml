@@ -32,6 +32,7 @@ jobs:
           paths:
             - zunder/node_modules
             - zunder/test/projects/node_modules
+            - .cache
 
   lint:
     <<: *defaults
