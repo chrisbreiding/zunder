@@ -1,13 +1,13 @@
-import React, { Component } from 'react';
+import React, { Component } from 'react'
 
 export default class extends Component {
   constructor (props) {
-    super(props);
+    super(props)
 
     this.state = {
       greeting: 'Hello',
       name: 'World',
-    };
+    }
   }
 
   render () {
@@ -33,12 +33,12 @@ export default class extends Component {
           onClick={this._getData.bind(this)}
         >Update</button>
       </main>
-    );
+    )
   }
 
   _getData () {
     fetch('/api/data')
-      .then(response => response.json())
-      .then(data => this.setState(data));
+      .then((response) => response.json())
+      .then((data) => this.setState(data))
   }
 }

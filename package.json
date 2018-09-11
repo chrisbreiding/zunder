@@ -19,8 +19,8 @@
     "watch-babel": "babel src --watch --out-dir dist --ignore scaffold/*",
     "watch-static": "chokidar 'src/lib/*.hbs' -c 'npm run copy-static'",
     "start": "npm run copy; concurrently --kill-others --names 'babel: ,static:' --prefix '{name}' 'npm run watch-babel' 'npm run watch-static'",
-    "lint": "eslint src/*.js src/**/*.js test/**/*.js",
-    "lint-fix": "eslint --fix  src/*.js src/**/*.js test/**/*.js",
+    "lint": "eslint 'src/*.+(js|jsx)' 'src/**/*.+(js|jsx)' 'cypress/**/*.js' 'test/projects/*/src/*.+(js|jsx)' 'test/projects/*/src/**/*.+(js|jsx)'",
+    "lint-fix": "npm run lint -- --fix",
     "cypress:open": "cypress open"
   },
   "dependencies": {
