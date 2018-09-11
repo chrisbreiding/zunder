@@ -23,7 +23,8 @@
     "start": "npm run copy; concurrently --kill-others --names 'babel: ,static:' --prefix '{name}' 'npm run watch-babel' 'npm run watch-static'",
     "lint": "eslint 'src/*.+(js|jsx)' 'src/**/*.+(js|jsx)' 'cypress/**/*.js' 'test/projects/*/src/*.+(js|jsx)' 'test/projects/*/src/**/*.+(js|jsx)'",
     "lint-fix": "npm run lint -- --fix",
-    "cypress:open": "cypress open"
+    "cypress:open": "cypress open",
+    "cypress:verify": "cypress verify"
   },
   "lint-staged": {
     "*.{js,jsx}": [
