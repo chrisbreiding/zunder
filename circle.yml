@@ -1,7 +1,6 @@
 version: 2
 
 defaults: &defaults
-  parallelism: 1
   working_directory: ~/zunder
   docker:
     - image: cypress/base:8
@@ -65,5 +64,9 @@ workflows:
   "lint & test":
     jobs:
       - install-and-cache-deps
-      - lint
-      - test
+      - lint:
+          requires:
+            - install-and-cache-deps
+      - test:
+          requires:
+            - install-and-cache-deps
