@@ -15,13 +15,20 @@
     "copy-scaffold": "mkdir -p dist/scaffold; cp -R src/scaffold dist/scaffold",
     "copy-static": "mkdir -p dist/lib; cp -R src/lib/*.hbs dist/lib/",
     "copy": "npm run copy-scaffold; npm run copy-static",
-    "prepublish": "npm run clean; npm run build; npm run copy",
+    "precommit": "lint-staged",
+    "prepublish": "npm run lint; npm run clean; npm run build; npm run copy",
     "watch-babel": "babel src --watch --out-dir dist --ignore scaffold/*",
     "watch-static": "chokidar 'src/lib/*.hbs' -c 'npm run copy-static'",
     "start": "npm run copy; concurrently --kill-others --names 'babel: ,static:' --prefix '{name}' 'npm run watch-babel' 'npm run watch-static'",
     "lint": "eslint 'src/*.+(js|jsx)' 'src/**/*.+(js|jsx)' 'cypress/**/*.js' 'test/projects/*/src/*.+(js|jsx)' 'test/projects/*/src/**/*.+(js|jsx)'",
     "lint-fix": "npm run lint -- --fix",
     "cypress:open": "cypress open"
+  },
+  "lint-staged": {
+    "*.{js,jsx}": [
+      "npm run lint-fix",
+      "git add"
+    ]
   },
   "dependencies": {
     "@babel/core": "7.0.0",
@@ -94,6 +101,8 @@
     "eslint-plugin-cypress-dev": "1.1.2",
     "eslint-plugin-mocha": "5.2.0",
     "eslint-plugin-react": "7.11.1",
-    "execa": "1.0.0"
+    "execa": "1.0.0",
+    "husky": "0.14.3",
+    "lint-staged": "7.2.2"
   }
 }
