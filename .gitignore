@@ -7,3 +7,5 @@ jsconfig.json
 dist
 dist-prod
 dist-test
+cypress/videos
+cypress/screenshots
