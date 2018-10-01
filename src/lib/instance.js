@@ -21,6 +21,11 @@ class Zunder extends EventEmitter {
   }
 
   setConfig (props) {
+    if (props.resolutions) {
+      // eslint-disable-next-line no-console
+      console.warn('Setting resolutions is deprecated in zunder 6 and will be removed in zunder 7. Use aliasify instead.')
+    }
+
     _.extend(config, props)
     this.config = config
   }

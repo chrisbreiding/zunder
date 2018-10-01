@@ -41,6 +41,7 @@
     "@babel/preset-react": "7.0.0",
     "@babel/runtime": "7.0.0",
     "@cypress/coffeeify": "1.0.0",
+    "aliasify": "2.1.0",
     "babel-plugin-add-module-exports": "1.0.0",
     "babelify": "10.0.0",
     "body-parser": "1.18.3",

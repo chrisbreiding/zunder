@@ -55,13 +55,23 @@ const babelConfig = () => ({
   presets: babel.presets,
 })
 
+const pluginTsify = {
+  module: require.resolve('tsify'),
+  options: {},
+}
+
+const transformAliasify = {
+  module: require.resolve('aliasify'),
+  options: {},
+}
+
 const transformBabelify = {
   module: require.resolve('babelify'),
   options: babelConfig(),
 }
 
-const pluginTsify = {
-  module: require.resolve('tsify'),
+const transformCoffeeify = {
+  module: require.resolve('@cypress/coffeeify'),
   options: {},
 }
 
@@ -70,13 +80,9 @@ const transformEnvify = {
   options: {},
 }
 
-const transformCoffeeify = {
-  module: require.resolve('@cypress/coffeeify'),
-  options: {},
-}
-
 const browserify = {
   pluginTsify,
+  transformAliasify,
   transformBabelify,
   transformCoffeeify,
   transformEnvify,
