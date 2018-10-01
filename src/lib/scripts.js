@@ -21,6 +21,7 @@ const errors = require('./errors')
 const notifyChanged = require('./notify-changed')
 const config = require('./config')
 const util = require('./util')
+const scriptsConfig = require('./scripts-config')
 
 const handleTaskError = errors.createTaskErrorHandler('Scripts')
 const handleFatalError = errors.createFatalErrorHandler('Scripts')
@@ -64,7 +65,7 @@ const copy = (globOrFile, env, customErrorHandler = () => null) => {
 
   return vfs.src(file)
   .pipe(plumber(customErrorHandler(file) || handleTaskError))
-  .pipe(babel(config.babelConfig))
+  .pipe(babel(scriptsConfig.getBabelConfig(config)))
   .pipe(vfs.dest(dest))
   .on('finish', () => {
     util.logActionEnd(logColor, `Finished copying scripts (${env})`)

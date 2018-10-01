@@ -142,7 +142,6 @@ The zunder instance (returned from `require('zunder')`) has a config object with
 {
   appCache: false, // create app cache manifest?
   appCacheTransform: null, // function that receives list of files to include in manifest. return filtered/augmented list
-  babelOptions: {/* ... see below ... */},
   browserifyOptions: {/* ... see below ... */},
   watchifyOptions: {/* ... see below ... */},
   cacheBust: true, // cache bust assets? only affects prod task. is always false for dev/test tasks
@@ -151,7 +150,6 @@ The zunder instance (returned from `require('zunder')`) has a config object with
   devDir: 'dist', // output directory for dev tasks (e.g. build-dev, watch)
   externalBundles: [], // array of objects with shape { scriptName, libs } for outputting separate bundles. useful for separating vendor scripts from app script
   prodDir: 'dist-prod', // output directory for prod tasks (e.g. build-prod, deploy)
-  resolutions: [], // see https://www.npmjs.com/package/browserify-resolutions
   scripts: {
     'src/main.+(js|jsx)': 'app.js', // object of source file to output name
   },
@@ -190,7 +188,7 @@ zunder.setConfig({
 }
 ```
 
-#### Default babelOptions
+##### Default babelify options
 
 ```javascript
 {

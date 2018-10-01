@@ -8,7 +8,6 @@ const scriptsConfig = require('./scripts-config')
 const config = {
   appCache: false,
   appCacheTransform: null,
-  babelOptions: scriptsConfig.babelConfig(),
   browserifyOptions: scriptsConfig.browserifyConfig(),
   watchifyOptions: scriptsConfig.watchify,
   cacheBust: true,

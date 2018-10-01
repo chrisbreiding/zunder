@@ -1,3 +1,4 @@
+const _ = require('lodash')
 const path = require('path')
 
 const pluginAddModuleExports = {
@@ -50,11 +51,6 @@ const babel = {
   ],
 }
 
-const babelConfig = () => ({
-  plugins: babel.plugins,
-  presets: babel.presets,
-})
-
 const pluginTsify = {
   module: require.resolve('tsify'),
   options: {},
@@ -67,7 +63,10 @@ const transformAliasify = {
 
 const transformBabelify = {
   module: require.resolve('babelify'),
-  options: babelConfig(),
+  options: {
+    plugins: babel.plugins,
+    presets: babel.presets,
+  },
 }
 
 const transformCoffeeify = {
@@ -112,10 +111,23 @@ const watchify = {
   ],
 }
 
+// gets babel config as finally settled in the config, in case
+// the user changed it
+const getBabelConfig = (config) => {
+  const babelTransform = _.find(config.browserifyOptions.transform, ([module]) => {
+    if (!_.isString(module)) return false
+
+    return module.includes('babelify')
+  })
+
+  return (babelTransform || [])[1]
+}
+
 module.exports = {
   babel,
-  babelConfig,
   browserify,
   browserifyConfig,
   watchify,
+
+  getBabelConfig,
 }
