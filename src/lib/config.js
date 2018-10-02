@@ -6,10 +6,10 @@ const scriptsConfig = require('./scripts-config')
 // these are the default values
 // properties are changed and added through instance.setConfig()
 const config = {
+  addBrowserifyConfigTo: [],
   appCache: false,
   appCacheTransform: null,
   browserifyOptions: scriptsConfig.browserifyConfig(),
-  watchifyOptions: scriptsConfig.watchify,
   cacheBust: true,
   cacheFilter: () => true,
   deployBranch: 'gh-pages',
@@ -31,6 +31,7 @@ const config = {
   staticGlobs: ['static/**'],
   testDir: 'dist-test',
   testSetup: 'lib/test-setup.js',
+  watchifyOptions: scriptsConfig.watchify,
 }
 
 const defaults = JSON.parse(JSON.stringify(config))
@@ -40,7 +41,7 @@ const isDefault = (configKey) => {
 
 // makes scripts backwards-compatible with old way of configuring
 config.getScripts = () => {
-  if (!isDefault('scripts') || !config.scriptName) return config.scripts
+  if (isDefault('scripts') || !config.scriptName) return config.scripts
 
   return {
     'src/main.+(js|jsx|coffee)': config.scriptName,
@@ -49,7 +50,7 @@ config.getScripts = () => {
 
 // makes stylesheets backwards-compatible with old way of configuring
 config.getStylesheets = () => {
-  if (!isDefault('stylesheets') || !config.stylesheetGlobs || !config.stylesheetName) return config.stylesheets
+  if (isDefault('stylesheets') || !config.stylesheetGlobs || !config.stylesheetName) return config.stylesheets
 
   return {
     'src/main.scss': {

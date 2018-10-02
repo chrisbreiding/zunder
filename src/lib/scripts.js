@@ -80,21 +80,18 @@ const copyProd = () => {
   return copy([scriptsGlob, noSpecsGlob], 'prod')
 }
 
-const buildExternalBundles = (exitOnError) => {
+const bundleDev = ({ bundler, externalLibs, outputName, isExternal, exitOnError }) => {
   const errorHandler = exitOnError ? handleFatalError : handleTaskError
 
-  return _.map(config.externalBundles, (external) => {
-    return streamToPromise(
-      browserify()
-      .plugin(resolutions, config.resolutions)
-      .require(external.libs)
-      .bundle()
-      .on('error', errorHandler)
-      .pipe(gulpif(!exitOnError, plumber(errorHandler)))
-      .pipe(source(external.scriptName))
-      .pipe(vfs.dest(config.devDir))
-    )
-  })
+  return streamToPromise(
+    bundler
+    .plugin(resolutions, config.resolutions)[isExternal ? 'require' : 'external'](externalLibs)
+    .bundle()
+    .on('error', errorHandler)
+    .pipe(gulpif(!exitOnError, plumber(errorHandler)))
+    .pipe(source(outputName))
+    .pipe(vfs.dest(config.devDir))
+  )
 }
 
 const watch = () => {
@@ -139,7 +136,17 @@ const watch = () => {
     util.logActionStart(logColor, `Bundling ${coloredScriptName}`)
     rebundle()
 
-    return Promise.all([rebundle].concat(buildExternalBundles(true)))
+    const externalBundles = _.map(config.externalBundles, (external) => {
+      return bundleDev({
+        bundler: browserify(),
+        externalLibs: external.libs,
+        outputName: external.scriptName,
+        isExternal: true,
+        exitOnError: false,
+      })
+    })
+
+    return Promise.all([rebundle].concat(externalBundles))
   }))
 }
 
@@ -158,21 +165,42 @@ const buildDev = () => {
       bundler.transform(envifyCustom(_.extend(env, { _: 'purge' })))
     }
 
-    const mainBundle = streamToPromise(
-      bundler
-      .plugin(resolutions, config.resolutions)
-      .external(externalLibs)
-      .bundle()
-      .on('error', handleFatalError)
-      .pipe(source(outputName))
-      .pipe(vfs.dest(config.devDir))
-    )
+    const mainBundle = bundleDev({
+      bundler,
+      externalLibs,
+      outputName,
+      isExternal: false,
+      exitOnError: true,
+    })
+    const externalBundles = _.map(config.externalBundles, (external) => {
+      return bundleDev({
+        bundler: browserify(),
+        externalLibs: external.libs,
+        outputName: external.scriptName,
+        isExternal: true,
+        exitOnError: true,
+      })
+    })
 
-    return Promise.all([mainBundle].concat(buildExternalBundles(false)))
+    return Promise.all([mainBundle].concat(externalBundles))
   }))
   .then(() => {
     util.logActionEnd(logColor, 'Finished building scripts (dev)')
   })
+}
+
+const bundleProd = ({ bundler, externalLibs, outputName, isExternal }) => {
+  return streamToPromise(
+    bundler
+    .plugin(resolutions, config.resolutions)[isExternal ? 'require' : 'external'](externalLibs)
+    .bundle()
+    .on('error', handleFatalError)
+    .pipe(source(outputName))
+    .pipe(buffer())
+    .pipe(minify())
+    .on('error', handleFatalError)
+    .pipe(vfs.dest(config.prodDir))
+  )
 }
 
 const buildProd = () => {
@@ -190,39 +218,26 @@ const buildProd = () => {
       bundler.transform(envifyCustom(_.extend(env, { _: 'purge' })))
     }
 
-    const mainBundle = streamToPromise(
-      bundler
-      .plugin(resolutions, config.resolutions)
-      .external(externalLibs)
-      .bundle()
-      .on('error', handleFatalError)
-      .pipe(source(outputName))
-      .pipe(buffer())
-      .pipe(minify())
-      .on('error', handleFatalError)
-      .pipe(vfs.dest(config.prodDir))
-    )
-
+    const mainBundle = bundleProd({
+      bundler,
+      externalLibs,
+      outputName,
+      isExternal: false,
+    })
     const externalBundles = _.map(config.externalBundles, (external) => {
-      return streamToPromise(
-        browserify()
-        .plugin(resolutions, config.resolutions)
-        .require(external.libs)
-        .bundle()
-        .on('error', handleFatalError)
-        .pipe(source(external.scriptName))
-        .pipe(buffer())
-        .pipe(minify())
-        .on('error', handleFatalError)
-        .pipe(vfs.dest(config.prodDir))
-      )
+      return bundleProd({
+        bundler: browserify(),
+        externalLibs: external.libs,
+        outputName: external.scriptName,
+        isExternal: true,
+      })
     })
 
     return Promise.all([mainBundle].concat(externalBundles))
-    .then(() => {
-      util.logActionEnd(logColor, 'Finished building scripts (prod)')
-    })
   }))
+  .then(() => {
+    util.logActionEnd(logColor, 'Finished building scripts (prod)')
+  })
 }
 
 module.exports = () => {
