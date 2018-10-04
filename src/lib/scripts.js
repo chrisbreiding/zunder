@@ -80,6 +80,29 @@ const copyProd = () => {
   return copy([scriptsGlob, noSpecsGlob], 'prod')
 }
 
+const defaultBrowserifyConfig = {
+  transform: [
+    [require.resolve('babelify'), {
+      presets: [require.resolve('@babel/preset-env')],
+    }],
+  ],
+}
+
+const addBrowserifyConfig = (addBrowserifyConfigTo) => {
+  _.each(addBrowserifyConfigTo, (pathOrOptions) => {
+    const isSimple = _.isString(pathOrOptions)
+    const path = isSimple ? pathOrOptions : pathOrOptions.path
+    const options = isSimple ? defaultBrowserifyConfig : (pathOrOptions.options || defaultBrowserifyConfig)
+    const packagePath = pathUtil.join(path, 'package.json')
+
+    const packageJson = fs.readJsonSync(packagePath)
+    packageJson.browserify = options
+    fs.outputJsonSync(packagePath, packageJson, {
+      spaces: 2,
+    })
+  })
+}
+
 const bundleDev = ({ bundler, externalLibs, outputName, isExternal, exitOnError }) => {
   const errorHandler = exitOnError ? handleFatalError : handleTaskError
 
@@ -98,6 +121,8 @@ const watch = () => {
   util.logSubTask('Watching scripts')
 
   const srcFiles = getSrcFiles()
+
+  addBrowserifyConfig(config.addBrowserifyConfigTo)
 
   return Promise.all(_.map(srcFiles, ([srcFile, outputName]) => {
     const bundler = browserify(_.extend({
@@ -155,6 +180,8 @@ const buildDev = () => {
 
   const srcFiles = getSrcFiles()
 
+  addBrowserifyConfig(config.addBrowserifyConfigTo)
+
   return Promise.all(_.map(srcFiles, ([srcFile, outputName]) => {
     const entries = [srcFile]
     const externalLibs = _.map(_.flatMap(config.externalBundles, 'libs'), 'file')
@@ -208,6 +235,8 @@ const buildProd = () => {
 
   const externalLibs = _.map(_.flatMap(config.externalBundles, 'libs'), 'file')
   const srcFiles = getSrcFiles()
+
+  addBrowserifyConfig(config.addBrowserifyConfigTo)
 
   return Promise.all(_.map(srcFiles, ([srcFile, outputName]) => {
     const entries = [srcFile]

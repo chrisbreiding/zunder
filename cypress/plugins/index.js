@@ -11,11 +11,11 @@ const getProjectDir = (project) => {
 
 module.exports = (on) => {
   on('task', {
-    'zunder' ({ task, project, force = false }) {
+    'zunder' ({ task, project, args = '', force = false }) {
       if (!force && tasksRun[`${task}${project}`]) return null
 
       const cwd = getProjectDir(project)
-      return execa.shell(`node ${zunderPath} ${task}`, { cwd, stdio: 'inherit' }).then(() => {
+      return execa.shell(`node ${zunderPath} ${task} ${args}`, { cwd, stdio: 'inherit' }).then(() => {
         tasksRun[`${task}${project}`] = true
         return null
       })
