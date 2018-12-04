@@ -61,7 +61,7 @@
     "gulp-compile-handlebars": "0.6.1",
     "gulp-custom-filter": "0.2.5",
     "gulp-if": "2.0.2",
-    "gulp-nodemon": "2.2.1",
+    "gulp-nodemon": "2.4.2",
     "gulp-notify": "3.2.0",
     "gulp-plumber": "1.2.0",
     "gulp-rename": "1.4.0",
