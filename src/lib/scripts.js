@@ -8,10 +8,11 @@ const envifyCustom = require('envify/custom')
 const gulpif = require('gulp-if')
 const glob = require('glob')
 const fs = require('fs-extra')
-const pathUtil = require('path')
+const path = require('path')
 const plumber = require('gulp-plumber')
 const resolutions = require('browserify-resolutions')
 const source = require('vinyl-source-stream')
+const sourcemaps = require('gulp-sourcemaps')
 const streamToPromise = require('stream-to-promise')
 const minify = require('gulp-babel-minify')
 const vfs = require('vinyl-fs')
@@ -36,7 +37,7 @@ const getSrcFiles = () => {
   let allFound = true
 
   const srcFiles = _.map(config.getScripts(), (outputName, scriptSourceGlob) => {
-    const found = glob.sync(pathUtil.join(process.cwd(), scriptSourceGlob), { nodir: true })
+    const found = glob.sync(path.join(process.cwd(), scriptSourceGlob), { nodir: true })
     if (!found || !found.length) {
       allFound = false
       return []
@@ -58,7 +59,7 @@ const copy = (globOrFile, env, customErrorHandler = () => null) => {
 
   if (!_.isArray(globOrFile)) {
     file = globOrFile.path
-    dest = pathUtil.dirname(file).replace('src', config.testDir).replace(`${__dirname}/`, '')
+    dest = path.dirname(file).replace('src', config.testDir).replace(`${__dirname}/`, '')
   }
 
   util.logActionStart(logColor, `Copying scripts (${env})`)
@@ -91,9 +92,9 @@ const defaultBrowserifyConfig = {
 const addBrowserifyConfig = (addBrowserifyConfigTo) => {
   _.each(addBrowserifyConfigTo, (pathOrOptions) => {
     const isSimple = _.isString(pathOrOptions)
-    const path = isSimple ? pathOrOptions : pathOrOptions.path
+    const filePath = isSimple ? pathOrOptions : pathOrOptions.path
     const options = isSimple ? defaultBrowserifyConfig : (pathOrOptions.options || defaultBrowserifyConfig)
-    const packagePath = pathUtil.join(path, 'package.json')
+    const packagePath = path.join(filePath, 'package.json')
 
     const packageJson = fs.readJsonSync(packagePath)
     packageJson.browserify = options
@@ -105,6 +106,7 @@ const addBrowserifyConfig = (addBrowserifyConfigTo) => {
 
 const bundleDev = ({ bundler, externalLibs, outputName, isExternal, exitOnError }) => {
   const errorHandler = exitOnError ? handleFatalError : handleTaskError
+  const useSourceMaps = !!config.browserifyOptions.debug
 
   return streamToPromise(
     bundler
@@ -113,6 +115,9 @@ const bundleDev = ({ bundler, externalLibs, outputName, isExternal, exitOnError 
     .on('error', errorHandler)
     .pipe(gulpif(!exitOnError, plumber(errorHandler)))
     .pipe(source(outputName))
+    .pipe(gulpif(useSourceMaps, buffer()))
+    .pipe(gulpif(useSourceMaps, sourcemaps.init({ loadMaps: true })))
+    .pipe(gulpif(useSourceMaps, sourcemaps.write('./')))
     .pipe(vfs.dest(config.devDir))
   )
 }
@@ -136,23 +141,27 @@ const watch = () => {
     .plugin(resolutions, config.resolutions)
 
     const coloredScriptName = util.colors.magenta(outputName)
+    const useSourceMaps = !!config.browserifyOptions.debug
 
     function rebundle (files = []) {
-      files.forEach((path) => {
-        notifyChanged(logColor, `Bundling ${coloredScriptName} after`, { path })
+      files.forEach((filePath) => {
+        notifyChanged(logColor, `Bundling ${coloredScriptName} after`, { path: filePath })
       })
 
       return bundler.bundle()
+      .pipe(source(outputName))
+      .pipe(gulpif(useSourceMaps, buffer()))
+      .pipe(gulpif(useSourceMaps, sourcemaps.init({ loadMaps: true })))
       .on('error', handleTaskError)
       .pipe(plumber(handleTaskError))
+      .pipe(gulpif(useSourceMaps, sourcemaps.write('./')))
+      .pipe(vfs.dest(config.devDir))
       .on('finish', () => {
         util.logActionEnd(logColor, `Finished bundling ${coloredScriptName}`)
       })
-      .pipe(source(outputName))
-      .pipe(vfs.dest(config.devDir))
     }
 
-    const env = fs.readJsonSync(pathUtil.join(process.cwd(), '.env'), { throws: false })
+    const env = fs.readJsonSync(path.join(process.cwd(), '.env'), { throws: false })
     if (env) {
       bundler.transform(envifyCustom(_.extend(env, { _: 'purge' })))
     }
@@ -187,7 +196,7 @@ const buildDev = () => {
     const externalLibs = _.map(_.flatMap(config.externalBundles, 'libs'), 'file')
     const bundler = browserify(_.extend({ entries }, config.browserifyOptions))
 
-    const env = fs.readJsonSync(pathUtil.join(process.cwd(), '.env'), { throws: false })
+    const env = fs.readJsonSync(path.join(process.cwd(), '.env'), { throws: false })
     if (env) {
       bundler.transform(envifyCustom(_.extend(env, { _: 'purge' })))
     }
@@ -217,6 +226,8 @@ const buildDev = () => {
 }
 
 const bundleProd = ({ bundler, externalLibs, outputName, isExternal }) => {
+  const useSourceMaps = !!config.browserifyOptions.debug
+
   return streamToPromise(
     bundler
     .plugin(resolutions, config.resolutions)[isExternal ? 'require' : 'external'](externalLibs)
@@ -224,14 +235,16 @@ const bundleProd = ({ bundler, externalLibs, outputName, isExternal }) => {
     .on('error', handleFatalError)
     .pipe(source(outputName))
     .pipe(buffer())
+    .pipe(gulpif(useSourceMaps, sourcemaps.init({ loadMaps: true })))
     .pipe(minify())
     .on('error', handleFatalError)
+    .pipe(gulpif(useSourceMaps, sourcemaps.write('./')))
     .pipe(vfs.dest(config.prodDir))
   )
 }
 
 const buildProd = () => {
-  util.logActionStart(logColor, 'Building scripts (dev)')
+  util.logActionStart(logColor, 'Building scripts (prod)')
 
   const externalLibs = _.map(_.flatMap(config.externalBundles, 'libs'), 'file')
   const srcFiles = getSrcFiles()
@@ -242,7 +255,7 @@ const buildProd = () => {
     const entries = [srcFile]
     const bundler = browserify(_.extend({ entries }, config.browserifyOptions))
 
-    const env = fs.readJsonSync(pathUtil.join(process.cwd(), '.env'), { throws: false })
+    const env = fs.readJsonSync(path.join(process.cwd(), '.env'), { throws: false })
     if (env) {
       bundler.transform(envifyCustom(_.extend(env, { _: 'purge' })))
     }
