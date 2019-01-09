@@ -14,10 +14,11 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: zunder-{{ checksum "circle.yml" }}-{{ .Branch }}-{{ checksum "package-lock.json" }}
-          key: zunder-{{ checksum "circle.yml" }}-{{ .Branch }}
-          key: zunder-{{ checksum "circle.yml" }}-
-          key: zunder-
+          keys:
+            - zunder-{{ checksum "circle.yml" }}-{{ .Branch }}-{{ checksum "package-lock.json" }}
+            - zunder-{{ checksum "circle.yml" }}-{{ .Branch }}
+            - zunder-{{ checksum "circle.yml" }}-
+            - zunder-
       - run: npm ci
       - run: cd test/projects && npm ci
       # run verify and then save cache. Then verified status is cached
