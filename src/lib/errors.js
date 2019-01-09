@@ -1,28 +1,39 @@
 'use strict'
 
-const notify = require('gulp-notify')
+const notifier = require('node-notifier')
+const path = require('path')
+
 const util = require('../lib/util')
 
 const errorsReported = {}
 
+const logTaskError = (task, err) => {
+  util.logError(`Error thrown by ${task} task:`)
+  util.log(err.stack || err.message || err)
+}
+
 const createFatalErrorHandler = (task) => {
   const handleFatalError = (err) => {
-    util.logError(`Error thrown by ${task} task:`)
-    util.logError(err.stack || err)
+    logTaskError(task, err)
     process.exit(1)
   }
 
   return handleFatalError
 }
 
-const createTaskErrorHandler = (type = 'Error', condition = () => true) => {
+const createTaskErrorHandler = (task, condition = () => true) => {
   const handleTaskError = (err) => {
     if (!condition(err)) return
 
-    return notify.onError({
-      title: type,
-      message: err.stack || err.message || err,
-    })(err)
+    logTaskError(task, err)
+
+    if (!process.env.DISABLE_NOTIFIER) {
+      notifier.notify({
+        icon: path.join(__dirname, 'icon.png'),
+        title: task,
+        message: err.stack || err.message || err,
+      })
+    }
   }
 
   return handleTaskError

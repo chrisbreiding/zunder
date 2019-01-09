@@ -149,11 +149,11 @@ const watch = () => {
       })
 
       return bundler.bundle()
+      .on('error', handleTaskError)
+      .pipe(plumber(handleTaskError))
       .pipe(source(outputName))
       .pipe(gulpif(useSourceMaps, buffer()))
       .pipe(gulpif(useSourceMaps, sourcemaps.init({ loadMaps: true })))
-      .on('error', handleTaskError)
-      .pipe(plumber(handleTaskError))
       .pipe(gulpif(useSourceMaps, sourcemaps.write('./')))
       .pipe(vfs.dest(config.devDir))
       .on('finish', () => {

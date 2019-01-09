@@ -249,6 +249,14 @@ zunder.setConfig({
 })
 ```
 
+## Notifications
+
+By default, when in `watch` mode, notifications will be sent through your system or Growl when there is an error. To disable notifications, use the env variable `DISABLE_NOTIFIER`:
+
+```
+export DISABLE_NOTIFIER=true;
+```
+
 ## License
 
 The MIT License (MIT)
