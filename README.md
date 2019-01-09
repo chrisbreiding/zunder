@@ -1,4 +1,4 @@
-# Zunder
+# <img src='./src/lib/icon.png' width='32' height='32' /> Zunder
 
 An opinionated front-end build tool for developing apps with React and SCSS.
 
