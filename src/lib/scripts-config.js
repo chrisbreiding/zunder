@@ -120,7 +120,7 @@ const getBabelConfig = (config) => {
     return module.includes('babelify')
   })
 
-  return (babelTransform || [])[1]
+  return _.pick((babelTransform || [])[1] || {}, 'presets', 'plugins')
 }
 
 module.exports = {
