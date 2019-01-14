@@ -8,6 +8,7 @@ const logColor = 'yellow'
 
 const clean = (dir, env) => {
   util.logActionStart(logColor, `Cleaning ${env} directory`)
+
   return del(dir).then(() => {
     util.logActionEnd(logColor, `Finished cleaning ${env} directory`)
   })

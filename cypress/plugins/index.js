@@ -15,8 +15,10 @@ module.exports = (on) => {
       if (!force && tasksRun[`${task}${project}${args}`]) return null
 
       const cwd = getProjectDir(project)
+
       return execa.shell(`node ${zunderPath} ${task} ${args}`, { cwd, stdio: 'inherit' }).then(() => {
         tasksRun[`${task}${project}`] = true
+
         return null
       })
     },
@@ -29,6 +31,7 @@ module.exports = (on) => {
 
     'list:files' (globPattern) {
       const files = glob.sync(path.join(process.cwd(), globPattern))
+
       return files.map((file) => {
         return file.replace(`${path.dirname(file)}${path.sep}`, '')
       })

@@ -59,10 +59,12 @@ function getSrcFiles () {
       fs.statSync(pathUtil.join(process.cwd(), srcFile))
     } catch (e) {
       allFound = false
+
       return []
     }
 
     const compiler = files[_.last(srcFile.split('.'))]
+
     if (!compiler) {
       util.logError(`Source stylesheet must be .scss or .styl. You tried: ${srcFile}`)
     }
@@ -72,6 +74,7 @@ function getSrcFiles () {
 
   if (!allFound) {
     util.logError(`The following files must all exist:\n- ${_.keys(stylesheets).join('\n- ')}\n`)
+
     return
   }
 
@@ -110,8 +113,10 @@ const watch = () => {
   return Promise.all(_.map(getSrcFiles(), (stylesheetConfig) => {
     util.logActionStart(logColor, 'Compiling', util.colors.magenta(stylesheetConfig.output))
     const watcher = gulpWatch(stylesheetConfig.watch, _.partial(buildStylesheets, stylesheetConfig, false, true))
+
     closeOnExit(watcher)
     buildStylesheets(stylesheetConfig, false, true)
+
     return streamToPromise(watcher)
   }))
 }

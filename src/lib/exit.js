@@ -3,6 +3,7 @@ const util = require('./util')
 const closeables = []
 
 let exited = false
+
 function handler (shouldExit, shouldErr = false, err) {
   if (exited) return
 
@@ -15,10 +16,12 @@ function handler (shouldExit, shouldErr = false, err) {
   })
 
   if (err) util.logError(err.stack || err)
+
   if (shouldExit) process.exit(shouldErr ? 1 : 0)
 }
 
 let eventsBound = false
+
 function bindEvents () {
   if (eventsBound) return
 

@@ -38,15 +38,19 @@ const getSrcFiles = () => {
 
   const srcFiles = _.map(config.getScripts(), (outputName, scriptSourceGlob) => {
     const found = glob.sync(path.join(process.cwd(), scriptSourceGlob), { nodir: true })
+
     if (!found || !found.length) {
       allFound = false
+
       return []
     }
+
     return [found[0], outputName]
   })
 
   if (!allFound) {
     util.fail(`Expected files matching the following glob(s) to exist under src:\n- ${config.scriptSources.join('\n')}\n`)
+
     return
   }
 
@@ -97,6 +101,7 @@ const addBrowserifyConfig = (addBrowserifyConfigTo) => {
     const packagePath = path.join(filePath, 'package.json')
 
     const packageJson = fs.readJsonSync(packagePath)
+
     packageJson.browserify = options
     fs.outputJsonSync(packagePath, packageJson, {
       spaces: 2,
@@ -162,6 +167,7 @@ const watch = () => {
     }
 
     const env = fs.readJsonSync(path.join(process.cwd(), '.env'), { throws: false })
+
     if (env) {
       bundler.transform(envifyCustom(_.extend(env, { _: 'purge' })))
     }
@@ -197,6 +203,7 @@ const buildDev = () => {
     const bundler = browserify(_.extend({ entries }, config.browserifyOptions))
 
     const env = fs.readJsonSync(path.join(process.cwd(), '.env'), { throws: false })
+
     if (env) {
       bundler.transform(envifyCustom(_.extend(env, { _: 'purge' })))
     }
@@ -256,6 +263,7 @@ const buildProd = () => {
     const bundler = browserify(_.extend({ entries }, config.browserifyOptions))
 
     const env = fs.readJsonSync(path.join(process.cwd(), '.env'), { throws: false })
+
     if (env) {
       bundler.transform(envifyCustom(_.extend(env, { _: 'purge' })))
     }

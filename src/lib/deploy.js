@@ -22,8 +22,10 @@ module.exports = () => {
 
     return exec('git config --get remote.origin.url').then((result) => {
       const url = result.stdout.replace(util.linefeed, '')
+
       return execInBuild('git init').then(() => {
         util.logAction('create repo')
+
         return execInBuild(`git remote add origin ${url}`)
       })
     })
@@ -35,24 +37,29 @@ module.exports = () => {
         return new RegExp(branch).test(existingBranch)
       })
       const flag = branchExists ? '' : '-b'
+
       util.logAction(`checkout ${branch} branch`)
+
       return execInBuild(`git checkout ${flag} ${branch}`)
     })
   }
 
   function addAll () {
     util.logAction('add all files')
+
     return execInBuild('git add -A')
   }
 
   function commit () {
     util.logAction('commit')
     const commitMessage = `automated commit by deployment at ${new Date().toUTCString()}`
+
     return execInBuild(`git commit --allow-empty -am '${commitMessage}'`)
   }
 
   function push () {
     util.logAction(`push to ${branch} branch`)
+
     return execInBuild(`git push -f origin ${branch}`)
   }
 

@@ -4,6 +4,7 @@ describe('config.addBrowserifyConfigTo', () => {
     cy.readFile('test/projects/node_modules/chai/package.json')
     .then((contents) => {
       const browserify = contents.browserify
+
       expect(browserify).to.be.an('object')
       expect(browserify.transform).to.be.an('array')
       expect(browserify.transform).to.have.length(1)

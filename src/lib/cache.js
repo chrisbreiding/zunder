@@ -58,11 +58,13 @@ const createAppCache = () => {
 
   util.logActionStart(logColor, 'Creating app cache manifest')
   let files = glob.sync(`${config.prodDir}/**/*`, { nodir: true })
+
   files = _.reject(files, (file) => /\.html$/.test(file))
   files = _.map(files, (file) => file.replace(`${config.prodDir}/`, ''))
   if (_.isFunction(config.appCacheTransform)) {
     files = _.compact(config.appCacheTransform(files))
   }
+
   return streamToPromise(
     vfs.src(`${__dirname}/appcache.manifest.hbs`)
     .pipe(handlebars({ files }))

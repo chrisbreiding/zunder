@@ -28,11 +28,12 @@ const copyFiles = (dest, env) => (file) => {
   .then(() => {
     if (_.isArray(config.staticGlobs)) {
       return copy(config.staticGlobs, dest)
-    } else {
-      return Promise.all(_.map(config.staticGlobs, (dir, glob) => {
-        return copy(glob, `${dest}${dir}`)
-      }))
     }
+
+    return Promise.all(_.map(config.staticGlobs, (dir, glob) => {
+      return copy(glob, `${dest}${dir}`)
+    }))
+
   })
   .then(() => {
     const message = file ?
@@ -51,6 +52,7 @@ const watch = () => {
     return copyFiles(config.devDir, 'dev')(file).then(() => {
     })
   })
+
   copyFiles(config.devDir, 'dev')()
 
   closeOnExit(watcher)

@@ -15,6 +15,7 @@ const util = require('./util')
 
 function setupMockServer (app) {
   let server
+
   try {
     server = require(`${process.cwd()}/server`)
   } catch (error) {
@@ -53,6 +54,7 @@ function runServer (dir, port) {
 
   return app.listen(port, () => {
     const url = `http://localhost:${port}`
+
     util.logAction(`Listening on ${util.colors.yellow(url)}...`)
   })
 }

@@ -6,6 +6,7 @@ const { linefeed, PluginError, replaceExtension } = require('gulp-util')
 function fileExists (filePath) {
   try {
     statSync(filePath)
+
     return true
   } catch (e) {
     return false

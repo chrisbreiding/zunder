@@ -6,6 +6,7 @@ module.exports = (command, options = {}) => {
   return new Promise((resolve, reject) => {
     return exec(command, options, (error, stdout, stderr) => {
       if (error) return reject(error)
+
       return resolve({ stdout, stderr })
     })
   })

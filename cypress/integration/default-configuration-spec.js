@@ -45,6 +45,7 @@ describe('default configuration', () => {
     })
     it('cleans before building', () => {
       const filePath = 'test/projects/default/dist/extra.txt'
+
       cy.writeFile(filePath, 'should be removed')
       cy.task('zunder', { task: 'build-dev', project: 'default', force: true })
       cy.readFile(filePath).should('not.exist')
@@ -69,6 +70,7 @@ describe('default configuration', () => {
       cy.task('list:files', 'test/projects/default/dist-prod/*').then((files) => {
         expect(files).to.have.length(4)
         const cachbustedRegex = /^(app|example)\-[a-z0-9]{5,}\.(jso?n?|css)$/
+
         expect(files[0]).to.match(cachbustedRegex)
         expect(files[1]).to.match(cachbustedRegex)
         expect(files[2]).to.match(cachbustedRegex)
@@ -77,6 +79,7 @@ describe('default configuration', () => {
     })
     it('cleans before building', () => {
       const filePath = 'test/projects/default/dist-prod/extra.txt'
+
       cy.writeFile(filePath, 'should be removed')
       cy.task('zunder', { task: 'build-prod', project: 'default', force: true })
       cy.readFile(filePath).should('not.exist')

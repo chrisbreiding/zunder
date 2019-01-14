@@ -24,6 +24,7 @@ const simpleFileName = (fileName) => {
 
 const buildHtml = (dest, env) => (file) => {
   let destFile
+
   if (file) {
     destFile = util.colors.magenta(pathUtil.basename(file.path).replace('.hbs', '.html'))
     notifyChanged(logColor, `Building ${destFile} after`, file)
@@ -78,6 +79,7 @@ const watch = () => {
   util.logSubTask('Watching hbs files')
 
   const watcher = gulpWatch('src/*.hbs', buildHtml(config.devDir, 'dev'))
+
   buildHtml(config.devDir, 'dev')()
 
   closeOnExit(watcher)

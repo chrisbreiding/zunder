@@ -29,6 +29,7 @@ describe('source maps', () => {
         const mapFiles = files
         .filter((file) => /\.js\.map$/.test(file))
         .map((file) => file.replace(/\-.*\.js\.map/, '.js.map'))
+
         expect(mapFiles).to.eql(['main.js.map', 'secondary.js.map'])
       })
     })
@@ -37,6 +38,7 @@ describe('source maps', () => {
       cy.task('list:files', 'test/projects/default/dist-prod/*').then((files) => {
         const jsFiles = files.filter((file) => /\.js$/.test(file))
         const mapFiles = files.filter((file) => /\.js\.map$/.test(file))
+
         cy.wrap(mapFiles).each((file, i) => {
           cy.readFile(`test/projects/default/dist-prod/${jsFiles[i]}`).then((contents) => {
             expect(contents).to.include(file)

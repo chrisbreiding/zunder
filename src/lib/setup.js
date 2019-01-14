@@ -40,10 +40,12 @@ const run = () => {
   .then(() => {
     util.logSubTask('Installing dependencies')
     deps.forEach((dep) => util.logAction(dep))
+
     return exec(`npm install --save ${deps.join(' ')} --progress=false`)
   })
   .then(() => {
     util.logSubTask('Scaffolding files')
+
     return Promise.all(directories.map((directory) => mkdirp(directory)))
   })
   .then(() => {
@@ -52,6 +54,7 @@ const run = () => {
         // erroring indicates the file doesn't exist
         // which is the only case where the scaffold should go in place
         util.logAction(file)
+
         return fs.createReadStream(`${__dirname}/../scaffold/${file}`)
         .pipe(fs.createWriteStream(file))
       })
