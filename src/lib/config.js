@@ -18,7 +18,7 @@ const config = {
   externalBundles: [],
   prodDir: 'dist-prod',
   resolutions: [],
-  sassOptions: stylesheetsConfig.defaultOptions,
+  sassOptions: stylesheetsConfig.defaultSassOptions,
   scripts: {
     'src/main.+(js|jsx)': 'app.js',
   },
