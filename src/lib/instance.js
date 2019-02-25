@@ -5,6 +5,7 @@ const EventEmitter = require('events')
 const api = require('../tasks').api
 const config = require('./config')
 const scriptsConfig = require('./scripts-config')
+const stylesheetsConfig = require('./stylesheets-config')
 
 class Zunder extends EventEmitter {
   constructor () {
@@ -16,6 +17,7 @@ class Zunder extends EventEmitter {
       babel: scriptsConfig.babel,
       browserify: scriptsConfig.browserify,
       watchify: scriptsConfig.watchify,
+      sass: stylesheetsConfig.defaultSassOptions,
     }
     _.extend(this, api)
   }
@@ -26,7 +28,11 @@ class Zunder extends EventEmitter {
       console.warn('Setting resolutions is deprecated in zunder 6 and will be removed in zunder 7. Use aliasify instead.')
     }
 
-    _.extend(config, props)
+    if (props.sassOptions) {
+      config.sassOptions = stylesheetsConfig.mergeSassOptions(props.sassOptions)
+    }
+
+    _.extend(config, _.omit(props, 'sassOptions'))
     this.config = config
   }
 }

@@ -150,6 +150,7 @@ The zunder instance (returned from `require('zunder')`) has a config object with
   devDir: 'dist', // output directory for dev tasks (e.g. build-dev, watch)
   externalBundles: [], // array of objects with shape { scriptName, libs } for outputting separate bundles. useful for separating vendor scripts from app script
   prodDir: 'dist-prod', // output directory for prod tasks (e.g. build-prod, deploy)
+  sassOptions: {/* ... see below ... */},
   scripts: {
     'src/main.+(js|jsx)': 'app.js', // object of source file to output name
   },
@@ -220,6 +221,49 @@ zunder.setConfig({
 }
 ```
 
+#### sassOptions
+
+The default sass options are:
+
+```javascript
+{
+  // used by all tasks
+  default: {
+    importer: globber,
+  },
+  // used by dev tasks along with the default options
+  dev: {
+    sourceComments: true,
+    outputStyle: 'expanded',
+  },
+  // used by prod tasks along with the default options
+  prod: {
+    outputStyle: 'compressed',
+  },
+}
+```
+
+The options are merged together into one object that's passed to `node-sass` based on environment. So for `dev` tasks, the default options are:
+
+```javascript
+{
+  importer: globber,
+  sourceComments: true,
+  outputStyle: 'expanded',
+}
+```
+
+And for `prod` tasks, the default options are:
+
+```javascript
+{
+  importer: globber,
+  outputStyle: 'compressed',
+}
+```
+
+If there is an option in `dev` or `prod` that's also in `default`, the `dev` or `prod` option will override the `default` option.
+
 ### Adding CoffeeScript support
 
 CoffeeScript support can be configured in the *zunderfile*.
@@ -246,6 +290,22 @@ zunder.setConfig({
   scripts: {
     'src/main.coffee': 'app.js',
   }
+})
+```
+
+### Adding Sass includePaths
+
+Add `node_modules` as in includePath for Sass, so you can `@import` styles in `node_modules` without using the full path:
+
+```javascript
+const zunder = require('zunder')
+
+zunder.setConfig({
+  sassOptions: {
+    default: {
+      includePaths: ['node_modules'],
+    },
+  },
 })
 ```
 

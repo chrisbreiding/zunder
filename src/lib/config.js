@@ -2,6 +2,7 @@
 
 const _ = require('lodash')
 const scriptsConfig = require('./scripts-config')
+const stylesheetsConfig = require('./stylesheets-config')
 
 // these are the default values
 // properties are changed and added through instance.setConfig()
@@ -17,6 +18,7 @@ const config = {
   externalBundles: [],
   prodDir: 'dist-prod',
   resolutions: [],
+  sassOptions: stylesheetsConfig.defaultOptions,
   scripts: {
     'src/main.+(js|jsx)': 'app.js',
   },

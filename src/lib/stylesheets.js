@@ -11,12 +11,12 @@ const sass = require('gulp-sass')
 const stylus = require('gulp-stylus')
 const gulpWatch = require('gulp-watch')
 const _ = require('lodash')
-const globber = require('node-sass-globbing')
 const vfs = require('vinyl-fs')
 const streamToPromise = require('stream-to-promise')
 
 const errors = require('./errors')
 const notifyChanged = require('./notify-changed')
+const stylesheetsConfig = require('./stylesheets-config')
 const config = require('./config')
 const util = require('./util')
 const { closeOnExit } = require('./exit')
@@ -37,15 +37,8 @@ const files = {
     prod: () => stylus({ 'include css': true }),
   },
   'scss': {
-    dev: () => sass({
-      importer: globber,
-      sourceComments: true,
-      outputStyle: 'expanded',
-    }),
-    prod: () => sass({
-      importer: globber,
-      outputStyle: 'compressed',
-    }),
+    dev: () => sass(stylesheetsConfig.getSassConfigForEnv(config, 'dev')),
+    prod: () => sass(stylesheetsConfig.getSassConfigForEnv(config, 'prod')),
   },
 }
 
