@@ -74,7 +74,7 @@ function getSrcFiles () {
   return srcFiles
 }
 
-const autoprefixOptions = { browsers: ['last 2 versions'], cascade: false }
+const autoprefixOptions = { overrideBrowserslist: ['last 2 versions'], cascade: false }
 
 const buildStylesheets = ({ srcFile, compiler, output }, exitOnError, logOnFinish, file) => {
   const coloredStylesheetName = util.colors.magenta(output)
