@@ -74,7 +74,7 @@
     "gulp-util": "3.0.8",
     "gulp-watch": "5.0.1",
     "istanbul": "0.4.5",
-    "lodash": "4.17.11",
+    "lodash": "4.17.13",
     "mkdirp": "0.5.1",
     "mocha": "5.2.0",
     "morgan": "1.9.1",
