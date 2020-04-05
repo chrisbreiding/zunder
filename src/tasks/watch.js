@@ -27,7 +27,7 @@ module.exports = (taker) => {
     applyDevEnv,
     taker.parallel(
       cleanDev,
-      cleanTests
+      cleanTests,
     ),
     taker.parallel(
       watchScripts,
@@ -35,8 +35,8 @@ module.exports = (taker) => {
       watchStylesheets,
       watchStaticAssets,
       watchHtml,
-      watchServer
-    )
+      watchServer,
+    ),
   )
 
   return {

@@ -96,7 +96,7 @@ const buildStylesheets = ({ srcFile, compiler, output }, exitOnError, logOnFinis
       if (logOnFinish) {
         util.logActionEnd(logColor, 'Finished compiling', coloredStylesheetName)
       }
-    })
+    }),
   )
 }
 
@@ -137,7 +137,7 @@ const buildProd = () => {
       .pipe(autoprefixer(autoprefixOptions))
       .pipe(minify())
       .pipe(rename(output))
-      .pipe(vfs.dest(config.prodDir))
+      .pipe(vfs.dest(config.prodDir)),
     )
   }))
   .then(() => {

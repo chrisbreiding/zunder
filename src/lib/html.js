@@ -64,7 +64,7 @@ const buildHtml = (dest, env) => (file) => {
     .pipe(rename({
       extname: '.html',
     }))
-    .pipe(vfs.dest(dest))
+    .pipe(vfs.dest(dest)),
   )
   .then(() => {
     const message = file ?

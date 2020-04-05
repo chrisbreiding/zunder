@@ -30,7 +30,7 @@ const cacheBust = () => {
     .pipe(revDel())
     .pipe(vfs.dest(config.prodDir))
     .pipe(rev.manifest())
-    .pipe(vfs.dest(config.prodDir))
+    .pipe(vfs.dest(config.prodDir)),
   )
   .then(() => {
     util.logActionEnd(logColor, 'Finished busting files')
@@ -69,7 +69,7 @@ const createAppCache = () => {
     vfs.src(`${__dirname}/appcache.manifest.hbs`)
     .pipe(handlebars({ files }))
     .pipe(rename({ extname: '' }))
-    .pipe(vfs.dest(config.prodDir))
+    .pipe(vfs.dest(config.prodDir)),
   )
   .then(() => {
     util.logActionEnd(logColor, 'Finished creating app cache manifest')

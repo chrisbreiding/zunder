@@ -14,7 +14,7 @@ module.exports = (taker) => {
   const test = taker.series(
     emit('before:test'),
     applyTestEnv, cleanTests, buildTestScripts, runTests,
-    emit('after:test')
+    emit('after:test'),
   )
 
   return {

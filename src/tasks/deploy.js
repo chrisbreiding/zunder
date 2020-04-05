@@ -13,7 +13,7 @@ module.exports = (taker) => {
   const buildAndDeploy = taker.series(
     emit('before:deploy'),
     applyProdEnv, cleanProd, buildProd, deploy,
-    emit('after:deploy')
+    emit('after:deploy'),
   )
 
   return {

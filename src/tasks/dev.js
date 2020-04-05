@@ -27,12 +27,12 @@ module.exports = (taker) => {
     buildDevStylesheets,
     buildDevStaticAssets,
     buildDevHtml,
-    emit('after:build-dev')
+    emit('after:build-dev'),
   )
 
   const runDevServer = taker.series(
     emit('before:serve-prod'),
-    () => server().run(config.devDir)
+    () => server().run(config.devDir),
   )
 
   return {

@@ -123,7 +123,7 @@ const bundleDev = ({ bundler, externalLibs, outputName, isExternal, exitOnError 
     .pipe(gulpif(useSourceMaps, buffer()))
     .pipe(gulpif(useSourceMaps, sourcemaps.init({ loadMaps: true })))
     .pipe(gulpif(useSourceMaps, sourcemaps.write('./')))
-    .pipe(vfs.dest(config.devDir))
+    .pipe(vfs.dest(config.devDir)),
   )
 }
 
@@ -246,7 +246,7 @@ const bundleProd = ({ bundler, externalLibs, outputName, isExternal }) => {
     .pipe(minify())
     .on('error', handleFatalError)
     .pipe(gulpif(useSourceMaps, sourcemaps.write('./')))
-    .pipe(vfs.dest(config.prodDir))
+    .pipe(vfs.dest(config.prodDir)),
   )
 }
 

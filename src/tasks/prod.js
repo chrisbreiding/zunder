@@ -36,18 +36,18 @@ module.exports = (taker) => {
     cacheBust,
     replaceCacheNames,
     removeCacheManifest,
-    createAppCache
+    createAppCache,
   )
 
   const runProdServer = taker.series(
     emit('before:serve-prod'),
-    () => server().run(config.prodDir)
+    () => server().run(config.prodDir),
   )
 
   const cleanAndBuildProd = taker.series(
     emit('before:build-prod'),
     applyProdEnv, cleanProd, buildProd,
-    emit('after:build-prod')
+    emit('after:build-prod'),
   )
 
   return {

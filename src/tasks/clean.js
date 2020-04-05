@@ -29,7 +29,7 @@ module.exports = (taker) => {
     clean: taker.parallel(
       emit('before:clean'),
       cleanDev, cleanProd, cleanTests,
-      emit('after:clean')
+      emit('after:clean'),
     ),
   }
 }
