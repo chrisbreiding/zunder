@@ -6,6 +6,6 @@
     "Promise": true
   },
   "extends": [
-    "plugin:cypress-dev/general"
+    "plugin:crb/general"
   ]
 }

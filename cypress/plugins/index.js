@@ -14,9 +14,11 @@ module.exports = (on) => {
     'zunder' ({ task, project, args = '', force = false }) {
       if (!force && tasksRun[`${task}${project}${args}`]) return null
 
-      const cwd = getProjectDir(project)
-
-      return execa.shell(`node ${zunderPath} ${task} ${args}`, { cwd, stdio: 'inherit' }).then(() => {
+      return execa(`node ${zunderPath} ${task} ${args}`, {
+        cwd: getProjectDir(project),
+        stdio: 'inherit',
+        shell: true,
+      }).then(() => {
         tasksRun[`${task}${project}`] = true
 
         return null
@@ -24,8 +26,9 @@ module.exports = (on) => {
     },
 
     'zunder:test' () {
-      return execa.shell(`node ${zunderPath} test`, {
+      return execa(`node ${zunderPath} test`, {
         cwd: getProjectDir('default'),
+        shell: true,
       })
     },
 

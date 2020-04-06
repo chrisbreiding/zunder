@@ -1,5 +1,10 @@
 {
   "extends": [
-    "plugin:cypress-dev/react"
-  ]
+    "plugin:crb/react"
+  ],
+  "settings": {
+    "react": {
+      "version": "16.5.0"
+    }
+  }
 }
