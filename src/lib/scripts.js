@@ -14,7 +14,6 @@ const resolutions = require('browserify-resolutions')
 const source = require('vinyl-source-stream')
 const sourcemaps = require('gulp-sourcemaps')
 const streamToPromise = require('stream-to-promise')
-const minify = require('gulp-babel-minify')
 const vfs = require('vinyl-fs')
 const watchify = require('watchify')
 
@@ -243,11 +242,22 @@ const bundleProd = ({ bundler, externalLibs, outputName, isExternal }) => {
     .pipe(source(outputName))
     .pipe(buffer())
     .pipe(gulpif(useSourceMaps, sourcemaps.init({ loadMaps: true })))
-    .pipe(minify())
     .on('error', handleFatalError)
     .pipe(gulpif(useSourceMaps, sourcemaps.write('./')))
     .pipe(vfs.dest(config.prodDir)),
   )
+}
+
+const withBabelMinify = (browserifyOptions) => {
+  const babelTransform = _.find(browserifyOptions.transform, ([name]) => {
+    return name.includes('babelify')
+  })
+
+  if (babelTransform) {
+    babelTransform[1].presets.push(require.resolve('babel-preset-minify'))
+  }
+
+  return browserifyOptions
 }
 
 const buildProd = () => {
@@ -260,7 +270,8 @@ const buildProd = () => {
 
   return Promise.all(_.map(srcFiles, ([srcFile, outputName]) => {
     const entries = [srcFile]
-    const bundler = browserify(_.extend({ entries }, config.browserifyOptions))
+    const browserifyOptions = withBabelMinify(config.browserifyOptions)
+    const bundler = browserify(_.extend({ entries }, browserifyOptions))
 
     const env = fs.readJsonSync(path.join(process.cwd(), '.env'), { throws: false })
 

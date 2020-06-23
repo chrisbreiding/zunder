@@ -29,6 +29,10 @@ const presetReact = {
   module: require.resolve('@babel/preset-react'),
   options: {},
 }
+const presetMinify = {
+  module: require.resolve('babel-preset-minify'),
+  options: {},
+}
 
 const babel = {
   pluginAddModuleExports,
@@ -38,6 +42,7 @@ const babel = {
   pluginTransformRuntime,
   presetEnv,
   presetReact,
+  presetMinify,
 
   plugins: [
     [pluginAddModuleExports.module, pluginAddModuleExports.options],
