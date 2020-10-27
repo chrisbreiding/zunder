@@ -254,7 +254,11 @@ const withBabelMinify = (browserifyOptions) => {
   })
 
   if (babelTransform) {
-    babelTransform[1].presets.push(require.resolve('babel-preset-minify'))
+    babelTransform[1].presets.push([require.resolve('babel-preset-minify'), {
+      builtIns: false,
+      evaluate: false,
+      mangle: false,
+    }])
   }
 
   return browserifyOptions
