@@ -31,7 +31,11 @@ const presetReact = {
 }
 const presetMinify = {
   module: require.resolve('babel-preset-minify'),
-  options: {},
+  options: {
+    builtIns: false,
+    evaluate: false,
+    mangle: false,
+  },
 }
 
 const babel = {
