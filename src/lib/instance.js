@@ -17,7 +17,7 @@ class Zunder extends EventEmitter {
       babel: scriptsConfig.babel,
       browserify: scriptsConfig.browserify,
       watchify: scriptsConfig.watchify,
-      sass: stylesheetsConfig.defaultSassOptions,
+      getSass: stylesheetsConfig.getDefaultSassOptions,
     }
     _.extend(this, api)
   }
@@ -29,7 +29,9 @@ class Zunder extends EventEmitter {
     }
 
     if (props.sassOptions) {
-      config.sassOptions = stylesheetsConfig.mergeSassOptions(props.sassOptions)
+      config.getSassOptions = () => {
+        return stylesheetsConfig.mergeSassOptions(props.sassOptions)
+      }
     }
 
     _.extend(config, _.omit(props, 'sassOptions'))

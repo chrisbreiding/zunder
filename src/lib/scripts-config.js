@@ -23,7 +23,7 @@ const pluginTransformRuntime = {
 }
 const presetEnv = {
   module: require.resolve('@babel/preset-env'),
-  options: {},
+  options: { targets: { firefox: 100 } },
 }
 const presetReact = {
   module: require.resolve('@babel/preset-react'),

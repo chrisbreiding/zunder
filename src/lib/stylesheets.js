@@ -7,7 +7,6 @@ const gulpif = require('gulp-if')
 const minify = require('gulp-clean-css')
 const plumber = require('gulp-plumber')
 const rename = require('gulp-rename')
-const sass = require('gulp-sass')
 const stylus = require('gulp-stylus')
 const gulpWatch = require('gulp-watch')
 const _ = require('lodash')
@@ -26,8 +25,14 @@ const handleFatalError = errors.createFatalErrorHandler('Stylesheets')
 
 const logColor = 'blue'
 
-// This is so we can use our desired version of node-sass
-sass.compiler = require('node-sass')
+const getSass = () => {
+  const sass = require('gulp-sass')
+
+  // This is so we can use our desired version of node-sass
+  sass.compiler = require('node-sass')
+
+  return sass
+}
 
 function noop () {}
 
@@ -37,8 +42,8 @@ const files = {
     prod: () => stylus({ 'include css': true }),
   },
   'scss': {
-    dev: () => sass(stylesheetsConfig.getSassConfigForEnv(config, 'dev')),
-    prod: () => sass(stylesheetsConfig.getSassConfigForEnv(config, 'prod')),
+    dev: () => getSass()(stylesheetsConfig.getSassConfigForEnv(config, 'dev')),
+    prod: () => getSass()(stylesheetsConfig.getSassConfigForEnv(config, 'prod')),
   },
 }
 

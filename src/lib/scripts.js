@@ -32,6 +32,20 @@ const extensionsGlobPart = 'js|jsx|coffee|cjsx|ts|tsx'
 const scriptsGlob = `src/**/*.+(${extensionsGlobPart})`
 const noSpecsGlob = `!src/**/*.spec.+(${extensionsGlobPart})`
 
+const readEnvFile = (name) => {
+  return fs.readJsonSync(path.join(process.cwd(), name), { throws: false })
+}
+
+const addEnvify = (bundler) => {
+  const env = readEnvFile('.env') || readEnvFile('.env.json')
+
+  console.log('add env:', env)
+
+  if (env) {
+    bundler.transform(envifyCustom(_.extend(env, { _: 'purge' })))
+  }
+}
+
 const getSrcFiles = () => {
   let allFound = true
 
@@ -112,6 +126,8 @@ const bundleDev = ({ bundler, externalLibs, outputName, isExternal, exitOnError 
   const errorHandler = exitOnError ? handleFatalError : handleTaskError
   const useSourceMaps = !!config.browserifyOptions.debug
 
+  addEnvify(bundler)
+
   return streamToPromise(
     bundler
     .plugin(resolutions, config.resolutions)[isExternal ? 'require' : 'external'](externalLibs)
@@ -129,6 +145,8 @@ const bundleDev = ({ bundler, externalLibs, outputName, isExternal, exitOnError 
 const watch = () => {
   util.logSubTask('Watching scripts')
 
+  console.log('--- 1 ---')
+
   const srcFiles = getSrcFiles()
 
   addBrowserifyConfig(config.addBrowserifyConfigTo)
@@ -139,6 +157,8 @@ const watch = () => {
       cache: {},
       packageCache: {},
     }, config.browserifyOptions))
+
+    addEnvify(bundler)
 
     bundler
     .plugin(watchify, config.watchifyOptions)
@@ -163,12 +183,6 @@ const watch = () => {
       .on('finish', () => {
         util.logActionEnd(logColor, `Finished bundling ${coloredScriptName}`)
       })
-    }
-
-    const env = fs.readJsonSync(path.join(process.cwd(), '.env'), { throws: false })
-
-    if (env) {
-      bundler.transform(envifyCustom(_.extend(env, { _: 'purge' })))
     }
 
     bundler.on('update', rebundle)
@@ -201,12 +215,6 @@ const buildDev = () => {
     const externalLibs = _.map(_.flatMap(config.externalBundles, 'libs'), 'file')
     const bundler = browserify(_.extend({ entries }, config.browserifyOptions))
 
-    const env = fs.readJsonSync(path.join(process.cwd(), '.env'), { throws: false })
-
-    if (env) {
-      bundler.transform(envifyCustom(_.extend(env, { _: 'purge' })))
-    }
-
     const mainBundle = bundleDev({
       bundler,
       externalLibs,
@@ -233,6 +241,8 @@ const buildDev = () => {
 
 const bundleProd = ({ bundler, externalLibs, outputName, isExternal }) => {
   const useSourceMaps = !!config.browserifyOptions.debug
+
+  addEnvify(bundler)
 
   return streamToPromise(
     bundler
@@ -276,12 +286,6 @@ const buildProd = () => {
     const entries = [srcFile]
     const browserifyOptions = withBabelMinify(config.browserifyOptions)
     const bundler = browserify(_.extend({ entries }, browserifyOptions))
-
-    const env = fs.readJsonSync(path.join(process.cwd(), '.env'), { throws: false })
-
-    if (env) {
-      bundler.transform(envifyCustom(_.extend(env, { _: 'purge' })))
-    }
 
     const mainBundle = bundleProd({
       bundler,

@@ -16,9 +16,9 @@ const config = {
   deployBranch: 'gh-pages',
   devDir: 'dist',
   externalBundles: [],
+  getSassOptions: stylesheetsConfig.getDefaultSassOptions,
   prodDir: 'dist-prod',
   resolutions: [],
-  sassOptions: stylesheetsConfig.defaultSassOptions,
   scripts: {
     'src/main.+(js|jsx)': 'app.js',
   },
